@@ -59,5 +59,6 @@
   ],
   "java.diagnostic.filter": [
     "**/build/generated/sources/annotationProcessor/**/*"
-  ]
+  ],
+  "java.dependency.enableDependencyCheckup": false
 }

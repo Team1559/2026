@@ -61,7 +61,7 @@ public class Robot extends LoggedRobot {
     }
 
     public void setTeleopBindings() {
-        drivetrain.setDefaultCommand(new TeleopDriveCommand(()->pilotController.getLeftY()*-1, ()->pilotController.getLeftX()*-1, ()->pilotController.getRightX(), SwerveDrive2026.swerveConstraints, drivetrain));
+        drivetrain.setDefaultCommand(new TeleopDriveCommand(()->pilotController.getLeftY()*-1, ()->pilotController.getLeftX()*-1, ()->pilotController.getRightX(), SwerveDrive2026.SWERVE_CONSTRAINTS, drivetrain, ()->true));
     }
 
     public void setTestBindings() {
@@ -76,8 +76,6 @@ public class Robot extends LoggedRobot {
     @Override
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
-        System.out.println("Controller get left x: " + pilotController.getLeftX());
-        System.out.println("Controller get left y: " + pilotController.getLeftY());
     }
 
     @Override
@@ -87,7 +85,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void autonomousInit() {
-        autoChooser.getSelected().schedule();
+        CommandScheduler.getInstance().schedule(autoChooser.getSelected());
     }
 
     @Override
