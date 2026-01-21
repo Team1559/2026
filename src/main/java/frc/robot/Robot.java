@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.subsystems.DriverAssist;
 import frc.lib.subsystems.swerve.TeleopDriveCommand;
 import frc.robot.subsystems.SwerveDrive2026;
+import frc.robot.subsystems.Vision2026;
 
 public class Robot extends LoggedRobot {
 
@@ -30,7 +31,7 @@ public class Robot extends LoggedRobot {
     private final CommandXboxController coPilotController;
     private final DriverAssist driverAssist;
     private final SwerveDrive2026 drivetrain;
-
+    private final Vision2026 vision;
     @SuppressWarnings("resource") //pdh must stay open for connection
     public Robot() {
         Logger.addDataReceiver(new WPILOGWriter());
@@ -41,7 +42,8 @@ public class Robot extends LoggedRobot {
         coPilotController = new CommandXboxController(1);
         driverAssist = new DriverAssist("DriverAssist");
         drivetrain = new SwerveDrive2026();
-
+        vision= new Vision2026 (drivetrain);
+        
         registerNamedCommands();
         autoChooser = AutoBuilder.buildAutoChooser("a");
         SmartDashboard.putData(autoChooser);
