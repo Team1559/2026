@@ -1,12 +1,12 @@
 package frc.lib.subsystems;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public abstract class LoggableSubsystem extends SubsystemBase {
-    private final Set<LoggableIo<?>> ios = new HashSet<>();
+    private final Set<LoggableIo<?>> ios = new LinkedHashSet<>();
 
     protected LoggableSubsystem(String name) {
         super(name);

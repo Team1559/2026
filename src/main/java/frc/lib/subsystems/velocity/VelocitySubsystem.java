@@ -1,4 +1,4 @@
-package frc.lib.subsystems.fixed_velocity;
+package frc.lib.subsystems.velocity;
 
 import frc.lib.subsystems.LoggableSubsystem;
 
@@ -10,7 +10,9 @@ public class VelocitySubsystem extends LoggableSubsystem {
     public VelocitySubsystem(String name, VelocityIo... ios) {
         super(name);
         this.ios = ios;
-
+        for (VelocityIo i : ios) {
+            addIo(i);
+        }
     }
 
     public void run(double velocityRpm) {

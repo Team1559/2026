@@ -1,9 +1,13 @@
 package frc.lib.subsystems;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 public abstract class LoggableIo<T extends LoggableInputs> {
+    private final Set<LoggableIo<?>> ios = new LinkedHashSet<>();
     private String logPath;// /path/to/logged/io
     private final T inputs;
     private final String name;
@@ -13,18 +17,30 @@ public abstract class LoggableIo<T extends LoggableInputs> {
         this.inputs = inputs;
     }
 
+    protected void addIo(LoggableIo<?> io, String logSuffix) {
+        io.init(logSuffix.length() == 0 ? logPath : logPath + "/" + logSuffix);
+        ios.add(io);
+    }
+
+    protected void addIo(LoggableIo<?> io) {
+        addIo(io, "");
+    }
+
     public final T getInputs() {
         return inputs;
     }
 
     public void periodic() {
+        for (LoggableIo<?> io : ios) {
+            io.periodic();
+        }
         log();
     }
 
-    private void log(){
+    private void log() {
         if (!Logger.hasReplaySource()) {
-            updateInputs(inputs);    
-        }    
+            updateInputs(inputs);
+        }
         Logger.processInputs(logPath + "/Inputs", inputs);
     }
 

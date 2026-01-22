@@ -1,10 +1,11 @@
-package frc.lib.subsystems.fixed_velocity;
+package frc.lib.subsystems.velocity;
 
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 import frc.lib.subsystems.LoggableIo;
+import frc.lib.subsystems.fixed_velocity.VelocityInputsAutoLogged;
 
 public class VelocityIo extends LoggableIo<VelocityIo.VelocityInputs> {
     @AutoLog
