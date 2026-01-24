@@ -19,8 +19,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.lib.subsystems.DriverAssist;
-import frc.lib.subsystems.swerve.TeleopDriveCommand;
+import frc.lib.DriverAssist;
+import frc.lib.swerve.TeleopDriveCommand;
 import frc.robot.subsystems.SwerveDrive2026;
 
 public class Robot extends LoggedRobot {
@@ -31,7 +31,7 @@ public class Robot extends LoggedRobot {
     private final DriverAssist driverAssist;
     private final SwerveDrive2026 drivetrain;
 
-    @SuppressWarnings("resource") //pdh must stay open for connection
+    @SuppressWarnings("resource") // pdh must stay open for connection
     public Robot() {
         Logger.addDataReceiver(new WPILOGWriter());
         Logger.addDataReceiver(new NT4Publisher());
@@ -57,20 +57,22 @@ public class Robot extends LoggedRobot {
     }
 
     public void registerNamedCommands() {
-        
+
     }
 
     public void setTeleopBindings() {
-        drivetrain.setDefaultCommand(new TeleopDriveCommand(()->pilotController.getLeftY()*-1, ()->pilotController.getLeftX()*-1, ()->pilotController.getRightX(), SwerveDrive2026.SWERVE_CONSTRAINTS, drivetrain, ()->true));
+        drivetrain.setDefaultCommand(
+                new TeleopDriveCommand(() -> pilotController.getLeftY() * -1, () -> pilotController.getLeftX() * -1,
+                        () -> pilotController.getRightX(), SwerveDrive2026.SWERVE_CONSTRAINTS, drivetrain, () -> true));
     }
 
     public void setTestBindings() {
-        
+
     }
 
     @Override
     public void robotInit() {
-        
+
     }
 
     @Override

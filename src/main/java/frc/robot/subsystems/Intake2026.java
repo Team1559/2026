@@ -5,9 +5,9 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-import frc.lib.subsystems.velocity.SparkFlexVelocityIo;
-import frc.lib.subsystems.velocity.VelocityRatio;
-import frc.lib.subsystems.velocity.VelocitySubsystem;
+import frc.lib.velocity.SparkFlexVelocityIo;
+import frc.lib.velocity.VelocityRatio;
+import frc.lib.velocity.VelocitySubsystem;
 
 public class Intake2026 extends VelocitySubsystem {
     private static final int MOTOR_ID = 0; // TODO: Set intake motor ID chubb

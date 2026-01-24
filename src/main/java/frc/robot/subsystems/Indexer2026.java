@@ -3,11 +3,12 @@ package frc.robot.subsystems;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.revrobotics.spark.config.SparkFlexConfig;
 
-import frc.lib.subsystems.velocity.SparkFlexVelocityIo;
-import frc.lib.subsystems.velocity.VelocityRatio;
-import frc.lib.subsystems.velocity.VelocitySubsystem;
+import frc.lib.velocity.SparkFlexVelocityIo;
+import frc.lib.velocity.VelocityRatio;
+import frc.lib.velocity.VelocitySubsystem;
+
+import com.revrobotics.spark.config.SparkFlexConfig;
 
 public class Indexer2026 extends VelocitySubsystem {
     private static final int MOTOR_ID = 0; // TODO: Set indexer motor ID chubb
