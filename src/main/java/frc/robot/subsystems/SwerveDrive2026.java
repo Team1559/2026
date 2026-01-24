@@ -55,7 +55,7 @@ public class SwerveDrive2026 extends SwerveDrive {
                 TalonFX steerMotor = new TalonFX(steerMotorId, CANIVORE_BUS);
                 TalonFX driveMotor = new TalonFX(driveMotorId, CANIVORE_BUS);
 
-                Slot0Configs steerMotorPid = new Slot0Configs().withKP(80); //TODO: was 80
+                Slot0Configs steerMotorPid = new Slot0Configs().withKP(80); 
                 Slot0Configs driveMotorPid = new Slot0Configs().withKV(12 / (6380.0 / 60)); // TODO: add the kd
 
                 return new SdsSwerveModuleIo(name, locationOffset, ModuleType.MK4i_L3, steerMotor, steerMotorPid,

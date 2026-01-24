@@ -7,13 +7,14 @@ import org.littletonrobotics.junction.inputs.LoggableInputs;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.Timer;
 import frc.lib.subsystems.LoggableIo;
 
 public class SwerveModuleIo extends LoggableIo<SwerveModuleIo.SwerveInputs> {
     @AutoLog
     public static abstract class SwerveInputs implements LoggableInputs {
         public double speed;
-        public Rotation2d angle;
+        public Rotation2d angle = Rotation2d.kZero;
         public double distance;
         public double steerMotorTemp;
         public double driveMotorTemp;
@@ -43,6 +44,7 @@ public class SwerveModuleIo extends LoggableIo<SwerveModuleIo.SwerveInputs> {
      */
     public void setAngle(Rotation2d angle) {
         Logger.recordOutput(getOutputLogPath("Angle"), angle);
+        Logger.recordOutput(getOutputLogPath("Timestamp"), Timer.getTimestamp());
     }
 /**
  * @return The location of the wheel relative to the origin of the robot in meters

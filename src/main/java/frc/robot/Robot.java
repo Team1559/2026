@@ -4,9 +4,11 @@
 
 package frc.robot;
 
+import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -34,10 +36,19 @@ public class Robot extends LoggedRobot {
     private final DriverAssist driverAssist;
     private final SwerveDrive2026 drivetrain;
     private final Vision2026 vision;
+    private static final boolean IS_REPLAY = false;
     @SuppressWarnings("resource") //pdh must stay open for connection
     public Robot() {
-        Logger.addDataReceiver(new WPILOGWriter());
-        Logger.addDataReceiver(new NT4Publisher());
+        if (IS_REPLAY) {
+            setUseTiming(false);
+            String logPath = LogFileUtil.findReplayLog();
+            Logger.setReplaySource(new WPILOGReader(logPath));
+            Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_replay")));
+        } else {
+            Logger.addDataReceiver(new WPILOGWriter());
+            Logger.addDataReceiver(new NT4Publisher());
+        }
+        
         Logger.start();
         Logger.recordOutput("hi/test", ":)"); // Leave as easter egg
         pilotController = new CommandXboxController(0);

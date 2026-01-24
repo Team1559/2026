@@ -9,9 +9,9 @@ import frc.lib.subsystems.LoggableIo;
 public class GyroIo extends LoggableIo<GyroIo.GyroInputs> {
     @AutoLog
     public static abstract class GyroInputs implements LoggableInputs {
-        public Rotation2d yaw;
-        public Rotation2d pitch;
-        public Rotation2d roll;
+        public Rotation2d yaw = Rotation2d.kZero;
+        public Rotation2d pitch = Rotation2d.kZero;
+        public Rotation2d roll = Rotation2d.kZero;
     }
 
     public GyroIo(String name) {

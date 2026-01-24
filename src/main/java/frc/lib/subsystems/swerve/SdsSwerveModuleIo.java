@@ -124,7 +124,6 @@ public class SdsSwerveModuleIo extends SwerveModuleIo {
     public void setAngle(Rotation2d angle) {
         super.setAngle(angle);
         PositionVoltage control = new PositionVoltage(angle.plus(cancoderOffset).getRotations());
-        //Use this math instead of WPIs built - in .plus() method, because the .plus() method clamps the output from -pi to pi radians.
         steerMotor.setControl(control);
     }
 
@@ -134,7 +133,6 @@ public class SdsSwerveModuleIo extends SwerveModuleIo {
 
     private Rotation2d getAngle() {
         return Rotation2d.fromRotations(canCoderAbsolutePosition.getValueAsDouble()).minus(cancoderOffset);
-        //Use this math instead of WPIs built - in .plus() method, because the .plus() method clamps the output from -pi to pi radians.
     }
 
     private double getDistanceTraveled() {
