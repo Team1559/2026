@@ -6,29 +6,35 @@ import java.util.Set;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public abstract class LoggableSubsystem extends SubsystemBase {
-    private final Set<LoggableIo<?>> ios = new LinkedHashSet<>();
+    private final Set<LoggableComponent> children = new LinkedHashSet<>();
 
     protected LoggableSubsystem(String name) {
         super(name);
     }
 
-    protected void addIo(LoggableIo<?> io, String logSuffix) {
-        io.init(getLogPath(logSuffix));
-        ios.add(io);
+    protected void addChildren(String folder, LoggableComponent ... children) {
+        for(LoggableComponent child : children) {
+            if(folder.isEmpty()) {
+                child.setLogPath(getName());
+            } else {
+                child.setLogPath(getName() + "/" + folder);
+            }
+            this.children.add(child);
+        }
     }
 
-    protected void addIo(LoggableIo<?> io){
-        addIo(io, "");
+    protected void addChildren(LoggableComponent ... children) {
+        addChildren("", children);
     }
 
-    protected String getLogPath(String suffix) {
-        return suffix.length() == 0? getName() : getName() + "/" + suffix;
+    protected String getOutputLogPath(String suffix) {
+        return getName() + "/Outputs/" + suffix;
     }
 
     @Override
     public void periodic(){
-        for (LoggableIo<?> io : ios){
-            io.periodic();
+        for (LoggableComponent child : children){
+            child.periodic();
         }
     }
 }

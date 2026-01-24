@@ -7,31 +7,27 @@ import frc.lib.subsystems.LoggableSubsystem;
 import frc.lib.subsystems.vision.VisionCameraIo.VisionInputs;
 
 public class Vision extends LoggableSubsystem {
-    private final VisionCameraIo[] cameras;
+    private final VisionComponent[] cameras;
     private final VisionConsumer visionConsumer;
 
-    public Vision(String name, VisionConsumer visionConsumer, VisionCameraIo... cameras) {
+    public Vision(String name, VisionConsumer visionConsumer, VisionComponent ... cameras) {
         super(name);
         this.visionConsumer = visionConsumer;
         this.cameras = cameras;
-
-        for (VisionCameraIo visionCameraIo : cameras) {
-            addIo(visionCameraIo, "Cameras");
-        }
+        addChildren("Cameras", cameras);
     }
 
     @Override
     public void periodic() {
         super.periodic();
         boolean robotHasPose = false;
-        for (VisionCameraIo cam : cameras) {
-            VisionInputs inputs = cam.getInputs();
-            if (inputs.hasPose) {
-                visionConsumer.addVisionMeasurement(inputs.pose, inputs.timestamp,
-                        VecBuilder.fill(inputs.stdevX, inputs.stdevY, inputs.stdevRotation.getRadians()));
+        for (VisionComponent cam : cameras) {
+            if (cam.hasPose()) {
+                visionConsumer.addVisionMeasurement(cam.getPose(), cam.getTimestamp(),
+                        VecBuilder.fill(cam.getStdevX(), cam.getStdevY(), cam.getStdevRotation().getRadians()));
                 robotHasPose = true;
             }
         }
-        Logger.recordOutput(getLogPath("HasVisionRead"), robotHasPose);
+        Logger.recordOutput(getOutputLogPath("HasVisionRead"), robotHasPose);
     }
 }

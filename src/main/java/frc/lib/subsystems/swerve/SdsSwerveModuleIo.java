@@ -114,6 +114,7 @@ public class SdsSwerveModuleIo extends SwerveModuleIo {
 
     @Override
     public void setSpeed(double speed) {
+        super.setSpeed(speed);
         VelocityVoltage control = new VelocityVoltage(
                 speed * (1 / (2 * WHEEL_RADIUS * Math.PI)) * driveGearRatio.driveRatio);
         driveMotor.setControl(control);
@@ -121,48 +122,21 @@ public class SdsSwerveModuleIo extends SwerveModuleIo {
 
     @Override
     public void setAngle(Rotation2d angle) {
+        super.setAngle(angle);
         PositionVoltage control = new PositionVoltage(angle.plus(cancoderOffset).getRotations());
         steerMotor.setControl(control);
-    }
-
-    private double getSpeed() {
-        return driveMotorVelocity.getValueAsDouble() / driveGearRatio.driveRatio * (2 * WHEEL_RADIUS * Math.PI);
-    }
-
-    private Rotation2d getAngle() {
-        return Rotation2d.fromRotations(canCoderAbsolutePosition.getValueAsDouble()).minus(cancoderOffset);
-    }
-
-    private double getDistanceTraveled() {
-        return driveMotorPosition.getValueAsDouble() / driveGearRatio.driveRatio * (2 * WHEEL_RADIUS * Math.PI);
-    }
-
-    private double getSteerMotorTemperature() {
-        return steerMotorTemperature.getValueAsDouble();
-    }
-
-    private double getDriveMotorTemperature() {
-        return driveMotorTemperature.getValueAsDouble();
-    }
-
-    private double getSteerMotorCurrent() {
-        return steerMotorCurrent.getValueAsDouble();
-    }
-
-    private double getDriveMotorCurrent() {
-        return driveMotorCurrent.getValueAsDouble();
     }
 
     @Override
     protected void updateInputs(SwerveInputs inputs) {
         StatusSignal.refreshAll(driveMotorVelocity, canCoderAbsolutePosition, driveMotorPosition, steerMotorTemperature,
                 driveMotorTemperature, steerMotorCurrent, driveMotorCurrent);
-        inputs.speed = getSpeed();
-        inputs.angle = getAngle();
-        inputs.distance = getDistanceTraveled();
-        inputs.steerMotorCurrent = getSteerMotorCurrent();
-        inputs.driveMotorCurrent = getDriveMotorCurrent();
-        inputs.steerMotorTemp = getSteerMotorTemperature();
-        inputs.driveMotorTemp = getDriveMotorTemperature();
+        inputs.speed = driveMotorVelocity.getValueAsDouble() / driveGearRatio.driveRatio * (2 * WHEEL_RADIUS * Math.PI);
+        inputs.angle = Rotation2d.fromRotations(canCoderAbsolutePosition.getValueAsDouble()).minus(cancoderOffset);
+        inputs.distance = driveMotorPosition.getValueAsDouble() / driveGearRatio.driveRatio * (2 * WHEEL_RADIUS * Math.PI);
+        inputs.steerMotorCurrent = steerMotorCurrent.getValueAsDouble();
+        inputs.driveMotorCurrent = driveMotorCurrent.getValueAsDouble();
+        inputs.steerMotorTemp = steerMotorTemperature.getValueAsDouble();
+        inputs.driveMotorTemp = driveMotorTemperature.getValueAsDouble();
     }
 }

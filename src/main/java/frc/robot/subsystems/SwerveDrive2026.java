@@ -17,6 +17,7 @@ import frc.lib.components.gyro.Pigeon2Io;
 import frc.lib.subsystems.swerve.SdsSwerveModuleIo;
 import frc.lib.subsystems.swerve.SdsSwerveModuleIo.ModuleType;
 import frc.lib.subsystems.swerve.SwerveDrive;
+import frc.lib.subsystems.swerve.SwerveModule;
 import frc.lib.subsystems.swerve.SwerveModuleIo;
 
 public class SwerveDrive2026 extends SwerveDrive {
@@ -35,7 +36,7 @@ public class SwerveDrive2026 extends SwerveDrive {
         public SwerveDrive2026() {
                 super("SwerveDrive", createGyro(), createModules());
 
-                SwerveModuleIo[] modules = getModules();
+                SwerveModule[] modules = getModules();
                 Translation2d[] locations = new Translation2d[modules.length];
                 for (int i = 0; i < locations.length; i++) {
                         locations[i] = modules[i].getLocation();

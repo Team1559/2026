@@ -4,44 +4,43 @@ import frc.lib.subsystems.LoggableSubsystem;
 import frc.lib.subsystems.elevator.ElevatorIo.ElevatorInputs;
 
 public class Elevator extends LoggableSubsystem {
-    private final ElevatorIo io;
+    private final ElevatorComponent child;
     private double targetPosition;
 
-    public Elevator(String name, ElevatorIo io) {
+    public Elevator(String name, ElevatorComponent child) {
         super(name);
-        this.io = io;
+        this.child = child;
         targetPosition = 0.0;
-        addIo(io);
+        addChildren(child);
     }
 
     public void setTargetPosition(double pos) {
         targetPosition = pos;
-        io.setTargetPosition(pos);
+        child.setTargetPosition(pos);
     }
 
     public void changeTargetPosition(double diff) {
-        setTargetPosition(io.getInputs().currentPosition + diff);
+        setTargetPosition(child.getCurrentPosition() + diff);
     }
 
     public boolean isAtTargetPosition(double tolerance) {
-        ElevatorInputs inputs = io.getInputs();
-        return Math.abs(inputs.currentPosition - targetPosition) < tolerance;
+        return Math.abs(child.getCurrentPosition() - targetPosition) < tolerance;
     }
-    
+
     public void stop() {
-        io.stop();
+        child.stop();
     }
 
     public void goHome() {
-        io.goHome();
+        child.goHome();
         targetPosition = 0;
     }
 
     public boolean isHome() {
-        return io.getInputs().isHome;
+        return child.isHome();
     }
 
-    public double getHeight(){
-        return io.getInputs().currentPosition;
+    public double getHeight() {
+        return child.getCurrentPosition();
     }
 }

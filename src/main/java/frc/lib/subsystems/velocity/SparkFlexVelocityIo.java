@@ -12,6 +12,7 @@ public class SparkFlexVelocityIo extends VelocityIo {
     private final SparkFlex motor;
     private final SparkClosedLoopController motorController;
     private final RelativeEncoder encoder;
+
     public SparkFlexVelocityIo(String name, SparkFlex motor, SparkFlexConfig motorConfig) {
         super(name);
         this.motor = motor;
@@ -22,9 +23,9 @@ public class SparkFlexVelocityIo extends VelocityIo {
 
     @Override
     protected void updateInputs(VelocityInputs inputs) {
-         inputs.currentVelocity = encoder.getVelocity();
-         inputs.motorCurrent = motor.getOutputCurrent();
-         inputs.motorTemp = motor.getMotorTemperature();
+        inputs.currentVelocity = encoder.getVelocity();
+        inputs.motorCurrent = motor.getOutputCurrent();
+        inputs.motorTemp = motor.getMotorTemperature();
     }
 
     @Override

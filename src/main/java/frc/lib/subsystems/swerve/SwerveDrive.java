@@ -24,11 +24,10 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.components.gyro.GyroIo;
 import frc.lib.subsystems.LoggableSubsystem;
-import frc.lib.subsystems.swerve.SwerveModuleIo.SwerveInputs;
 import frc.lib.subsystems.vision.VisionConsumer;
 
 public class SwerveDrive extends LoggableSubsystem implements VisionConsumer {
-    private final SwerveModuleIo[] modules;
+    private final SwerveModule[] modules;
     private final SwerveDriveKinematics kinematics;
     private final SwerveDrivePoseEstimator estimator;
     private final GyroIo gyro;
@@ -42,19 +41,22 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer {
 
     private final double ROBOT_PERIOD = 0.02;
 
-    public SwerveDrive(String name, GyroIo gyro, SwerveModuleIo... modules) {
+    public SwerveDrive(String name, GyroIo gyro, SwerveModule ... modules) {
         super(name);
         this.gyro = gyro;
         this.modules = modules;
+
+        addChildren("Modules", modules);
+        addChildren("Gyro", gyro);
+
         Translation2d[] locations = new Translation2d[modules.length];
         SwerveModulePosition[] positions = new SwerveModulePosition[modules.length];
+        
         for (int i = 0; i < locations.length; i++) {
             locations[i] = modules[i].getLocation();
-            SwerveInputs inputs = modules[i].getInputs();
-            positions[i] = new SwerveModulePosition(inputs.distance, inputs.angle);
-            addIo(modules[i], "Modules");
+            positions[i] = new SwerveModulePosition(modules[i].getDistance(), modules[i].getAngle());
         }
-        addIo(gyro, "Gyro");
+        
         this.kinematics = new SwerveDriveKinematics(locations);
         this.estimator = new SwerveDrivePoseEstimator(kinematics, gyro.getInputs().yaw, positions,
                 DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
@@ -87,15 +89,14 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer {
         return estimator.getEstimatedPosition();
     }
 
-    protected SwerveModuleIo[] getModules() {
+    protected SwerveModule[] getModules() {
         return modules.clone();
     }
 
     public ChassisSpeeds getCurrentSpeed() {
         SwerveModuleState[] states = new SwerveModuleState[modules.length];
         for (int i = 0; i < states.length; i++) {
-            SwerveInputs inputs = modules[i].getInputs();
-            states[i] = new SwerveModuleState(inputs.speed, inputs.angle);
+            states[i] = new SwerveModuleState(modules[i].getSpeed(), modules[i].getAngle());
         }
         return kinematics.toChassisSpeeds(states);
     }
@@ -103,8 +104,7 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer {
     private SwerveModulePosition[] getModulePositions() {
         SwerveModulePosition[] positions = new SwerveModulePosition[modules.length];
         for (int i = 0; i < positions.length; i++) {
-            SwerveInputs inputs = modules[i].getInputs();
-            positions[i] = new SwerveModulePosition(inputs.distance, inputs.angle);
+            positions[i] = new SwerveModulePosition(modules[i].getDistance(), modules[i].getAngle());
         }
         return positions;
     }
@@ -160,14 +160,14 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer {
         }
         targetRotationalVelocity = currentRotationalVelocity.plus(targetRotationalAcceleration.times(ROBOT_PERIOD));
 
-        Logger.recordOutput(getLogPath("TargetLinearVelocity"), targetLinearVelocity);
-        Logger.recordOutput(getLogPath("TargetRotationalVelocity"), targetRotationalVelocity);
+        Logger.recordOutput(getOutputLogPath("TargetLinearVelocity"), targetLinearVelocity);
+        Logger.recordOutput(getOutputLogPath("TargetRotationalVelocity"), targetRotationalVelocity);
 
         ChassisSpeeds accelLimitedSpeeds = new ChassisSpeeds(targetLinearVelocity.getX(), targetLinearVelocity.getY(),
                 targetRotationalVelocity.getRadians());
         SwerveModuleState[] states = kinematics.toSwerveModuleStates(accelLimitedSpeeds);
         for (int i = 0; i < modules.length; i++) {
-            states[i].optimize(modules[i].getInputs().angle);
+            states[i].optimize(modules[i].getAngle());
             modules[i].setState(states[i]);
         }
     }
@@ -179,9 +179,9 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer {
     }
 
     private void log() {
-        Logger.recordOutput(getLogPath("EstimatedPosition"), getPosition());
-        Logger.recordOutput(getLogPath("Heading"), gyro.getInputs().yaw);
-        Logger.recordOutput(getLogPath("TargetVelocity"), getCurrentSpeed());
+        Logger.recordOutput(getOutputLogPath("EstimatedPosition"), getPosition());
+        Logger.recordOutput(getOutputLogPath("Heading"), gyro.getInputs().yaw);
+        Logger.recordOutput(getOutputLogPath("TargetVelocity"), getCurrentSpeed());
 
         field.setRobotPose(getPosition());
         
