@@ -5,7 +5,6 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 import frc.lib.LoggableIo;
-import frc.lib.subsystems.velocity.VelocityInputsAutoLogged;
 
 public class VelocityIo extends LoggableIo<VelocityIo.VelocityInputs> implements VelocityComponent {
     @AutoLog

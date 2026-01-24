@@ -5,7 +5,6 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 import frc.lib.LoggableIo;
-import frc.lib.subsystems.elevator.ElevatorInputsAutoLogged;
 
 public class ElevatorIo extends LoggableIo<ElevatorIo.ElevatorInputs> implements ElevatorComponent {
     @AutoLog
