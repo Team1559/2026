@@ -1,4 +1,4 @@
-package frc.lib.components.gyro;
+package frc.lib.swerve;
 
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.Pigeon2;
@@ -8,9 +8,9 @@ import edu.wpi.first.units.measure.Angle;
 
 public class Pigeon2Io extends GyroIo {
 
-    @SuppressWarnings("unused") //Needed to prevent garbage collection
+    @SuppressWarnings("unused") // Needed to prevent garbage collection
     private final Pigeon2 gyro;
-    
+
     private final StatusSignal<Angle> roll;
     private final StatusSignal<Angle> pitch;
     private final StatusSignal<Angle> yaw;

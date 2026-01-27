@@ -1,4 +1,4 @@
-package frc.lib.subsystems.vision;
+package frc.lib.vision;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;

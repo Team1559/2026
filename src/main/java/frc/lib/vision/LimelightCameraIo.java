@@ -1,4 +1,4 @@
-package frc.lib.subsystems.vision;
+package frc.lib.vision;
 
 import java.util.function.Supplier;
 

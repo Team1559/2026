@@ -1,4 +1,4 @@
-package frc.lib.subsystems.swerve;
+package frc.lib.swerve;
 
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.Logger;
@@ -6,10 +6,9 @@ import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
-import frc.lib.subsystems.LoggableIo;
+import frc.lib.LoggableIo;
 
-public class SwerveModuleIo extends LoggableIo<SwerveModuleIo.SwerveInputs> {
+public class SwerveModuleIo extends LoggableIo<SwerveModuleIo.SwerveInputs> implements SwerveModule {
     @AutoLog
     public static abstract class SwerveInputs implements LoggableInputs {
         public double speed;
@@ -20,7 +19,7 @@ public class SwerveModuleIo extends LoggableIo<SwerveModuleIo.SwerveInputs> {
         public double steerMotorCurrent;
         public double driveMotorCurrent;
     }
-    
+
     private final Translation2d location;
 
     public SwerveModuleIo(String name, Translation2d location) {
@@ -28,31 +27,53 @@ public class SwerveModuleIo extends LoggableIo<SwerveModuleIo.SwerveInputs> {
         this.location = location;
     }
 
-    /**
-     * Sets the speed of the wheel.
-     * 
-     * @param speed the desired wheel speed in meters per second
-     */
+    @Override
     public void setSpeed(double speed) {
         Logger.recordOutput(getOutputLogPath("Speed"), speed);
     }
 
-    /**
-     * Sets the target direction for the wheel 
-     * @param angle the desired angle of the wheel 
-     */
+    @Override
     public void setAngle(Rotation2d angle) {
         Logger.recordOutput(getOutputLogPath("Angle"), angle);
     }
-/**
- * @return The location of the wheel relative to the origin of the robot in meters
- */
+
+    @Override
     public Translation2d getLocation() {
         return location;
     }
 
-    public void setState(SwerveModuleState state) {
-        setAngle(state.angle);
-        setSpeed(state.speedMetersPerSecond);
+    @Override
+    public double getSpeed() {
+        return getInputs().speed;
+    }
+
+    @Override
+    public Rotation2d getAngle() {
+        return getInputs().angle;
+    }
+
+    @Override
+    public double getDistance() {
+        return getInputs().distance;
+    }
+
+    @Override
+    public double getSteerMotorTemp() {
+        return getInputs().steerMotorTemp;
+    }
+
+    @Override
+    public double getDriveMotorTemp() {
+        return getInputs().driveMotorTemp;
+    }
+
+    @Override
+    public double getSteerMotorCurrent() {
+        return getInputs().steerMotorCurrent;
+    }
+
+    @Override
+    public double getDriveMotorCurrent() {
+        return getInputs().driveMotorCurrent;
     }
 }

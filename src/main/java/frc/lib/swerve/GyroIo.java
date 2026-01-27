@@ -1,10 +1,10 @@
-package frc.lib.components.gyro;
+package frc.lib.swerve;
 
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import frc.lib.subsystems.LoggableIo;
+import frc.lib.LoggableIo;
 
 public class GyroIo extends LoggableIo<GyroIo.GyroInputs> {
     @AutoLog
