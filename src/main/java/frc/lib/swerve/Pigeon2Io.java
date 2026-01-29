@@ -30,6 +30,7 @@ public class Pigeon2Io extends GyroIo {
 
     @Override
     protected void updateInputs(GyroInputs inputs) {
+        StatusSignal.refreshAll(roll, pitch, yaw);
         inputs.pitch = Rotation2d.fromDegrees(pitch.getValueAsDouble());
         inputs.roll = Rotation2d.fromDegrees(roll.getValueAsDouble());
         inputs.yaw = Rotation2d.fromDegrees(yaw.getValueAsDouble());

@@ -130,6 +130,8 @@ public class SdsSwerveModuleIo extends SwerveModuleIo {
 
     @Override
     protected void updateInputs(SwerveInputs inputs) {
+          StatusSignal.refreshAll(driveMotorVelocity, canCoderAbsolutePosition, driveMotorPosition, steerMotorTemperature,
+                driveMotorTemperature, steerMotorCurrent, driveMotorCurrent);
         inputs.speed = driveMotorVelocity.getValueAsDouble() / driveGearRatio.driveRatio * (2 * WHEEL_RADIUS * Math.PI);
         inputs.angle = Rotation2d.fromRotations(canCoderAbsolutePosition.getValueAsDouble()).minus(cancoderOffset);
         inputs.distance = driveMotorPosition.getValueAsDouble() / driveGearRatio.driveRatio
