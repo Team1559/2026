@@ -148,11 +148,8 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer {
         Rotation2d currentRotationalVelocity = Rotation2d.fromRadians(currentChassisSpeeds.omegaRadiansPerSecond);
 
         Rotation2d targetRotationalVelocity = Rotation2d.fromRadians(targetSpeed.omegaRadiansPerSecond);
-        Rotation2d targetRotationalAcceleration = targetRotationalVelocity.minus(currentRotationalVelocity) // TODO:
-                                                                                                            // debug
-                                                                                                            // when
-                                                                                                            // chasis is
-                                                                                                            // done
+        Rotation2d targetRotationalAcceleration = (Rotation2d.fromRadians(targetRotationalVelocity.getRadians() - currentRotationalVelocity.getRadians())) //TODO: debug when chasis is done
+        //Use this math instead of WPIs built - in .plus() method, because the .plus() method clamps the output from -pi to pi radians.
                 .div(ROBOT_PERIOD);
         if (targetRotationalAcceleration.getRadians() > maxRotationalAcceleration.getRadians()) {
             if (targetRotationalAcceleration.getRadians() > 0) {
@@ -161,13 +158,23 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer {
                 targetRotationalAcceleration = maxRotationalAcceleration.times(-1);
             }
         }
-        targetRotationalVelocity = currentRotationalVelocity.plus(targetRotationalAcceleration.times(ROBOT_PERIOD));
+        targetRotationalVelocity = Rotation2d.fromRadians(currentRotationalVelocity.getRadians() + (targetRotationalAcceleration.getRadians() * ROBOT_PERIOD));
+        //Use this math instead of WPIs built - in .plus() method, because the .plus() method clamps the output from -pi to pi radians.
 
         Logger.recordOutput(getOutputLogPath("TargetLinearVelocity"), targetLinearVelocity);
         Logger.recordOutput(getOutputLogPath("TargetRotationalVelocity"), targetRotationalVelocity);
 
         ChassisSpeeds accelLimitedSpeeds = new ChassisSpeeds(targetLinearVelocity.getX(), targetLinearVelocity.getY(),
                 targetRotationalVelocity.getRadians());
+        if (accelLimitedSpeeds.vxMetersPerSecond == -0) {
+            accelLimitedSpeeds.vxMetersPerSecond = 0;
+        }
+        if (accelLimitedSpeeds.vyMetersPerSecond == -0) {
+            accelLimitedSpeeds.vyMetersPerSecond = 0;
+        }
+        if (accelLimitedSpeeds.omegaRadiansPerSecond == -0) {
+            accelLimitedSpeeds.omegaRadiansPerSecond = 0;
+        }
         SwerveModuleState[] states = kinematics.toSwerveModuleStates(accelLimitedSpeeds);
         for (int i = 0; i < modules.length; i++) {
             states[i].optimize(modules[i].getAngle());
