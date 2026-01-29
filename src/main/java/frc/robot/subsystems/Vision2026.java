@@ -2,12 +2,11 @@ package frc.robot.subsystems;
 
 import java.util.function.Supplier;
 
-
 import edu.wpi.first.math.geometry.Rotation2d;
-import frc.lib.subsystems.swerve.SwerveDrive;
-import frc.lib.subsystems.vision.LimelightCameraIo;
-import frc.lib.subsystems.vision.Vision;
-import frc.lib.subsystems.vision.VisionCameraIo;
+import frc.lib.swerve.SwerveDrive;
+import frc.lib.vision.LimelightCameraIo;
+import frc.lib.vision.Vision;
+import frc.lib.vision.VisionCameraIo;
 
 public class Vision2026 extends Vision {
     
