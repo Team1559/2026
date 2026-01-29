@@ -22,9 +22,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.lib.DriverAssist;
 import frc.lib.commands.StopCommand;
-import frc.lib.subsystems.DriverAssist;
-import frc.lib.subsystems.swerve.TeleopDriveCommand;
+import frc.lib.swerve.TeleopDriveCommand;
 import frc.robot.subsystems.SwerveDrive2026;
 import frc.robot.subsystems.Vision2026;
 
@@ -84,7 +84,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void robotInit() {
-        
+
     }
 
     @Override

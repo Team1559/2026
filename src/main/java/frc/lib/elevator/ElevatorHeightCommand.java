@@ -1,7 +1,6 @@
-package frc.lib.commands;
+package frc.lib.elevator;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.lib.subsystems.elevator.Elevator;
 
 public class ElevatorHeightCommand extends Command {
 

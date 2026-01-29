@@ -1,9 +1,9 @@
-package frc.lib.subsystems;
+package frc.lib;
 
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
-public abstract class LoggableIo<T extends LoggableInputs> {
+public abstract class LoggableIo<T extends LoggableInputs> implements LoggableComponent {
     private String logPath;// /path/to/logged/io
     private final T inputs;
     private final String name;
@@ -17,24 +17,26 @@ public abstract class LoggableIo<T extends LoggableInputs> {
         return inputs;
     }
 
+    @Override
     public void periodic() {
-        log();
+        logInputs();
     }
 
-    private void log(){
+    private void logInputs() {
         if (!Logger.hasReplaySource()) {
-            updateInputs(inputs);    
-        }    
+            updateInputs(inputs);
+        }
         Logger.processInputs(logPath + "/Inputs", inputs);
     }
 
-    void init(String logPath) {
+    @Override
+    public final void setLogPath(String logPath) {
         if (this.logPath != null) {
             throw new IllegalStateException("Cannot init the io twice");
         }
 
         this.logPath = logPath + "/" + name;
-        log();
+        logInputs();
     }
 
     protected final String getOutputLogPath(String suffix) {

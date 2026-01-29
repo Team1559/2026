@@ -1,4 +1,4 @@
-package frc.lib.subsystems.swerve;
+package frc.lib.swerve;
 
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
@@ -50,7 +50,7 @@ public class SdsSwerveModuleIo extends SwerveModuleIo {
     private final TalonFX steerMotor;
     private final TalonFX driveMotor;
 
-    @SuppressWarnings("unused") //Needed to prevent garbage collection
+    @SuppressWarnings("unused") // Needed to prevent garbage collection
     private final CANcoder cancoder;
 
     private final Rotation2d cancoderOffset;
@@ -127,44 +127,17 @@ public class SdsSwerveModuleIo extends SwerveModuleIo {
         steerMotor.setControl(control);
     }
 
-    private double getSpeed() {
-        return driveMotorVelocity.getValueAsDouble() / driveGearRatio.driveRatio * (2 * WHEEL_RADIUS * Math.PI);
-    }
-
-    private Rotation2d getAngle() {
-        return Rotation2d.fromRotations(canCoderAbsolutePosition.getValueAsDouble()).minus(cancoderOffset);
-    }
-
-    private double getDistanceTraveled() {
-        return driveMotorPosition.getValueAsDouble() / driveGearRatio.driveRatio * (2 * WHEEL_RADIUS * Math.PI);
-    }
-
-    private double getSteerMotorTemperature() {
-        return steerMotorTemperature.getValueAsDouble();
-    }
-
-    private double getDriveMotorTemperature() {
-        return driveMotorTemperature.getValueAsDouble();
-    }
-
-    private double getSteerMotorCurrent() {
-        return steerMotorCurrent.getValueAsDouble();
-    }
-
-    private double getDriveMotorCurrent() {
-        return driveMotorCurrent.getValueAsDouble();
-    }
-
     @Override
     protected void updateInputs(SwerveInputs inputs) {
         StatusSignal.refreshAll(driveMotorVelocity, canCoderAbsolutePosition, driveMotorPosition, steerMotorTemperature,
                 driveMotorTemperature, steerMotorCurrent, driveMotorCurrent);
-        inputs.speed = getSpeed();
-        inputs.angle = getAngle();
-        inputs.distance = getDistanceTraveled();
-        inputs.steerMotorCurrent = getSteerMotorCurrent();
-        inputs.driveMotorCurrent = getDriveMotorCurrent();
-        inputs.steerMotorTemp = getSteerMotorTemperature();
-        inputs.driveMotorTemp = getDriveMotorTemperature();
+        inputs.speed = driveMotorVelocity.getValueAsDouble() / driveGearRatio.driveRatio * (2 * WHEEL_RADIUS * Math.PI);
+        inputs.angle = Rotation2d.fromRotations(canCoderAbsolutePosition.getValueAsDouble()).minus(cancoderOffset);
+        inputs.distance = driveMotorPosition.getValueAsDouble() / driveGearRatio.driveRatio
+                * (2 * WHEEL_RADIUS * Math.PI);
+        inputs.steerMotorCurrent = steerMotorCurrent.getValueAsDouble();
+        inputs.driveMotorCurrent = driveMotorCurrent.getValueAsDouble();
+        inputs.steerMotorTemp = steerMotorTemperature.getValueAsDouble();
+        inputs.driveMotorTemp = driveMotorTemperature.getValueAsDouble();
     }
 }

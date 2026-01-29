@@ -1,4 +1,4 @@
-package frc.lib.subsystems;
+package frc.lib.leds;
 
 import java.util.function.DoubleSupplier;
 

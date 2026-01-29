@@ -1,4 +1,4 @@
-package frc.lib.commands;
+package frc.lib.swerve;
 
 import java.util.List;
 import java.util.Set;
@@ -14,9 +14,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
-import frc.lib.subsystems.DriverAssist;
-import frc.lib.subsystems.swerve.SwerveDrive;
-import frc.lib.subsystems.swerve.SwerveDrive.SwerveConstraints;
+import frc.lib.DriverAssist;
+import frc.lib.swerve.SwerveDrive.SwerveConstraints;
 
 public class AutoSwerveAlignmentCommand extends DeferredCommand {
     public AutoSwerveAlignmentCommand(SwerveDrive drivetrain, SwerveConstraints swerveConstraints,
@@ -31,18 +30,18 @@ public class AutoSwerveAlignmentCommand extends DeferredCommand {
         Translation2d currentTranslation = drivetrain.getPosition().getTranslation();
         Rotation2d targetAngle = endPoint.getTranslation().minus(currentTranslation).getAngle();
         Pose2d startCondition = new Pose2d(currentTranslation, targetAngle);
-        
+
         Pose2d endCondition = new Pose2d(endPoint.getTranslation(), endVelocityDirection);
-            
+
         List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(startCondition, endCondition);
 
         PathConstraints constraints = new PathConstraints(swerveConstraints.getMaxLinearVelocity(),
                 swerveConstraints.getMaxLinerAccel(), swerveConstraints.getMaxAngularVelocity(),
                 swerveConstraints.getMaxAngularAccel());
-            
+
         PathPlannerPath path = new PathPlannerPath(waypoints, constraints, null,
                 new GoalEndState(0, endPoint.getRotation()));
-        
+
         path.preventFlipping = true;
 
         Command command = AutoBuilder.followPath(path);

@@ -1,4 +1,4 @@
-package frc.lib.subsystems.swerve;
+package frc.lib.swerve;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
@@ -8,22 +8,21 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.lib.subsystems.swerve.SwerveDrive.SwerveConstraints;
+import frc.lib.swerve.SwerveDrive.SwerveConstraints;
 
 public class TeleopDriveCommand extends Command {
     private static final double DEADBAND = .10;
-    
+
     private final DoubleSupplier ySupplier;
     private final DoubleSupplier xSupplier;
     private final DoubleSupplier rSupplier;
 
     private final double maxLinearVelocity;
     private final double maxRotationalVelocity;
-    
-    private final SwerveDrive swerveDrive;
-    
-    private final BooleanSupplier driveRobotOriented;
 
+    private final SwerveDrive swerveDrive;
+
+    private final BooleanSupplier driveRobotOriented;
 
     public TeleopDriveCommand(DoubleSupplier xSupplier, DoubleSupplier ySupplier, DoubleSupplier rSupplier,
             SwerveConstraints swerveConstraints, SwerveDrive swerveDrive) {
@@ -31,7 +30,7 @@ public class TeleopDriveCommand extends Command {
     }
 
     public TeleopDriveCommand(DoubleSupplier xSupplier, DoubleSupplier ySupplier, DoubleSupplier rSupplier,
-    SwerveConstraints swerveConstraints, SwerveDrive swerveDrive, BooleanSupplier driveRobotOriented){
+            SwerveConstraints swerveConstraints, SwerveDrive swerveDrive, BooleanSupplier driveRobotOriented) {
         this.xSupplier = xSupplier;
         this.ySupplier = ySupplier;
         this.rSupplier = rSupplier;
@@ -72,9 +71,9 @@ public class TeleopDriveCommand extends Command {
 
         ChassisSpeeds chassisSpeeds = new ChassisSpeeds(x, y, rotation);
 
-        if(driveRobotOriented.getAsBoolean()){
+        if (driveRobotOriented.getAsBoolean()) {
             swerveDrive.driveRobotOriented(chassisSpeeds);
-        } else if(DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
+        } else if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
             swerveDrive.driveFieldOriented(new ChassisSpeeds(-x, -y, rotation));
         } else {
             swerveDrive.driveFieldOriented(chassisSpeeds);

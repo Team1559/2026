@@ -1,4 +1,4 @@
-package frc.lib.subsystems.swerve;
+package frc.lib.swerve;
 
 import java.util.ArrayList;
 import java.util.Collections;
