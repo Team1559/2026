@@ -5,6 +5,7 @@ import com.ctre.phoenix6.hardware.Pigeon2;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
+import frc.lib.CanRefreshRate;
 
 public class Pigeon2Io extends GyroIo {
 
@@ -22,14 +23,13 @@ public class Pigeon2Io extends GyroIo {
         pitch = gyro.getPitch();
         roll = gyro.getRoll();
 
-        yaw.setUpdateFrequency(100);
-        pitch.setUpdateFrequency(100);
-        roll.setUpdateFrequency(100);
+        yaw.setUpdateFrequency(CanRefreshRate.FAST.rateHz);
+        pitch.setUpdateFrequency(CanRefreshRate.SLOW.rateHz);
+        roll.setUpdateFrequency(CanRefreshRate.SLOW.rateHz);
     }
 
     @Override
     protected void updateInputs(GyroInputs inputs) {
-        StatusSignal.refreshAll(roll, pitch, yaw);
         inputs.pitch = Rotation2d.fromDegrees(pitch.getValueAsDouble());
         inputs.roll = Rotation2d.fromDegrees(roll.getValueAsDouble());
         inputs.yaw = Rotation2d.fromDegrees(yaw.getValueAsDouble());

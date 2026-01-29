@@ -22,6 +22,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
+import frc.lib.CanRefreshRate;
 
 public class SdsSwerveModuleIo extends SwerveModuleIo {
 
@@ -103,13 +104,13 @@ public class SdsSwerveModuleIo extends SwerveModuleIo {
         driveMotorCurrent = driveMotor.getStatorCurrent();
         steerMotorCurrent = steerMotor.getStatorCurrent();
 
-        driveMotorVelocity.setUpdateFrequency(50);
-        canCoderAbsolutePosition.setUpdateFrequency(100);
-        driveMotorPosition.setUpdateFrequency(100);
-        driveMotorTemperature.setUpdateFrequency(5);
-        steerMotorTemperature.setUpdateFrequency(5);
-        driveMotorCurrent.setUpdateFrequency(10);
-        steerMotorCurrent.setUpdateFrequency(10);
+        driveMotorVelocity.setUpdateFrequency(CanRefreshRate.DEFAULT.rateHz);
+        canCoderAbsolutePosition.setUpdateFrequency(CanRefreshRate.FAST.rateHz);
+        driveMotorPosition.setUpdateFrequency(CanRefreshRate.FAST.rateHz);
+        driveMotorTemperature.setUpdateFrequency(CanRefreshRate.SLOW.rateHz);
+        steerMotorTemperature.setUpdateFrequency(CanRefreshRate.SLOW.rateHz);
+        driveMotorCurrent.setUpdateFrequency(CanRefreshRate.DEFAULT.rateHz);
+        steerMotorCurrent.setUpdateFrequency(CanRefreshRate.DEFAULT.rateHz);
     }
 
     @Override
@@ -129,8 +130,6 @@ public class SdsSwerveModuleIo extends SwerveModuleIo {
 
     @Override
     protected void updateInputs(SwerveInputs inputs) {
-        StatusSignal.refreshAll(driveMotorVelocity, canCoderAbsolutePosition, driveMotorPosition, steerMotorTemperature,
-                driveMotorTemperature, steerMotorCurrent, driveMotorCurrent);
         inputs.speed = driveMotorVelocity.getValueAsDouble() / driveGearRatio.driveRatio * (2 * WHEEL_RADIUS * Math.PI);
         inputs.angle = Rotation2d.fromRotations(canCoderAbsolutePosition.getValueAsDouble()).minus(cancoderOffset);
         inputs.distance = driveMotorPosition.getValueAsDouble() / driveGearRatio.driveRatio
