@@ -4,12 +4,15 @@
 
 package frc.robot;
 
+import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -19,9 +22,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.lib.subsystems.DriverAssist;
-import frc.lib.subsystems.swerve.TeleopDriveCommand;
+import frc.lib.DriverAssist;
+import frc.lib.commands.StopCommand;
+import frc.lib.swerve.TeleopDriveCommand;
 import frc.robot.subsystems.SwerveDrive2026;
+import frc.robot.subsystems.Vision2026;
 
 public class Robot extends LoggedRobot {
 
@@ -30,18 +35,28 @@ public class Robot extends LoggedRobot {
     private final CommandXboxController coPilotController;
     private final DriverAssist driverAssist;
     private final SwerveDrive2026 drivetrain;
-
+    private final Vision2026 vision;
+    private static final boolean IS_REPLAY = false;
     @SuppressWarnings("resource") //pdh must stay open for connection
     public Robot() {
-        Logger.addDataReceiver(new WPILOGWriter());
-        Logger.addDataReceiver(new NT4Publisher());
+        if (IS_REPLAY) {
+            setUseTiming(false);
+            String logPath = LogFileUtil.findReplayLog();
+            Logger.setReplaySource(new WPILOGReader(logPath));
+            Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_replay")));
+        } else {
+            Logger.addDataReceiver(new WPILOGWriter());
+            Logger.addDataReceiver(new NT4Publisher());
+        }
+        
         Logger.start();
         Logger.recordOutput("hi/test", ":)"); // Leave as easter egg
         pilotController = new CommandXboxController(0);
         coPilotController = new CommandXboxController(1);
         driverAssist = new DriverAssist("DriverAssist");
         drivetrain = new SwerveDrive2026();
-
+        vision= new Vision2026 (drivetrain);
+        
         registerNamedCommands();
         autoChooser = AutoBuilder.buildAutoChooser("a");
         SmartDashboard.putData(autoChooser);
@@ -57,20 +72,19 @@ public class Robot extends LoggedRobot {
     }
 
     public void registerNamedCommands() {
-        
+        NamedCommands.registerCommand("StopCommand", new StopCommand(drivetrain).withTimeout(1));
     }
 
     public void setTeleopBindings() {
-        drivetrain.setDefaultCommand(new TeleopDriveCommand(()->pilotController.getLeftY()*-1, ()->pilotController.getLeftX()*-1, ()->pilotController.getRightX(), SwerveDrive2026.SWERVE_CONSTRAINTS, drivetrain, ()->true));
+        drivetrain.setDefaultCommand(new TeleopDriveCommand(()->pilotController.getLeftY()*-1, ()->pilotController.getLeftX()*-1, () -> pilotController.getRightX(), SwerveDrive2026.SWERVE_CONSTRAINTS, drivetrain, ()->false)); //() -> pilotController.getRightX()
     }
 
     public void setTestBindings() {
-        
     }
 
     @Override
     public void robotInit() {
-        
+
     }
 
     @Override

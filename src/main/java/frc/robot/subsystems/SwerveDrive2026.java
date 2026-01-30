@@ -12,12 +12,13 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
-import frc.lib.components.gyro.GyroIo;
-import frc.lib.components.gyro.Pigeon2Io;
-import frc.lib.subsystems.swerve.SdsSwerveModuleIo;
-import frc.lib.subsystems.swerve.SdsSwerveModuleIo.ModuleType;
-import frc.lib.subsystems.swerve.SwerveDrive;
-import frc.lib.subsystems.swerve.SwerveModuleIo;
+import frc.lib.swerve.GyroIo;
+import frc.lib.swerve.Pigeon2Io;
+import frc.lib.swerve.SdsSwerveModuleIo;
+import frc.lib.swerve.SwerveDrive;
+import frc.lib.swerve.SwerveModule;
+import frc.lib.swerve.SwerveModuleIo;
+import frc.lib.swerve.SdsSwerveModuleIo.ModuleType;
 
 public class SwerveDrive2026 extends SwerveDrive {
         private static final CANBus CANIVORE_BUS = new CANBus("1559_Canivore");
@@ -35,7 +36,7 @@ public class SwerveDrive2026 extends SwerveDrive {
         public SwerveDrive2026() {
                 super("SwerveDrive", createGyro(), createModules());
 
-                SwerveModuleIo[] modules = getModules();
+                SwerveModule[] modules = getModules();
                 Translation2d[] locations = new Translation2d[modules.length];
                 for (int i = 0; i < locations.length; i++) {
                         locations[i] = modules[i].getLocation();
@@ -55,7 +56,7 @@ public class SwerveDrive2026 extends SwerveDrive {
                 TalonFX steerMotor = new TalonFX(steerMotorId, CANIVORE_BUS);
                 TalonFX driveMotor = new TalonFX(driveMotorId, CANIVORE_BUS);
 
-                Slot0Configs steerMotorPid = new Slot0Configs().withKP(80);
+                Slot0Configs steerMotorPid = new Slot0Configs().withKP(80); 
                 Slot0Configs driveMotorPid = new Slot0Configs().withKV(12 / (6380.0 / 60)); // TODO: add the kd
 
                 return new SdsSwerveModuleIo(name, locationOffset, ModuleType.MK4i_L3, steerMotor, steerMotorPid,
