@@ -175,11 +175,17 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer {
         if (accelLimitedSpeeds.omegaRadiansPerSecond == -0) {
             accelLimitedSpeeds.omegaRadiansPerSecond = 0;
         }
+
         SwerveModuleState[] states = kinematics.toSwerveModuleStates(accelLimitedSpeeds);
+        double minCos = 1;
+        for(int i = 0; i < modules.length; i ++) {
+            double cos = Math.cos((modules[i].getAngle().minus(states[i].angle)).getRadians());
+            minCos = Math.min(minCos, Math.abs(cos));
+        }
         for (int i = 0; i < modules.length; i++) {
             states[i].optimize(modules[i].getAngle());
+            states[i].speedMetersPerSecond *= minCos;
             modules[i].setState(states[i]);
-            //modules[i].setState(new SwerveModuleState(0, Rotation2d.kZero)); //TODO
         }
     }
 
