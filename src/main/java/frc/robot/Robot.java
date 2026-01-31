@@ -37,8 +37,10 @@ public class Robot extends LoggedRobot {
     private final SwerveDrive2026Competition drivetrain;
     private final Vision2026 vision;
     private static final boolean IS_REPLAY = false;
+    private int loopIterations = 0;
     @SuppressWarnings("resource") //pdh must stay open for connection
     public Robot() {
+        super(0.02);
         if (IS_REPLAY) {
             setUseTiming(false);
             String logPath = LogFileUtil.findReplayLog();
@@ -90,7 +92,12 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void robotPeriodic() {
-        CommandScheduler.getInstance().run();
+        if (loopIterations % 1 == 0){
+            CommandScheduler.getInstance().run();
+        } else {
+            drivetrain.periodic();
+        }
+        loopIterations ++;
     }
 
     @Override

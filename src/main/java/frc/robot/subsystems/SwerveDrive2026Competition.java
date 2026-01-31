@@ -29,15 +29,16 @@ public class SwerveDrive2026Competition extends SwerveDrive {
     private static final double MOI = MASS * RADIUS * RADIUS;
     private static final double SWERVE_MAX_LINEAR_VELOCITY = 5;
     private static final double SWERVE_MAX_LINEAR_ACCEL = 5 / 1.6667;
-    private static final double SWERVE_MAX_ANGULAR_VELOCITY = 12;
+    private static final double SWERVE_MAX_ANGULAR_VELOCITY = 12; 
     private static final double KRAKEN_MAX_FREE_VELOCITY = 6000.0;
     private static final double BATTERY_VOLTAGE = 12.0;
     private static final double SECONDS_PER_MINUTE = 60.0;
     private static final double DRIVE_MOTOR_CURRENT = 80.0;
+    private static final double COEFFICENT_OF_FRICTION = 0.5;
 
     private static final double SWERVE_MAX_ANGULAR_ACCEL = SWERVE_MAX_ANGULAR_VELOCITY / 0.5;
     public static final SwerveConstraints SWERVE_CONSTRAINTS = new SwerveConstraints(SWERVE_MAX_ANGULAR_VELOCITY,
-            SWERVE_MAX_ANGULAR_ACCEL, SWERVE_MAX_LINEAR_VELOCITY, SWERVE_MAX_LINEAR_ACCEL);
+            SWERVE_MAX_ANGULAR_ACCEL, SWERVE_MAX_LINEAR_VELOCITY, SWERVE_MAX_LINEAR_ACCEL); //TODO
     public static final SwerveConstraints SLOW_SWERVE_CONSTRAINTS = new SwerveConstraints(
             SWERVE_MAX_ANGULAR_VELOCITY / 6, SWERVE_MAX_ANGULAR_ACCEL, SWERVE_MAX_LINEAR_VELOCITY / 6,
             SWERVE_MAX_LINEAR_ACCEL);
@@ -51,7 +52,7 @@ public class SwerveDrive2026Competition extends SwerveDrive {
             locations[i] = modules[i].getLocation();
         }
         RobotConfig config = new RobotConfig(MASS, MOI,
-                new ModuleConfig(SdsSwerveModuleIo.WHEEL_RADIUS, SWERVE_MAX_LINEAR_VELOCITY, 1.0,
+                new ModuleConfig(SdsSwerveModuleIo.WHEEL_RADIUS, SWERVE_MAX_LINEAR_VELOCITY, COEFFICENT_OF_FRICTION,
                         DCMotor.getKrakenX60(1).withReduction(Math.abs(SdsSwerveModuleIo.ModuleType.MK5_R2.driveRatio)), DRIVE_MOTOR_CURRENT,
                         1),
                 locations);
@@ -88,13 +89,13 @@ public class SwerveDrive2026Competition extends SwerveDrive {
     private static SwerveModuleIo[] createModules() {
         double swerveModuleX = Units.inchesToMeters(10.875);
         double swerveModuleY = Units.inchesToMeters(10.875);
-        SwerveModuleIo frontLeft = createSwerveModule("frontLeft", 1, 3, 2, Rotation2d.fromRadians(1.862253),
+        SwerveModuleIo frontLeft = createSwerveModule("frontLeft", 1, 3, 2, Rotation2d.fromRadians(1.866855 ),
                 new Translation2d(swerveModuleX, swerveModuleY));
-        SwerveModuleIo frontRight = createSwerveModule("frontRight", 4, 6, 5, Rotation2d.fromRadians(1.814699),
+        SwerveModuleIo frontRight = createSwerveModule("frontRight", 4, 6, 5, Rotation2d.fromRadians(1.825437 ),
                 new Translation2d(swerveModuleX, -swerveModuleY));
         SwerveModuleIo rearLeft = createSwerveModule("rearLeft", 10, 12, 11, Rotation2d.fromRadians(-0.248505),
                 new Translation2d(-swerveModuleX, swerveModuleY));
-        SwerveModuleIo rearRight = createSwerveModule("rearRight", 7, 9, 8, Rotation2d.fromRadians(-0.49701),
+        SwerveModuleIo rearRight = createSwerveModule("rearRight", 7, 9, 8, Rotation2d.fromRadians(-0.509282),
                 new Translation2d(-swerveModuleX, -swerveModuleY));
         return new SwerveModuleIo[] { frontLeft, frontRight, rearLeft, rearRight };
     }

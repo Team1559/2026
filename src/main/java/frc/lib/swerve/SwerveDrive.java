@@ -68,7 +68,7 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer {
 
     public void configureAuto(RobotConfig robotConfig) {
         AutoBuilder.configure(this::getPosition, this::resetPose, this::getCurrentSpeed, this::driveRobotOriented,
-                new PPHolonomicDriveController(new PIDConstants(5), new PIDConstants(5)), robotConfig,
+                new PPHolonomicDriveController(new PIDConstants(5), new PIDConstants(10)), robotConfig,
                 () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red, this);
     }
 
@@ -125,7 +125,7 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer {
         log();
     }
 
-    private void updateOdometry() {
+    public void updateOdometry() {
         estimator.update(gyro.getInputs().yaw, getModulePositions());
     }
 
