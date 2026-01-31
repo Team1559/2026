@@ -179,6 +179,7 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer {
         for (int i = 0; i < modules.length; i++) {
             states[i].optimize(modules[i].getAngle());
             modules[i].setState(states[i]);
+            //modules[i].setState(new SwerveModuleState(0, Rotation2d.kZero)); //TODO
         }
     }
 

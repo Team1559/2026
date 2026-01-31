@@ -22,23 +22,27 @@ import frc.lib.swerve.SwerveDrive;
 import frc.lib.swerve.SwerveModule;
 import frc.lib.swerve.SwerveModuleIo;
 
-public class SwerveDrive2026 extends SwerveDrive {
+public class SwerveDrive2026Practice extends SwerveDrive {
     private static final CANBus CANIVORE_BUS = new CANBus("1559_Canivore");
-    private static final double MASS = Units.lbsToKilograms(50);
+    private static final double MASS = Units.lbsToKilograms(50); //TODO: Change the mass
     private static final double RADIUS = Units.inchesToMeters(27 / 2.0); // Give or take
     private static final double MOI = MASS * RADIUS * RADIUS;
-    private static final double SWERVE_MAX_LINEAR_VELOCITY = 5.21;
-    private static final double SWERVE_MAX_LINEAR_ACCEL = 3;
-    private static final double SWERVE_MAX_ANGULAR_VELOCITY = 18;
+    private static final double SWERVE_MAX_LINEAR_VELOCITY = 5;
+    private static final double SWERVE_MAX_LINEAR_ACCEL = 5 / 1.6667;
+    private static final double SWERVE_MAX_ANGULAR_VELOCITY = 12;
+    private static final double KRAKEN_MAX_FREE_VELOCITY = 6000.0;
+    private static final double BATTERY_VOLTAGE = 12.0;
+    private static final double SECONDS_PER_MINUTE = 60.0;
+    private static final double DRIVE_MOTOR_CURRENT = 80.0;
 
-    private static final double SWERVE_MAX_ANGULAR_ACCEL = SWERVE_MAX_ANGULAR_VELOCITY / .01;
+    private static final double SWERVE_MAX_ANGULAR_ACCEL = SWERVE_MAX_ANGULAR_VELOCITY / 0.5;
     public static final SwerveConstraints SWERVE_CONSTRAINTS = new SwerveConstraints(SWERVE_MAX_ANGULAR_VELOCITY,
             SWERVE_MAX_ANGULAR_ACCEL, SWERVE_MAX_LINEAR_VELOCITY, SWERVE_MAX_LINEAR_ACCEL);
     public static final SwerveConstraints SLOW_SWERVE_CONSTRAINTS = new SwerveConstraints(
             SWERVE_MAX_ANGULAR_VELOCITY / 6, SWERVE_MAX_ANGULAR_ACCEL, SWERVE_MAX_LINEAR_VELOCITY / 6,
             SWERVE_MAX_LINEAR_ACCEL);
 
-    public SwerveDrive2026() {
+    public SwerveDrive2026Practice() {
         super("SwerveDrive", createGyro(), createModules());
 
         SwerveModule[] modules = getModules();
@@ -47,8 +51,8 @@ public class SwerveDrive2026 extends SwerveDrive {
             locations[i] = modules[i].getLocation();
         }
         RobotConfig config = new RobotConfig(MASS, MOI,
-                new ModuleConfig(SdsSwerveModuleIo.WHEEL_RADIUS, 5, 1.0,
-                        DCMotor.getKrakenX60(1).withReduction(50d / 14 * 16 / 28 * 45 / 15), 80.0,
+                new ModuleConfig(SdsSwerveModuleIo.WHEEL_RADIUS, SWERVE_MAX_LINEAR_VELOCITY, 1.0,
+                        DCMotor.getKrakenX60(1).withReduction(Math.abs(SdsSwerveModuleIo.ModuleType.MK4i_L3.driveRatio)), DRIVE_MOTOR_CURRENT,
                         1),
                 locations);
         configureAuto(config);
@@ -69,11 +73,11 @@ public class SwerveDrive2026 extends SwerveDrive {
         TalonFX driveMotor = new TalonFX(driveMotorId, CANIVORE_BUS);
 
         Slot0Configs steerMotorPid = new Slot0Configs().withKP(80);
-        Slot0Configs driveMotorPid = new Slot0Configs().withKV(12 / (6380.0 / 60)); // TODO: add the kd
+        Slot0Configs driveMotorPid = new Slot0Configs().withKV(BATTERY_VOLTAGE / (KRAKEN_MAX_FREE_VELOCITY / SECONDS_PER_MINUTE));
 
         return new SdsSwerveModuleIo(name, locationOffset, ModuleType.MK4i_L3, steerMotor, steerMotorPid,
                 driveMotor,
-                driveMotorPid,
+                driveMotorPid, DRIVE_MOTOR_CURRENT,
                 canCoder, canCoderOffset);
     }
 
@@ -81,7 +85,7 @@ public class SwerveDrive2026 extends SwerveDrive {
         return new Pigeon2Io("Gyro", new Pigeon2(13, CANIVORE_BUS));
     }
 
-    private static SwerveModuleIo[] createModules() { // TODO: calibrate the cancoder offset
+    private static SwerveModuleIo[] createModules() {
         double swerveModuleX = Units.inchesToMeters(10.875);
         double swerveModuleY = Units.inchesToMeters(10.875);
         SwerveModuleIo frontLeft = createSwerveModule("frontLeft", 1, 3, 2, Rotation2d.fromRadians(-0.904),
