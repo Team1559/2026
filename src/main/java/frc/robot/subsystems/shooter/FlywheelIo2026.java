@@ -4,7 +4,7 @@ import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
-import frc.lib.subsystems.LoggableIo;
+import frc.lib.LoggableIo;
 
 public class FlywheelIo2026 extends LoggableIo<FlywheelIo2026.FlywheelInputs> {
     @AutoLog

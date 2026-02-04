@@ -5,7 +5,7 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import frc.lib.subsystems.LoggableIo;
+import frc.lib.LoggableIo;
 
 public class TurretIo2026 extends LoggableIo<TurretIo2026.TurretInputs> {
     @AutoLog

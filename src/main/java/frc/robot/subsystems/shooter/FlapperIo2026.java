@@ -5,7 +5,7 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import frc.lib.subsystems.LoggableIo;
+import frc.lib.LoggableIo;
 
 public class FlapperIo2026 extends LoggableIo<FlapperIo2026.FlapperInputs> {
     @AutoLog
