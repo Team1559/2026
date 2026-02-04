@@ -4,7 +4,7 @@ import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-import frc.lib.velocity.SparkFlexVelocityIo;
+import frc.lib.velocity.SparkFlexIo;
 import frc.lib.velocity.VelocityRatio;
 import frc.lib.velocity.VelocitySubsystem;
 
@@ -16,7 +16,7 @@ public class Indexer2026 extends VelocitySubsystem {
 
     public Indexer2026() {
         super("Indexer", new VelocityRatio("GearRatio", 3,
-                new SparkFlexVelocityIo("IndexerMotor", new SparkFlex(MOTOR_ID, MotorType.kBrushless), makeConfig())));
+                new SparkFlexIo("IndexerMotor", new SparkFlex(MOTOR_ID, MotorType.kBrushless), makeConfig())));
 
     }
 

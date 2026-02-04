@@ -3,11 +3,11 @@ package frc.lib.velocity;
 import frc.lib.LoggableSubsystem;
 
 public class VelocitySubsystem extends LoggableSubsystem {
-    private final VelocityComponent[] children;
+    private final AngularVelocityComponent[] children;
     private double targetVelocityRpm;
     private boolean running;
 
-    public VelocitySubsystem(String name, VelocityComponent... children) {
+    public VelocitySubsystem(String name, AngularVelocityComponent... children) {
         super(name);
         this.children = children;
         addChildren(children);
@@ -26,11 +26,11 @@ public class VelocitySubsystem extends LoggableSubsystem {
     public void periodic() {
         super.periodic();
         if (running) {
-            for (VelocityComponent i : children) {
-                i.run(targetVelocityRpm);
+            for (AngularVelocityComponent i : children) {
+                i.setTargetVelocity(targetVelocityRpm);
             }
         } else {
-            for (VelocityComponent i : children) {
+            for (AngularVelocityComponent i : children) {
                 i.stop();
             }
         }

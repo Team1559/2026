@@ -12,15 +12,10 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
-<<<<<<< HEAD
-import frc.lib.LoggableSubsystem;
-=======
-import edu.wpi.first.units.measure.Velocity;
 import frc.lib.LoggableSubsystem;
 import frc.lib.angularPosition.AngularPositionComponent;
-import frc.lib.velocity.SparkFlexVelocityIo;
-import frc.lib.velocity.VelocityComponent;
->>>>>>> 055532c (Changed shooter code to new framework)
+import frc.lib.velocity.SparkFlexIo;
+import frc.lib.velocity.AngularVelocityComponent;
 
 public class Shooter2026 extends LoggableSubsystem {
     private final Supplier<Pose2d> robotPositionSupplier;
@@ -31,15 +26,15 @@ public class Shooter2026 extends LoggableSubsystem {
     
     
     private final AngularPositionComponent turret; //APC
-    private final VelocityComponent flywheel; //Velocity Component
+    private final AngularVelocityComponent flywheel; //Velocity Component
     private final AngularPositionComponent flapper; //Angular Position Component
-    private final VelocityComponent feedWheel; //VelocityComponent
+    private final AngularVelocityComponent feedWheel; //VelocityComponent
     
     private final Pose3d turretOffset;
     //TO​DO: calibrate based on gravity at field/make constants class for venue gravitational accelerations
-    public static final double ACCELERATION_DUE_TO_GRAVITY_ON_EARTH_AT_SEA_LEVEL = 9.80665; //Units: N/kg
+    public static final double g = 9.80665; //Units: N/kg
     
-    public Shooter2026(Supplier<Pose2d> robotPositionSupplier, Pose3d turretOffset,  AngularPositionComponent turret, AngularPositionComponent flapper, VelocityComponent flywheel, VelocityComponent feedWheel) {
+    public Shooter2026(Supplier<Pose2d> robotPositionSupplier, Pose3d turretOffset,  AngularPositionComponent turret, AngularPositionComponent flapper, AngularVelocityComponent flywheel, AngularVelocityComponent feedWheel) {
         super("Shooter");
         this.robotPositionSupplier = robotPositionSupplier;
         this.turretOffset = turretOffset;
@@ -50,21 +45,36 @@ public class Shooter2026 extends LoggableSubsystem {
     }
 
     public Shooter2026(Supplier<Pose2d> robotPositionSupplier){
-        this(robotPositionSupplier, new Pose3d(0, 0, 0, Rotation3d.kZero), turret, flapper, makeFlywheel(), makeFeedwheel());//TODO: Offset
+        this(robotPositionSupplier, new Pose3d(0, 0, 0, Rotation3d.kZero), makeTurret(), makeFlapper(), makeFlywheel(), makeFeedwheel());//TODO: Offset
     }
 
-    private static SparkFlexVelocityIo makeFlywheel(){
+
+    
+    private static SparkFlexIo makeFlywheel(){
         SparkFlexConfig config = new SparkFlexConfig(); //TODO: Configure
-        config.mode
-        return new SparkFlexVelocityIo("Flywheel", new SparkFlex(0, MotorType.kBrushless), config); //TODO: ID motor
+        config.closedLoop.pid(0, 0, 0);
+        config.closedLoop.feedForward.kV(0);    //Volts per 
+        return new SparkFlexIo("Flywheel", new SparkFlex(0, MotorType.kBrushless), config); //TODO: ID motor
     }
     
-    private static SparkFlexVelocityIo makeFeedwheel(){
+    private static SparkFlexIo makeFeedwheel(){
         SparkFlexConfig config = new SparkFlexConfig(); //TODO: Configure
-        return new SparkFlexVelocityIo("Feedwheel", new SparkFlex(0, MotorType.kBrushless), config); //TODO: ID motor
+        config.closedLoop.pid(0, 0, 0);
+        config.closedLoop.feedForward.kV(0);    //Volts per 
+        return new SparkFlexIo("Feedwheel", new SparkFlex(0, MotorType.kBrushless), config); //TODO: ID motor
     }
 
+    private static SparkFlexIo makeTurret() {
+        SparkFlexConfig config = new SparkFlexConfig(); //TODO: Configure
+        config.closedLoop.pid(0, 0, 0);
+        return new SparkFlexIo("Turret", new SparkFlex(0, MotorType.kBrushless), config); //TODO: ID motor
+    }
 
+    private static SparkFlexIo makeFlapper() {
+        SparkFlexConfig config = new SparkFlexConfig(); //TODO: Configure
+        config.closedLoop.pid(0, 0, 0);
+        return new SparkFlexIo("Flapper", new SparkFlex(0, MotorType.kBrushless), config); //TODO: ID motor
+    }
 
     public void setTargetFieldSpace(Translation3d target, Translation2d barrierOffset) {
         this.targetFieldSpace = target;
@@ -92,15 +102,9 @@ public class Shooter2026 extends LoggableSubsystem {
         
         return turretToTarget;
     }
-    private void aim(Translation3d target3d) {
-        Rotation2d turretAngle = new Rotation2d(target3d.getX(), target3d.getY());
-        turret.setTarget(turretAngle);
-        
-        Translation3d targetOnPlane = target3d.rotateBy(new Rotation3d(turretAngle.unaryMinus()));
-        if(!(Math.abs(targetOnPlane.getY()) < 1E-6)){
-            System.out.println("TargetOnPlane has a Y value of " + targetOnPlane.getY() + ", should be 0");
-        }
-        Translation2d target = new Translation2d(targetOnPlane.getX(), targetOnPlane.getZ()); //Z is up, is referred to as Y in 2d
+
+    private void aimDynamic(Translation3d target3d) {
+        Translation2d target = aimTurret(target3d);
         Translation2d barrierPoint = target.minus(barrierOffset);
         
         //Quadratic from 3 points: y - y_1 = (x - x_1) / (x_3 - x_2) * ( ((y_3 - y_1) * (x - x_2)) / (x_3 - x_1) - (y_2 - y_1)(x - x_3) / (x_2 - x_1) )
@@ -116,16 +120,28 @@ public class Shooter2026 extends LoggableSubsystem {
         double vertexX = ((y3 * x2 * x2) - (y2 * x3 * x3)) / ((2 * x2 * y3) - (2 * x3 * y2));
         double vertexY = vertexX / (x3 - x2) * ( y3 * (vertexX - x2 ) / x3 - y2 * (vertexX - x3) / x2 );
 
-        double velocityY = Math.sqrt(2 * ACCELERATION_DUE_TO_GRAVITY_ON_EARTH_AT_SEA_LEVEL * vertexY);
-        double timeToApex = velocityY / ACCELERATION_DUE_TO_GRAVITY_ON_EARTH_AT_SEA_LEVEL;
+        double velocityY = Math.sqrt(2 * g * vertexY);
+        double timeToApex = velocityY / g;
 
         double velocityX = vertexX / timeToApex;
 
         Translation2d projectileVelocity = new Translation2d(velocityX, velocityY);
 
-        flapper.setTargetProjectileAngle(projectileVelocity.getAngle());
+        flapper.setTargetAngle(projectileVelocity.getAngle().getMeasure());
         if(spinFlywheel){
-            flywheel.setProjectileVelocity(projectileVelocity.getNorm());
+            double targetAngularVelocity = projectileVelocity.getNorm();    //TODO: create actual equation 
+            flywheel.setTargetVelocity(targetAngularVelocity);
+        } else {
+            flywheel.stop();
+        }
+    }
+
+    private void aimFixed(Translation3d target3d, Rotation2d angle) {
+        Translation2d target = aimTurret(target3d);
+        double projectileVelocity =  Math.sqrt(g * (Math.pow(target.getX(), 2) / (2 * Math.pow(angle.getCos(), 2) * (target.getX() * angle.getTan()) - target.getY())));
+        if(spinFlywheel){
+            double targetAngularVelocity = projectileVelocity;    //TODO: create actual equation 
+            flywheel.setTargetVelocity(targetAngularVelocity);
         } else {
             flywheel.stop();
         }
@@ -136,7 +152,18 @@ public class Shooter2026 extends LoggableSubsystem {
         super.periodic();
         Translation3d target = calculateTarget();
         if (target != null) {
-            aim(target);
+            aimDynamic(target);
         }
+    }
+
+    private Translation2d aimTurret(Translation3d target3d) {
+        Rotation2d turretAngle = new Rotation2d(target3d.getX(), target3d.getY());
+        turret.setTargetAngle(turretAngle.getMeasure());
+        
+        Translation3d targetOnPlane = target3d.rotateBy(new Rotation3d(turretAngle.unaryMinus()));
+        if(!(Math.abs(targetOnPlane.getY()) < 1E-6)){
+            System.out.println("TargetOnPlane has a Y value of " + targetOnPlane.getY() + ", should be 0");
+        }
+        return new Translation2d(targetOnPlane.getX(), targetOnPlane.getZ()); //Z is up, is referred to as Y in 2d
     }
 }

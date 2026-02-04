@@ -5,7 +5,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-import frc.lib.velocity.SparkFlexVelocityIo;
+import frc.lib.velocity.SparkFlexIo;
 import frc.lib.velocity.VelocityRatio;
 import frc.lib.velocity.VelocitySubsystem;
 
@@ -16,7 +16,7 @@ public class Intake2026 extends VelocitySubsystem {
     
     public Intake2026() {
         super("Intake", new VelocityRatio("GearRatio", 3,
-                new SparkFlexVelocityIo("IntakeMotor", new SparkFlex(MOTOR_ID, MotorType.kBrushless), makeConfig())));
+                new SparkFlexIo("IntakeMotor", new SparkFlex(MOTOR_ID, MotorType.kBrushless), makeConfig())));
     }
 
     private static SparkFlexConfig makeConfig() {

@@ -2,19 +2,19 @@ package frc.lib.velocity;
 
 import frc.lib.LoggableIntermediate;
 
-public class VelocityRatio extends LoggableIntermediate implements VelocityComponent {
+public class VelocityRatio extends LoggableIntermediate implements AngularVelocityComponent {
     private final double reductionRatio;
-    private final VelocityComponent child;
+    private final AngularVelocityComponent child;
 
-    public VelocityRatio(String name, double reductionRatio, VelocityComponent child) {
+    public VelocityRatio(String name, double reductionRatio, AngularVelocityComponent child) {
         super(name);
         this.reductionRatio = reductionRatio;
         this.child = child;
     }
 
     @Override
-    public void run(double targetVelocity) {
-        child.run(targetVelocity * reductionRatio);
+    public void setTargetVelocity(double targetVelocity) {
+        child.setTargetVelocity(targetVelocity * reductionRatio);
     }
 
     @Override

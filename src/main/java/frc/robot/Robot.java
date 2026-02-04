@@ -27,6 +27,7 @@ import frc.lib.commands.StopCommand;
 import frc.lib.swerve.TeleopDriveCommand;
 import frc.robot.subsystems.SwerveDrive2026;
 import frc.robot.subsystems.Vision2026;
+import frc.robot.subsystems.shooter.Shooter2026;
 
 public class Robot extends LoggedRobot {
 
@@ -36,6 +37,7 @@ public class Robot extends LoggedRobot {
     private final DriverAssist driverAssist;
     private final SwerveDrive2026 drivetrain;
     private final Vision2026 vision;
+    private final Shooter2026 shooter;
     private static final boolean IS_REPLAY = false;
     @SuppressWarnings("resource") //pdh must stay open for connection
     public Robot() {
@@ -55,7 +57,8 @@ public class Robot extends LoggedRobot {
         coPilotController = new CommandXboxController(1);
         driverAssist = new DriverAssist("DriverAssist");
         drivetrain = new SwerveDrive2026();
-        vision= new Vision2026 (drivetrain);
+        vision = new Vision2026 (drivetrain);
+        shooter = new Shooter2026(drivetrain::getPosition);
         
         registerNamedCommands();
         autoChooser = AutoBuilder.buildAutoChooser("a");
