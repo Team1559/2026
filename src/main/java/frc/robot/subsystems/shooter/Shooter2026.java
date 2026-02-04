@@ -2,13 +2,25 @@ package frc.robot.subsystems.shooter;
 
 import java.util.function.Supplier;
 
+import com.revrobotics.spark.SparkFlex;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkFlexConfig;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+<<<<<<< HEAD
 import frc.lib.LoggableSubsystem;
+=======
+import edu.wpi.first.units.measure.Velocity;
+import frc.lib.LoggableSubsystem;
+import frc.lib.angularPosition.AngularPositionComponent;
+import frc.lib.velocity.SparkFlexVelocityIo;
+import frc.lib.velocity.VelocityComponent;
+>>>>>>> 055532c (Changed shooter code to new framework)
 
 public class Shooter2026 extends LoggableSubsystem {
     private final Supplier<Pose2d> robotPositionSupplier;
@@ -18,23 +30,42 @@ public class Shooter2026 extends LoggableSubsystem {
     private boolean spinFlywheel;
     
     
-    private final TurretIo2026 turret;
-    private final FlywheelIo2026 flywheel;
-    private final FlapperIo2026 flapper;
+    private final AngularPositionComponent turret; //APC
+    private final VelocityComponent flywheel; //Velocity Component
+    private final AngularPositionComponent flapper; //Angular Position Component
+    private final VelocityComponent feedWheel; //VelocityComponent
     
     private final Pose3d turretOffset;
     //TO​DO: calibrate based on gravity at field/make constants class for venue gravitational accelerations
-    public static final double ACCELERATION_DUE_TO_GRAVITY_ON_EARTH_AT_SEA_LEVEL = 9.806; //Units: N/kg
+    public static final double ACCELERATION_DUE_TO_GRAVITY_ON_EARTH_AT_SEA_LEVEL = 9.80665; //Units: N/kg
     
-    public Shooter2026(Supplier<Pose2d> robotPositionSupplier, Pose3d turretOffset, TurretIo2026 turret, FlywheelIo2026 flywheel, FlapperIo2026 flapper) {
+    public Shooter2026(Supplier<Pose2d> robotPositionSupplier, Pose3d turretOffset,  AngularPositionComponent turret, AngularPositionComponent flapper, VelocityComponent flywheel, VelocityComponent feedWheel) {
         super("Shooter");
         this.robotPositionSupplier = robotPositionSupplier;
         this.turretOffset = turretOffset;
         this.turret = turret;
         this.flywheel = flywheel;
         this.flapper = flapper;
+        this.feedWheel = feedWheel;
+    }
+
+    public Shooter2026(Supplier<Pose2d> robotPositionSupplier){
+        this(robotPositionSupplier, new Pose3d(0, 0, 0, Rotation3d.kZero), turret, flapper, makeFlywheel(), makeFeedwheel());//TODO: Offset
+    }
+
+    private static SparkFlexVelocityIo makeFlywheel(){
+        SparkFlexConfig config = new SparkFlexConfig(); //TODO: Configure
+        config.mode
+        return new SparkFlexVelocityIo("Flywheel", new SparkFlex(0, MotorType.kBrushless), config); //TODO: ID motor
     }
     
+    private static SparkFlexVelocityIo makeFeedwheel(){
+        SparkFlexConfig config = new SparkFlexConfig(); //TODO: Configure
+        return new SparkFlexVelocityIo("Feedwheel", new SparkFlex(0, MotorType.kBrushless), config); //TODO: ID motor
+    }
+
+
+
     public void setTargetFieldSpace(Translation3d target, Translation2d barrierOffset) {
         this.targetFieldSpace = target;
         this.barrierOffset = barrierOffset;

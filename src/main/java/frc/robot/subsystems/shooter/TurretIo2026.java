@@ -12,9 +12,7 @@ public class TurretIo2026 extends LoggableIo<TurretIo2026.TurretInputs> {
     public static abstract class TurretInputs implements LoggableInputs {
         public boolean isHome;
         public Rotation2d currentPosition;
-        public double motorCurrent;
-        public double currentVelocity;
-        public double motorTemp;
+
 
         public Rotation2d angleError;
     }
