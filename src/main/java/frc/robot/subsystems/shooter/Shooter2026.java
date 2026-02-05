@@ -1,7 +1,11 @@
 package frc.robot.subsystems.shooter;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Rotations;
+
 import java.util.function.Supplier;
 
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkFlexConfig;
@@ -12,10 +16,16 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.units.measure.Angle;
 import frc.lib.LoggableSubsystem;
 import frc.lib.angularPosition.AngularPositionComponent;
-import frc.lib.velocity.SparkFlexIo;
+import frc.lib.angularPosition.AngularPositionRatio;
+import frc.lib.angularPosition.AngularPositionSensor;
+import frc.lib.angularPosition.CanCoderIo;
+import frc.lib.angularPosition.ChineseBaby;
+import frc.lib.angularPosition.LimitedAngularPositionIntermediate;
 import frc.lib.velocity.AngularVelocityComponent;
+import frc.lib.velocity.SparkFlexIo;
 
 public class Shooter2026 extends LoggableSubsystem {
     private final Supplier<Pose2d> robotPositionSupplier;
@@ -26,15 +36,18 @@ public class Shooter2026 extends LoggableSubsystem {
     
     
     private final AngularPositionComponent turret; //APC
+    private final AngularPositionSensor turretAngleSensor;
     private final AngularVelocityComponent flywheel; //Velocity Component
     private final AngularPositionComponent flapper; //Angular Position Component
     private final AngularVelocityComponent feedWheel; //VelocityComponent
+
+    private final Angle initialTurretOffset;
     
     private final Pose3d turretOffset;
     //TO​DO: calibrate based on gravity at field/make constants class for venue gravitational accelerations
     public static final double g = 9.80665; //Units: N/kg
     
-    public Shooter2026(Supplier<Pose2d> robotPositionSupplier, Pose3d turretOffset,  AngularPositionComponent turret, AngularPositionComponent flapper, AngularVelocityComponent flywheel, AngularVelocityComponent feedWheel) {
+    public Shooter2026(Supplier<Pose2d> robotPositionSupplier, Pose3d turretOffset,  AngularPositionComponent turret, AngularPositionComponent flapper, AngularVelocityComponent flywheel, AngularVelocityComponent feedWheel, AngularPositionSensor turretAngleSensor) {
         super("Shooter");
         this.robotPositionSupplier = robotPositionSupplier;
         this.turretOffset = turretOffset;
@@ -42,14 +55,14 @@ public class Shooter2026 extends LoggableSubsystem {
         this.flywheel = flywheel;
         this.flapper = flapper;
         this.feedWheel = feedWheel;
+        this.turretAngleSensor = turretAngleSensor;
+        initialTurretOffset = turret.getAngle().minus(turretAngleSensor.getAngle());
     }
 
     public Shooter2026(Supplier<Pose2d> robotPositionSupplier){
-        this(robotPositionSupplier, new Pose3d(0, 0, 0, Rotation3d.kZero), makeTurret(), makeFlapper(), makeFlywheel(), makeFeedwheel());//TODO: Offset
+        this(robotPositionSupplier, new Pose3d(0, 0, 0, Rotation3d.kZero), makeTurret(), makeFlapper(), makeFlywheel(), makeFeedwheel(), makeBaby());//TODO: Offset
     }
 
-
-    
     private static SparkFlexIo makeFlywheel(){
         SparkFlexConfig config = new SparkFlexConfig(); //TODO: Configure
         config.closedLoop.pid(0, 0, 0);
@@ -64,16 +77,22 @@ public class Shooter2026 extends LoggableSubsystem {
         return new SparkFlexIo("Feedwheel", new SparkFlex(0, MotorType.kBrushless), config); //TODO: ID motor
     }
 
-    private static SparkFlexIo makeTurret() {
+    private static AngularPositionComponent makeTurret() {
         SparkFlexConfig config = new SparkFlexConfig(); //TODO: Configure
         config.closedLoop.pid(0, 0, 0);
-        return new SparkFlexIo("Turret", new SparkFlex(0, MotorType.kBrushless), config); //TODO: ID motor
+        return new LimitedAngularPositionIntermediate("Turret", Degrees.of(-100), Degrees.of(100), new AngularPositionRatio("GearRatio", 30, new SparkFlexIo("TurretMotor", new SparkFlex(0, MotorType.kBrushless), config))); //TODO: ID motor
     }
 
     private static SparkFlexIo makeFlapper() {
         SparkFlexConfig config = new SparkFlexConfig(); //TODO: Configure
         config.closedLoop.pid(0, 0, 0);
         return new SparkFlexIo("Flapper", new SparkFlex(0, MotorType.kBrushless), config); //TODO: ID motor
+    }
+
+    private static AngularPositionSensor makeBaby(){
+        CanCoderIo canCoderOne = new CanCoderIo("TurretGearOne", new CANcoder(0), Rotations.of(0)); //TODO: ID motor, calibrate offsets
+        CanCoderIo canCoderTwo = new CanCoderIo("TurretGearTwo", new CANcoder(0), Rotations.of(0)); //TODO: ID motor, calibrate offsets
+        return new ChineseBaby("ChineseBaby", 21, 19, 200, -9, 10, canCoderOne, canCoderTwo);
     }
 
     public void setTargetFieldSpace(Translation3d target, Translation2d barrierOffset) {
@@ -158,7 +177,7 @@ public class Shooter2026 extends LoggableSubsystem {
 
     private Translation2d aimTurret(Translation3d target3d) {
         Rotation2d turretAngle = new Rotation2d(target3d.getX(), target3d.getY());
-        turret.setTargetAngle(turretAngle.getMeasure());
+        turret.setTargetAngle(turretAngle.getMeasure().plus(initialTurretOffset));
         
         Translation3d targetOnPlane = target3d.rotateBy(new Rotation3d(turretAngle.unaryMinus()));
         if(!(Math.abs(targetOnPlane.getY()) < 1E-6)){

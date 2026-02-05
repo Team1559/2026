@@ -1,0 +1,37 @@
+package frc.lib.angularPosition;
+import static edu.wpi.first.units.Units.Rotations;
+
+import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.inputs.LoggableInputs;
+
+import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.hardware.CANcoder;
+
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Angle;
+import frc.lib.LoggableIo;
+
+public class CanCoderIo extends LoggableIo<CanCoderIo.CanCoderIoInputs> implements AngularPositionSensor{
+
+    @AutoLog
+    public static abstract class CanCoderIoInputs implements LoggableInputs {
+        public Angle currentAngle = Rotations.of(0);
+    }
+
+    private CANcoder canCoder;
+    private final StatusSignal<Angle> angle;
+    private final Angle offset;
+
+    public CanCoderIo(String name, CANcoder canCoder, Angle offset){
+        super(name, new CanCoderIoInputsAutoLogged());
+        this.canCoder = canCoder;
+        this.offset = offset;
+        angle = canCoder.getAbsolutePosition();
+    }
+
+    @Override
+    public Angle getAngle() {
+        return angle.getValue().minus(offset);
+    }
+
+}

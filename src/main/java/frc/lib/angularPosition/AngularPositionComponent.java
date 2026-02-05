@@ -1,13 +1,9 @@
 package frc.lib.angularPosition;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
-import frc.lib.LoggableComponent;
 
-public interface AngularPositionComponent extends LoggableComponent {
-    
+public interface AngularPositionComponent extends AngularPositionSensor{
     void setTargetAngle(Angle angle);
-    
-    double getAngle();
-    
+
+    void setPercievedAngle(Angle angle);
 }

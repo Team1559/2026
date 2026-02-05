@@ -81,7 +81,12 @@ public class SparkFlexIo extends LoggableIo<SparkFlexIo.SparkFlexIoInputs> imple
     }
 
     @Override
-    public double getAngle() {
-        return getInputs().position.in(Units.Rotations);
+    public Angle getAngle() {
+        return getInputs().position;
+    }
+
+    @Override
+    public void setPercievedAngle(Angle angle) {
+        encoder.setPosition(angle.in(Units.Rotations));
     }
 }
