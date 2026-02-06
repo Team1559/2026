@@ -1,5 +1,7 @@
 package frc.lib.velocity;
 
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
 import frc.lib.LoggableSubsystem;
 
 public class VelocitySubsystem extends LoggableSubsystem {
@@ -27,7 +29,7 @@ public class VelocitySubsystem extends LoggableSubsystem {
         super.periodic();
         if (running) {
             for (AngularVelocityComponent i : children) {
-                i.setTargetVelocity(targetVelocityRpm);
+                i.setTargetVelocity(RotationsPerSecond.of(targetVelocityRpm / 60.0));
             }
         } else {
             for (AngularVelocityComponent i : children) {

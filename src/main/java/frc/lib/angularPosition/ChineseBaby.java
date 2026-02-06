@@ -31,6 +31,8 @@ public class ChineseBaby extends LoggableIntermediate implements AngularPosition
 
         this.coefficentOne = coefficentOne;
         this.coefficentTwo = coefficentTwo;
+
+        this.addChildren(childOne, childTwo);
     }
 
     @Override

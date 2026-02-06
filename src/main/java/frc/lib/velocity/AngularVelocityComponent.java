@@ -1,9 +1,11 @@
 package frc.lib.velocity;
 
+import edu.wpi.first.units.AngularVelocityUnit;
+import edu.wpi.first.units.measure.AngularVelocity;
 import frc.lib.LoggableComponent;
 
 public interface AngularVelocityComponent extends LoggableComponent {
-    void setTargetVelocity(double TargetVelocity);
+    void setTargetVelocity(AngularVelocity TargetVelocity);
 
     void stop();
 
@@ -11,5 +13,5 @@ public interface AngularVelocityComponent extends LoggableComponent {
 
     double getMotorTemperature();
 
-    double getCurrentVelocity();
+    AngularVelocity getCurrentVelocity();
 }

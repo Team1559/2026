@@ -1,5 +1,8 @@
 package frc.lib.velocity;
 
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
@@ -13,8 +16,10 @@ import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.config.SparkFlexConfig;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.AngularVelocityUnit;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import frc.lib.LoggableIo;
 import frc.lib.angularPosition.AngularPositionComponent;
 
@@ -23,7 +28,7 @@ public class SparkFlexIo extends LoggableIo<SparkFlexIo.SparkFlexIoInputs> imple
     public static abstract class SparkFlexIoInputs implements LoggableInputs {
         public double motorCurrent;
         public double motorTemp;
-        public double currentVelocity;
+        public AngularVelocity currentVelocity;
         public Angle position = Angle.ofRelativeUnits(0, Units.Rotations);
     }
 
@@ -41,16 +46,18 @@ public class SparkFlexIo extends LoggableIo<SparkFlexIo.SparkFlexIoInputs> imple
 
     @Override
     protected void updateInputs(SparkFlexIoInputs inputs) {
-        inputs.currentVelocity = encoder.getVelocity();
+        inputs.currentVelocity = RotationsPerSecond.of(encoder.getVelocity() / 60.0);
+        Logger.recordOutput(getOutputLogPath("EncoderVelocity"), encoder.getVelocity());
         inputs.motorCurrent = motor.getOutputCurrent();
         inputs.motorTemp = motor.getMotorTemperature();
+        inputs.position = Rotations.of(encoder.getPosition());
     }
 
     @Override
-    public void setTargetVelocity(double targetVelocity) {
+    public void setTargetVelocity(AngularVelocity targetVelocity) {
         Logger.recordOutput(getOutputLogPath("TargetVelocity"), targetVelocity);
         Logger.recordOutput(getOutputLogPath("Running"), true);
-        motorController.setSetpoint(targetVelocity, ControlType.kVelocity);
+        motorController.setSetpoint(targetVelocity.in(Units.RotationsPerSecond) * 60.0, ControlType.kVelocity);
     }
 
     @Override
@@ -70,7 +77,7 @@ public class SparkFlexIo extends LoggableIo<SparkFlexIo.SparkFlexIoInputs> imple
     }
 
     @Override
-    public double getCurrentVelocity() {
+    public AngularVelocity getCurrentVelocity() {
         return getInputs().currentVelocity;
     }
 

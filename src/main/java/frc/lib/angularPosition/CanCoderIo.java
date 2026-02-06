@@ -31,7 +31,12 @@ public class CanCoderIo extends LoggableIo<CanCoderIo.CanCoderIoInputs> implemen
 
     @Override
     public Angle getAngle() {
-        return angle.getValue().minus(offset);
+        return getInputs().currentAngle;
     }
 
+    @Override
+    protected void updateInputs(CanCoderIoInputs inputs) {
+        angle.refresh();
+        inputs.currentAngle = angle.getValue().minus(offset);
+    }
 }

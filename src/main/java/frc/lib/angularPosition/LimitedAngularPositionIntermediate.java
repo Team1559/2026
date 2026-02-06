@@ -18,6 +18,7 @@ public class LimitedAngularPositionIntermediate extends LoggableIntermediate imp
         this.maxAngle = maxAngle;
         this.minAngle = minAngle;
         this.child = child;
+        this.addChildren(child);
     }
 
     @Override

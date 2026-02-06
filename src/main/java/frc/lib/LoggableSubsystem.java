@@ -14,6 +14,9 @@ public abstract class LoggableSubsystem extends SubsystemBase {
 
     protected void addChildren(String folder, LoggableComponent... children) {
         for (LoggableComponent child : children) {
+            if(child == null) {
+                continue;
+            }
             if (folder.isEmpty()) {
                 child.setLogPath(getName());
             } else {

@@ -11,6 +11,7 @@ public class AngularPositionRatio extends LoggableIntermediate implements Angula
         super(name);
         this.reductionRatio = reductionRatio;
         this.child = child;
+        this.addChildren(child);
     }
 
     @Override
