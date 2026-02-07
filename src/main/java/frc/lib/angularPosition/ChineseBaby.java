@@ -2,10 +2,7 @@ package frc.lib.angularPosition;
 
 import static edu.wpi.first.units.Units.Rotations;
 
-import org.opencv.ml.ANN_MLP;
-
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import frc.lib.LoggableIntermediate;
 

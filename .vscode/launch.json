@@ -4,18 +4,24 @@
   // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
-
     {
-      "type": "wpilib",
-      "name": "WPILib Desktop Debug",
-      "request": "launch",
-      "desktop": true,
+        "type": "java",
+        "name": "Shooter2026",
+        "request": "launch",
+        "mainClass": "frc.robot.subsystems.shooter.Shooter2026",
+        "projectName": "2026-Rebuilt"
     },
     {
-      "type": "wpilib",
-      "name": "WPILib roboRIO Debug",
-      "request": "launch",
-      "desktop": false,
+        "type": "wpilib",
+        "name": "WPILib Desktop Debug",
+        "request": "launch",
+        "desktop": true
+    },
+    {
+        "type": "wpilib",
+        "name": "WPILib roboRIO Debug",
+        "request": "launch",
+        "desktop": false
     }
-  ]
+]
 }

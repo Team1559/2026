@@ -1,6 +1,5 @@
 package frc.lib.velocity;
 
-import edu.wpi.first.units.AngularVelocityUnit;
 import edu.wpi.first.units.measure.AngularVelocity;
 import frc.lib.LoggableComponent;
 

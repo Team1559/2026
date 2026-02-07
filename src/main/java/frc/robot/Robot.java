@@ -4,7 +4,7 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Degree;
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
 
 import org.littletonrobotics.junction.LogFileUtil;
@@ -17,6 +17,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
@@ -24,6 +25,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.DriverAssist;
@@ -43,6 +45,7 @@ public class Robot extends LoggedRobot {
     private final Vision2026 vision;
     private final Shooter2026 shooter;
     private static final boolean IS_REPLAY = false;
+
     @SuppressWarnings("resource") //pdh must stay open for connection
     public Robot() {
         if (IS_REPLAY) {
@@ -84,13 +87,17 @@ public class Robot extends LoggedRobot {
 
     public void setTeleopBindings() {
         drivetrain.setDefaultCommand(new TeleopDriveCommand(()->pilotController.getLeftY()*-1, ()->pilotController.getLeftX()*-1, () -> pilotController.getRightX(), SwerveDrive2026.SWERVE_CONSTRAINTS, drivetrain, ()->false)); //() -> pilotController.getRightX()
+        pilotController.x().onTrue(shooter.getAimCommand(shooter.redHubLocation));
+        pilotController.a().whileTrue(new StartEndCommand(() -> shooter.setSpinFeedwheel(true), () -> shooter.setSpinFeedwheel(false), shooter));
+        pilotController.b().whileTrue(new StartEndCommand(() -> shooter.setSpinFlywheel(true), () -> shooter.setSpinFlywheel(false))); //TODO: cannot run both at the same time, make it one command
     }
 
     public void setTestBindings() {
         pilotController.a().whileTrue(new StartEndCommand(() -> shooter.setSpinFeedwheel(true), () -> shooter.setSpinFeedwheel(false), shooter));
         pilotController.b().whileTrue(new StartEndCommand(() -> shooter.setSpinFlywheel(true), () -> shooter.setSpinFlywheel(false))); //TODO: cannot run both at the same time, make it one command
-        pilotController.x().whileTrue(new StartEndCommand(() -> shooter.setTurretAngle(Radians.of(Math.PI/2.0)), () -> shooter.setTurretAngle(Radians.of(0)), shooter));
-        pilotController.y().whileTrue(new StartEndCommand(() -> shooter.setTurretAngle(Radians.of(-1 * Math.PI/2.0)), () -> shooter.setTurretAngle(Radians.of(0)), shooter));
+        // pilotController.x().whileTrue(new InstantCommand(() -> shooter.setTurretAngle(Degrees.of(60)), shooter));
+        // pilotController.y().whileTrue(new InstantCommand(() -> shooter.setTurretAngle(Degrees.of(-60)), shooter));
+        pilotController.x().onTrue(shooter.getAimCommand(shooter.redHubLocation));
     }
 
     @Override
