@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degree;
+import static edu.wpi.first.units.Units.Radians;
+
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -85,7 +88,9 @@ public class Robot extends LoggedRobot {
 
     public void setTestBindings() {
         pilotController.a().whileTrue(new StartEndCommand(() -> shooter.setSpinFeedwheel(true), () -> shooter.setSpinFeedwheel(false), shooter));
-        pilotController.b().whileTrue(new StartEndCommand(() -> shooter.setSpinFlywheel(true), () -> shooter.setSpinFlywheel(false), shooter));
+        pilotController.b().whileTrue(new StartEndCommand(() -> shooter.setSpinFlywheel(true), () -> shooter.setSpinFlywheel(false))); //TODO: cannot run both at the same time, make it one command
+        pilotController.x().whileTrue(new StartEndCommand(() -> shooter.setTurretAngle(Radians.of(Math.PI/2.0)), () -> shooter.setTurretAngle(Radians.of(0)), shooter));
+        pilotController.y().whileTrue(new StartEndCommand(() -> shooter.setTurretAngle(Radians.of(-1 * Math.PI/2.0)), () -> shooter.setTurretAngle(Radians.of(0)), shooter));
     }
 
     @Override

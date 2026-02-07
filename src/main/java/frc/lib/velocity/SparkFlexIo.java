@@ -1,5 +1,6 @@
 package frc.lib.velocity;
 
+import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
@@ -46,8 +47,7 @@ public class SparkFlexIo extends LoggableIo<SparkFlexIo.SparkFlexIoInputs> imple
 
     @Override
     protected void updateInputs(SparkFlexIoInputs inputs) {
-        inputs.currentVelocity = RotationsPerSecond.of(encoder.getVelocity() / 60.0);
-        Logger.recordOutput(getOutputLogPath("EncoderVelocity"), encoder.getVelocity());
+        inputs.currentVelocity = RPM.of(encoder.getVelocity());
         inputs.motorCurrent = motor.getOutputCurrent();
         inputs.motorTemp = motor.getMotorTemperature();
         inputs.position = Rotations.of(encoder.getPosition());
@@ -57,13 +57,14 @@ public class SparkFlexIo extends LoggableIo<SparkFlexIo.SparkFlexIoInputs> imple
     public void setTargetVelocity(AngularVelocity targetVelocity) {
         Logger.recordOutput(getOutputLogPath("TargetVelocity"), targetVelocity);
         Logger.recordOutput(getOutputLogPath("Running"), true);
-        motorController.setSetpoint(targetVelocity.in(Units.RotationsPerSecond) * 60.0, ControlType.kVelocity);
+        motorController.setSetpoint(targetVelocity.in(Units.RPM), ControlType.kVelocity);
     }
 
     @Override
     public void stop() {
         Logger.recordOutput(getOutputLogPath("Running"), false);
         motor.stopMotor();
+        Logger.recordOutput(getOutputLogPath("TargetVelocity"), RPM.zero());
     }
 
     @Override

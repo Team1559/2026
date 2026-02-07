@@ -5,6 +5,7 @@ import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 
 import edu.wpi.first.math.util.Units;
@@ -22,9 +23,10 @@ public class CanCoderIo extends LoggableIo<CanCoderIo.CanCoderIoInputs> implemen
     private final StatusSignal<Angle> angle;
     private final Angle offset;
 
-    public CanCoderIo(String name, CANcoder canCoder, Angle offset){
+    public CanCoderIo(String name, CANcoder canCoder, Angle offset, CANcoderConfiguration config){
         super(name, new CanCoderIoInputsAutoLogged());
         this.canCoder = canCoder;
+        canCoder.getConfigurator().apply(config);
         this.offset = offset;
         angle = canCoder.getAbsolutePosition();
     }

@@ -1,6 +1,7 @@
 package frc.robot.subsystems.shooter;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
@@ -10,7 +11,9 @@ import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
 
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkFlexConfig;
@@ -74,10 +77,11 @@ public class Shooter2026 extends LoggableSubsystem {
 
     private static SparkFlexIo makeFlywheel(){
         SparkFlexConfig config = new SparkFlexConfig(); //TODO: Configure
-        config.closedLoop.pid(0, 0, 0);
-        config.closedLoop.feedForward.kV(1/40000.0);    //Volts per rpm
+        config.closedLoop.pid(0, 0, 0);//1/20000d
+        config.closedLoop.feedForward.kV(0.000153);    //Volts per rpm
         config.inverted(true);
         config.idleMode(IdleMode.kCoast);
+        config.voltageCompensation(12.0);
         return new SparkFlexIo("Flywheel", new SparkFlex(17, MotorType.kBrushless), config);
     }
     
@@ -85,25 +89,35 @@ public class Shooter2026 extends LoggableSubsystem {
         SparkFlexConfig config = new SparkFlexConfig(); //TODO: Configure
         config.closedLoop.pid(0, 0, 0);
         config.closedLoop.feedForward.kV(1 / 565.0);    //Volts per rpm
+        config.idleMode(IdleMode.kBrake);
+        config.voltageCompensation(12.0);
         return new SparkFlexIo("Feedwheel", new SparkFlex(16, MotorType.kBrushless), config);
     }
 
     private static AngularPositionComponent makeTurret() {
         SparkFlexConfig config = new SparkFlexConfig(); //TODO: Configure
         config.closedLoop.pid(0, 0, 0);
+        config.voltageCompensation(12.0);
         return new LimitedAngularPositionIntermediate("Turret", Degrees.of(-100), Degrees.of(100), new AngularPositionRatio("GearRatio", 30, new SparkFlexIo("TurretMotor", new SparkFlex(19, MotorType.kBrushless), config)));
     }
 
     private static SparkFlexIo makeFlapper() {
         SparkFlexConfig config = new SparkFlexConfig(); //TODO: Configure
         config.closedLoop.pid(0, 0, 0);
+        config.voltageCompensation(12.0);
         return new SparkFlexIo("Flapper", new SparkFlex(0, MotorType.kBrushless), config); //TODO: ID motor
     }
 
     private static AngularPositionSensor makeBaby(){
-        CanCoderIo canCoderOne = new CanCoderIo("TurretGearOne", new CANcoder(14), Radians.of(-1.816233)); //TODO: calibrate offsets
-        CanCoderIo canCoderTwo = new CanCoderIo("TurretGearTwo", new CANcoder(15), Radians.of(-2.152175)); //TODO: calibrate offsets
-        return new ChineseBaby("ChineseBaby", 21, 19, 200, -9, 10, canCoderOne, canCoderTwo);
+        CANcoderConfiguration configOne = new CANcoderConfiguration();
+        configOne.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
+        CanCoderIo canCoderOne = new CanCoderIo("TurretGearOne", new CANcoder(14), Radians.of(2.006447 ), configOne); //TODO: calibrate offsets
+
+        CANcoderConfiguration configTwo = new CANcoderConfiguration();
+        configTwo.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
+        CanCoderIo canCoderTwo = new CanCoderIo("TurretGearTwo", new CANcoder(15), Radians.of(-1.79169 ), configTwo); //TODO: calibrate offsets
+
+        return new ChineseBaby("ChineseBaby", 21, 19, 200, canCoderOne, canCoderTwo, Degrees.of(-180), Degrees.of(180));
     }
 
     public void setTargetFieldSpace(Translation3d target, Translation2d barrierOffset) {
@@ -164,11 +178,12 @@ public class Shooter2026 extends LoggableSubsystem {
         flapper.setTargetAngle(projectileVelocity.getAngle().getMeasure());
 
         if(spinFlywheel){
-            AngularVelocity targetAngularVelocity = RotationsPerSecond.of(projectileVelocity.getNorm());    //TODO: create actual equation 
+            AngularVelocity targetAngularVelocity = RPM.of(projectileVelocity.getNorm());    //TODO: create actual equation 
             Logger.recordOutput(getOutputLogPath("TargetFlywheelVelocity"), targetAngularVelocity);
             flywheel.setTargetVelocity(targetAngularVelocity);
         } else {
             flywheel.stop();
+            Logger.recordOutput(getOutputLogPath("TargetFlywheelVelocity"), RPM.of(0));
         }
     }
 
@@ -177,7 +192,7 @@ public class Shooter2026 extends LoggableSubsystem {
         Logger.recordOutput(getOutputLogPath("TargetProjectileVelocity"), projectileVelocity);
 
         if(spinFlywheel){
-            AngularVelocity targetAngularVelocity = RotationsPerSecond.of(projectileVelocity);    //TODO: create actual equation 
+            AngularVelocity targetAngularVelocity = RPM.of(projectileVelocity);    //TODO: create actual equation 
             Logger.recordOutput(getOutputLogPath("TargetFlywheelVelocity"), targetAngularVelocity);
             flywheel.setTargetVelocity(targetAngularVelocity);
         } else {
@@ -202,15 +217,20 @@ public class Shooter2026 extends LoggableSubsystem {
 
 
         if(spinFeedwheel) {
-            feedWheel.setTargetVelocity(RotationsPerSecond.of(3));
+            feedWheel.setTargetVelocity(RPM.of(180));
         } else {
             feedWheel.stop();
         }
         if(spinFlywheel) {
-            flywheel.setTargetVelocity(RotationsPerSecond.of(300));
+            flywheel.setTargetVelocity(RPM.of(5000));
         } else {
             flywheel.stop();
         }
+    }
+
+    public void setTurretAngle(Angle setAngle){
+        turret.setTargetAngle(setAngle);
+        Logger.recordOutput(getOutputLogPath("TargetTurretAngle"), setAngle);
     }
 
     private Translation2d aimTurret(Translation3d target3d) {
