@@ -60,6 +60,7 @@ public class LimelightCameraIo extends VisionCameraIo {
         inputs.isConnected = ((RobotController.getFPGATime() - latencySubscriber.getLastChange()) / 1000) < 250;
 
         // Update target observation
+        //  Not used, as far as I know QUESTION / NOTE!!11!1!!!!
         inputs.latestTargetObservation = new TargetObservation(
                 Rotation2d.fromDegrees(txSubscriber.get()), Rotation2d.fromDegrees(tySubscriber.get()));
 
