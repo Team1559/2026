@@ -2,6 +2,8 @@ package frc.robot.subsystems;
 
 import java.util.function.Supplier;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.lib.swerve.SwerveDrive;
 import frc.lib.vision.LimelightCameraIo;
@@ -11,7 +13,7 @@ import frc.lib.vision.VisionCameraIo;
 public class Vision2026 extends Vision {
     
     public Vision2026(SwerveDrive drivetrain){
-        super("Vision", drivetrain, createCameras(drivetrain));
+        super("Vision", drivetrain, AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark), createCameras(drivetrain));
     }
     
     private static VisionCameraIo[] createCameras(SwerveDrive drivetrain){
