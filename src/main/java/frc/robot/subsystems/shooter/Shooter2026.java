@@ -13,7 +13,6 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.controls.MotionMagicVelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.pathplanner.lib.util.FlippingUtil;
@@ -33,6 +32,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.lib.LoggableSubsystem;
@@ -48,10 +48,12 @@ import frc.lib.velocity.SparkFlexIo;
 public class Shooter2026 extends LoggableSubsystem {
     private final Supplier<Pose2d> robotPositionSupplier;
     
+    private AngularVelocity targetFlywheelVelocity;
     private Translation3d targetFieldSpace;
     private Translation2d barrierOffset;
     private boolean spinFlywheel;
     private boolean spinFeedwheel;
+    private double timestamp;
     private final Rotation2d flapperAngle = Rotation2d.fromDegrees(57);
     
     private final AngularPositionComponent turret; //APC
@@ -160,6 +162,21 @@ public class Shooter2026 extends LoggableSubsystem {
     public void setSpinFeedwheel(boolean spinFeedwheel) {
         this.spinFeedwheel = spinFeedwheel;
     }
+    
+    public AngularVelocity getTargetFlywheelVelocity() {
+        return targetFlywheelVelocity;
+    }
+
+    public boolean isFlywheelReady() {
+        double debounceSeconds = 0.15;
+        AngularVelocity tolerance = RPM.of(50);
+        if (Math.abs(flywheel.getCurrentVelocity().minus(targetFlywheelVelocity).in(RPM)) < tolerance.in(RPM)) {
+            return Timer.getTimestamp() - timestamp > debounceSeconds;
+        } else {
+            timestamp = Timer.getTimestamp();
+        }
+        return false;
+    }
 
     private Translation3d calculateTargetShooterSpace() {
         if (targetFieldSpace == null) {
@@ -205,7 +222,7 @@ public class Shooter2026 extends LoggableSubsystem {
 
         flapper.setTargetAngle(projectileVelocity.getAngle().getMeasure());
 
-        if(spinFlywheel){
+        if (spinFlywheel){
             AngularVelocity targetAngularVelocity = RPM.of(projectileVelocity.getNorm());    //TODO: create actual equation 
             Logger.recordOutput(getOutputLogPath("TargetFlywheelVelocity"), targetAngularVelocity);
             flywheel.setTargetVelocity(targetAngularVelocity);
@@ -220,8 +237,8 @@ public class Shooter2026 extends LoggableSubsystem {
         Logger.recordOutput(getOutputLogPath("TargetProjectileVelocity"), projectileVelocity);
 
         if(spinFlywheel && Double.isFinite(projectileVelocity.in(MetersPerSecond))){
-            AngularVelocity targetAngularVelocity = RPM.of(0);    //TODO: create actual equation 
-            Logger.recordOutput(getOutputLogPath("TargetFlywheelVelocity"), targetAngularVelocity);
+            targetFlywheelVelocity = RPM.of(0);    //TODO: create actual equation 
+            Logger.recordOutput(getOutputLogPath("TargetFlywheelVelocity"), targetFlywheelVelocity);
             // flywheel.setTargetVelocity(targetAngularVelocity);
         } else {
             flywheel.stop();
@@ -243,6 +260,7 @@ public class Shooter2026 extends LoggableSubsystem {
         Logger.recordOutput(getOutputLogPath("ActualTurretAngle"), turretAngleSensor.getAngle());
         Logger.recordOutput(getOutputLogPath("OutputVelocity"), flywheel.getCurrentVelocity());
         Logger.recordOutput(getOutputLogPath("TurretAngle"), turret.getAngle());
+        Logger.recordOutput(getOutputLogPath("IsFlywheelReady?"), isFlywheelReady());
 
 
         if(spinFeedwheel) {

@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkFlexConfig;
@@ -30,10 +32,17 @@ public class Intake2026 extends VelocitySubsystem {
 
     public void runForwards() {
         run(FORWARDS_VELOCITY_RPM);
+        Logger.recordOutput(getOutputLogPath("TargetVelocity"), FORWARDS_VELOCITY_RPM);
     }
 
     public void runReverse() {
         run(REVERSE_VELOCITY_RPM);
+        Logger.recordOutput(getOutputLogPath("TargetVelocity"), REVERSE_VELOCITY_RPM);
     }
 
+    @Override
+    public void stop() {
+        super.stop();
+        Logger.recordOutput(getOutputLogPath("TargetVelocity"), 0.0);
+    }
 }
