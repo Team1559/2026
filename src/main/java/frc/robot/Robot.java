@@ -24,8 +24,10 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.DriverAssist;
 import frc.lib.commands.StopCommand;
+import frc.lib.swerve.SwerveDrive;
 import frc.lib.swerve.TeleopDriveCommand;
 import frc.robot.subsystems.SwerveDrive2026Competition;
+import frc.robot.subsystems.SwerveDrive2026Practice;
 import frc.robot.subsystems.Vision2026;
 
 public class Robot extends LoggedRobot {
@@ -34,7 +36,7 @@ public class Robot extends LoggedRobot {
     private final CommandXboxController pilotController;
     private final CommandXboxController coPilotController;
     private final DriverAssist driverAssist;
-    private final SwerveDrive2026Competition drivetrain;
+    private final SwerveDrive drivetrain;
     private final Vision2026 vision;
     private static final boolean IS_REPLAY = false;
     private int loopIterations = 0;
