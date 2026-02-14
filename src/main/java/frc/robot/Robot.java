@@ -24,8 +24,10 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.DriverAssist;
 import frc.lib.commands.StopCommand;
+import frc.lib.swerve.SwerveDrive;
 import frc.lib.swerve.TeleopDriveCommand;
-import frc.robot.subsystems.SwerveDrive2026;
+import frc.robot.subsystems.SwerveDrive2026Competition;
+import frc.robot.subsystems.SwerveDrive2026Practice;
 import frc.robot.subsystems.Vision2026;
 
 public class Robot extends LoggedRobot {
@@ -34,11 +36,13 @@ public class Robot extends LoggedRobot {
     private final CommandXboxController pilotController;
     private final CommandXboxController coPilotController;
     private final DriverAssist driverAssist;
-    private final SwerveDrive2026 drivetrain;
+    private final SwerveDrive drivetrain;
     private final Vision2026 vision;
     private static final boolean IS_REPLAY = false;
+    private int loopIterations = 0;
     @SuppressWarnings("resource") //pdh must stay open for connection
     public Robot() {
+        super(0.02);
         if (IS_REPLAY) {
             setUseTiming(false);
             String logPath = LogFileUtil.findReplayLog();
@@ -54,8 +58,8 @@ public class Robot extends LoggedRobot {
         pilotController = new CommandXboxController(0);
         coPilotController = new CommandXboxController(1);
         driverAssist = new DriverAssist("DriverAssist");
-        drivetrain = new SwerveDrive2026();
-        vision= new Vision2026 (drivetrain);
+        drivetrain = new SwerveDrive2026Competition();
+        vision = new Vision2026 (drivetrain);
         
         registerNamedCommands();
         autoChooser = AutoBuilder.buildAutoChooser("a");
@@ -76,7 +80,8 @@ public class Robot extends LoggedRobot {
     }
 
     public void setTeleopBindings() {
-        drivetrain.setDefaultCommand(new TeleopDriveCommand(()->pilotController.getLeftY()*-1, ()->pilotController.getLeftX()*-1, () -> pilotController.getRightX(), SwerveDrive2026.SWERVE_CONSTRAINTS, drivetrain, ()->false)); //() -> pilotController.getRightX()
+        drivetrain.setDefaultCommand(new TeleopDriveCommand(()->pilotController.getLeftY()*-1, ()->pilotController.getLeftX()*-1, () -> pilotController.getRightX() * -1, SwerveDrive2026Competition.SWERVE_CONSTRAINTS, drivetrain, ()->pilotController.rightBumper().getAsBoolean()));
+
     }
 
     public void setTestBindings() {
@@ -89,7 +94,12 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void robotPeriodic() {
-        CommandScheduler.getInstance().run();
+        if (loopIterations % 1 == 0){
+            CommandScheduler.getInstance().run();
+        } else {
+            drivetrain.periodic();
+        }
+        loopIterations ++;
     }
 
     @Override
