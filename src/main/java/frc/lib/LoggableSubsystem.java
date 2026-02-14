@@ -7,9 +7,11 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public abstract class LoggableSubsystem extends SubsystemBase {
     private final Set<LoggableComponent> children = new LinkedHashSet<>();
+    private final String name;
 
     protected LoggableSubsystem(String name) {
         super(name);
+        this.name = name;
     }
 
     protected void addChildren(String folder, LoggableComponent... children) {
@@ -32,6 +34,11 @@ public abstract class LoggableSubsystem extends SubsystemBase {
 
     protected String getOutputLogPath(String suffix) {
         return getName() + "/Outputs/" + suffix;
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 
     @Override
