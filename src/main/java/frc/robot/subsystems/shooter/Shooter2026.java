@@ -53,7 +53,7 @@ public class Shooter2026 extends LoggableSubsystem {
     private Translation2d barrierOffset;
     private boolean spinFlywheel;
     private boolean spinFeedwheel;
-    private double timestamp;
+    private double timestampFlywheelNotReady;
     private final Rotation2d flapperAngle = Rotation2d.fromDegrees(57);
     
     private final AngularPositionComponent turret; //APC
@@ -171,11 +171,11 @@ public class Shooter2026 extends LoggableSubsystem {
         double debounceSeconds = 0.15;
         AngularVelocity tolerance = RPM.of(50);
         if (Math.abs(flywheel.getCurrentVelocity().minus(targetFlywheelVelocity).in(RPM)) < tolerance.in(RPM)) {
-            return Timer.getTimestamp() - timestamp > debounceSeconds;
+            return Timer.getTimestamp() - timestampFlywheelNotReady > debounceSeconds;
         } else {
-            timestamp = Timer.getTimestamp();
+            timestampFlywheelNotReady = Timer.getTimestamp();
+            return false;
         }
-        return false;
     }
 
     private Translation3d calculateTargetShooterSpace() {

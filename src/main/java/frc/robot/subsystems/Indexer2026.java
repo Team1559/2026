@@ -26,7 +26,7 @@ public class Indexer2026 extends VelocitySubsystem {
         config.idleMode(IdleMode.kBrake);
         config.inverted(false);
         config.smartCurrentLimit(80);
-        config.closedLoop.pid(0, 0, 0); // TODO: Set these later chubb
+        config.closedLoop.pid(0, 0, 0); // TODO: Set these later
         return config;
     }
 
