@@ -8,7 +8,6 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import frc.lib.LoggableIo;
 
@@ -19,7 +18,7 @@ public class CanCoderIo extends LoggableIo<CanCoderIo.CanCoderIoInputs> implemen
         public Angle currentAngle = Rotations.of(0);
     }
 
-    private CANcoder canCoder;
+    private final CANcoder canCoder;
     private final StatusSignal<Angle> angle;
     private final Angle offset;
 

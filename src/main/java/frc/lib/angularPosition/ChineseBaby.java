@@ -18,7 +18,12 @@ public class ChineseBaby extends LoggableIntermediate implements AngularPosition
     private final Angle minAngle;
     private final Angle maxAngle;
 
+    /**
+     * gearOne causes consistent, small errors
+     * gearTwo causes inconsistent, large errors
+     */
     public ChineseBaby(String name, int gearOneTeeth, int gearTwoTeeth, int largeGearTeeth, AngularPositionSensor childOne, AngularPositionSensor childTwo, Angle minAngle, Angle maxAngle){
+        
         super(name);
 
         this.childOne = childOne;
@@ -34,15 +39,7 @@ public class ChineseBaby extends LoggableIntermediate implements AngularPosition
         this.addChildren(childOne, childTwo);
     }
 
-    // @Override
-    // public Angle getAngle() {
-    //     int modOne = (int)(childOne.getAngle().in(Units.Rotations) * gearOneTeeth);
-    //     int modTwo = (int)(childTwo.getAngle().in(Units.Rotations) * gearTwoTeeth);
-
-    //     return Rotations.of((double)((modOne * gearTwoTeeth * coefficentTwo + modTwo * gearOneTeeth * coefficentOne) % (gearTwoTeeth * gearOneTeeth)) / largeGearTeeth);
-    // }
-
-    @Override
+    @Override 
     public Angle getAngle(){
         Rotation2d gearOneAngle = Rotation2d.fromRotations(childOne.getAngle().in(Rotations) % 1);
         Rotation2d gearTwoAngle = Rotation2d.fromRotations(childTwo.getAngle().in(Rotations) % 1);
