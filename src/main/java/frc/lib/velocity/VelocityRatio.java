@@ -1,20 +1,22 @@
 package frc.lib.velocity;
 
+import edu.wpi.first.units.measure.AngularVelocity;
 import frc.lib.LoggableIntermediate;
 
-public class VelocityRatio extends LoggableIntermediate implements VelocityComponent {
+public class VelocityRatio extends LoggableIntermediate implements AngularVelocityComponent {
     private final double reductionRatio;
-    private final VelocityComponent child;
+    private final AngularVelocityComponent child;
 
-    public VelocityRatio(String name, double reductionRatio, VelocityComponent child) {
+    public VelocityRatio(String name, double reductionRatio, AngularVelocityComponent child) {
         super(name);
         this.reductionRatio = reductionRatio;
         this.child = child;
+        this.addChildren(child);
     }
 
     @Override
-    public void run(double targetVelocity) {
-        child.run(targetVelocity * reductionRatio);
+    public void setTargetVelocity(AngularVelocity targetVelocity) {
+        child.setTargetVelocity(targetVelocity.times(reductionRatio));
     }
 
     @Override
@@ -33,7 +35,7 @@ public class VelocityRatio extends LoggableIntermediate implements VelocityCompo
     }
 
     @Override
-    public double getCurrentVelocity() {
-        return child.getCurrentVelocity() / reductionRatio;
+    public AngularVelocity getCurrentVelocity() {
+        return child.getCurrentVelocity().div(reductionRatio);
     }
 }

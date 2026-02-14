@@ -14,6 +14,9 @@ public abstract class LoggableIntermediate implements LoggableComponent {
 
     protected void addChildren(String folder, LoggableComponent... children) {
         for (LoggableComponent child : children) {
+            if(child == null) {
+                continue;
+            }
             this.children.put(child, folder);
         }
     }
