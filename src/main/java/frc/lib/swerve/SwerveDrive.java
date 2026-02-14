@@ -125,7 +125,7 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer {
         log();
     }
 
-    public void updateOdometry() {
+    private void updateOdometry() {
         estimator.update(gyro.getInputs().yaw, getModulePositions());
     }
 
