@@ -22,24 +22,31 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
+import frc.lib.CanRefreshRate;
 
 public class SdsSwerveModuleIo extends SwerveModuleIo {
 
     public enum ModuleType {
-        MK4_L1(50d / 14 * 19 / 25 * 45 / 15, InvertedValue.CounterClockwise_Positive),
-        MK4_L2(50d / 14 * 17 / 27 * 45 / 15, InvertedValue.CounterClockwise_Positive),
-        MK4_L3(50d / 14 * 16 / 28 * 45 / 15, InvertedValue.CounterClockwise_Positive),
-        MK4_L4(48d / 16 * 16 / 28 * 45 / 15, InvertedValue.CounterClockwise_Positive),
+        MK4_L1(50d / 14 * 19 / 25 * 45 / 15, InvertedValue.Clockwise_Positive, InvertedValue.CounterClockwise_Positive),
+        MK4_L2(50d / 14 * 17 / 27 * 45 / 15, InvertedValue.Clockwise_Positive, InvertedValue.CounterClockwise_Positive),
+        MK4_L3(50d / 14 * 16 / 28 * 45 / 15, InvertedValue.Clockwise_Positive, InvertedValue.CounterClockwise_Positive),
+        MK4_L4(48d / 16 * 16 / 28 * 45 / 15, InvertedValue.Clockwise_Positive, InvertedValue.CounterClockwise_Positive),
 
-        MK4i_L1(-50d / 14 * 19 / 25 * 45 / 15, InvertedValue.Clockwise_Positive),
-        MK4i_L2(-50d / 14 * 17 / 27 * 45 / 15, InvertedValue.Clockwise_Positive),
-        MK4i_L3(-50d / 14 * 16 / 28 * 45 / 15, InvertedValue.Clockwise_Positive);
+        MK4i_L1(50d / 14 * 19 / 25 * 45 / 15, InvertedValue.CounterClockwise_Positive, InvertedValue.Clockwise_Positive),
+        MK4i_L2(50d / 14 * 17 / 27 * 45 / 15, InvertedValue.CounterClockwise_Positive, InvertedValue.Clockwise_Positive),
+        MK4i_L3(50d / 14 * 16 / 28 * 45 / 15, InvertedValue.CounterClockwise_Positive, InvertedValue.Clockwise_Positive),
 
-        private final double driveRatio;
+        MK5_R1(54d / 12 * 25 / 32 * 30 / 15, InvertedValue.CounterClockwise_Positive, InvertedValue.CounterClockwise_Positive),
+        MK5_R2(54d / 14 * 25 / 32 * 30 / 15, InvertedValue.CounterClockwise_Positive, InvertedValue.CounterClockwise_Positive),
+        MK5_R3(54d / 16 * 25 / 32 * 30 / 15, InvertedValue.CounterClockwise_Positive, InvertedValue.CounterClockwise_Positive);
+
+        public final double driveRatio;
+        private final InvertedValue driveDirection;
         private final InvertedValue steerDirection;
 
-        private ModuleType(double driveRatio, InvertedValue steerDirection) {
+        private ModuleType(double driveRatio, InvertedValue driveDirection, InvertedValue steerDirection) {
             this.driveRatio = driveRatio;
+            this.driveDirection = driveDirection;
             this.steerDirection = steerDirection;
         }
     }
@@ -66,7 +73,7 @@ public class SdsSwerveModuleIo extends SwerveModuleIo {
     public SdsSwerveModuleIo(String name, Translation2d location, ModuleType moduleType, TalonFX steerMotor,
             Slot0Configs steerMotorPid,
             TalonFX driveMotor,
-            Slot0Configs driveMotorPid, CANcoder cancoder,
+            Slot0Configs driveMotorPid, double driveCurrentLimit, CANcoder cancoder,
             Rotation2d cancoderOffset) {
         super(name, location);
         this.steerMotor = steerMotor;
@@ -88,9 +95,9 @@ public class SdsSwerveModuleIo extends SwerveModuleIo {
         driveMotor.getConfigurator().apply(new TalonFXConfiguration());
         driveMotor.getConfigurator().apply(new MotorOutputConfigs()
                 .withNeutralMode(NeutralModeValue.Brake)
-                .withInverted(InvertedValue.Clockwise_Positive));
+                .withInverted(moduleType.driveDirection));
         driveMotor.getConfigurator().apply(driveMotorPid);
-        driveMotor.getConfigurator().apply(new CurrentLimitsConfigs().withStatorCurrentLimit(80));
+        driveMotor.getConfigurator().apply(new CurrentLimitsConfigs().withStatorCurrentLimit(driveCurrentLimit));
         driveMotor.setPosition(0);
 
         cancoder.getConfigurator().apply(new CANcoderConfiguration());
@@ -103,13 +110,13 @@ public class SdsSwerveModuleIo extends SwerveModuleIo {
         driveMotorCurrent = driveMotor.getStatorCurrent();
         steerMotorCurrent = steerMotor.getStatorCurrent();
 
-        driveMotorVelocity.setUpdateFrequency(50);
-        canCoderAbsolutePosition.setUpdateFrequency(100);
-        driveMotorPosition.setUpdateFrequency(100);
-        driveMotorTemperature.setUpdateFrequency(5);
-        steerMotorTemperature.setUpdateFrequency(5);
-        driveMotorCurrent.setUpdateFrequency(10);
-        steerMotorCurrent.setUpdateFrequency(10);
+        driveMotorVelocity.setUpdateFrequency(CanRefreshRate.DEFAULT.rateHz);
+        canCoderAbsolutePosition.setUpdateFrequency(CanRefreshRate.FAST.rateHz);
+        driveMotorPosition.setUpdateFrequency(CanRefreshRate.FAST.rateHz);
+        driveMotorTemperature.setUpdateFrequency(CanRefreshRate.SLOW.rateHz);
+        steerMotorTemperature.setUpdateFrequency(CanRefreshRate.SLOW.rateHz);
+        driveMotorCurrent.setUpdateFrequency(CanRefreshRate.DEFAULT.rateHz);
+        steerMotorCurrent.setUpdateFrequency(CanRefreshRate.DEFAULT.rateHz);
     }
 
     @Override
@@ -129,7 +136,7 @@ public class SdsSwerveModuleIo extends SwerveModuleIo {
 
     @Override
     protected void updateInputs(SwerveInputs inputs) {
-        StatusSignal.refreshAll(driveMotorVelocity, canCoderAbsolutePosition, driveMotorPosition, steerMotorTemperature,
+          StatusSignal.refreshAll(driveMotorVelocity, canCoderAbsolutePosition, driveMotorPosition, steerMotorTemperature,
                 driveMotorTemperature, steerMotorCurrent, driveMotorCurrent);
         inputs.speed = driveMotorVelocity.getValueAsDouble() / driveGearRatio.driveRatio * (2 * WHEEL_RADIUS * Math.PI);
         inputs.angle = Rotation2d.fromRotations(canCoderAbsolutePosition.getValueAsDouble()).minus(cancoderOffset);

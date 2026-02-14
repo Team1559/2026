@@ -2,6 +2,8 @@ package frc.lib.vision;
 
 import java.util.function.Supplier;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -58,6 +60,8 @@ public class LimelightCameraIo extends VisionCameraIo {
             inputs.stdevX = stdev;
             inputs.stdevY = stdev;
             this.lastPoseEstimate = inputs.pose;
+
+            Logger.recordOutput(getOutputLogPath("Distance to tag"), Math.hypot(botposeTargetSpace.getX() * (39.37), botposeTargetSpace.getZ() * (39.37)));
 
             // double[] stddevs = LimelightHelpers.getLimelightNTDoubleArray(hostName,
             // "stddevs");

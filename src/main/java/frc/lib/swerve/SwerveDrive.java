@@ -68,7 +68,7 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer {
 
     public void configureAuto(RobotConfig robotConfig) {
         AutoBuilder.configure(this::getPosition, this::resetPose, this::getCurrentSpeed, this::driveRobotOriented,
-                new PPHolonomicDriveController(new PIDConstants(5), new PIDConstants(5)), robotConfig,
+                new PPHolonomicDriveController(new PIDConstants(5), new PIDConstants(10)), robotConfig,
                 () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red, this);
     }
 
@@ -175,9 +175,16 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer {
         if (accelLimitedSpeeds.omegaRadiansPerSecond == -0) {
             accelLimitedSpeeds.omegaRadiansPerSecond = 0;
         }
+
         SwerveModuleState[] states = kinematics.toSwerveModuleStates(accelLimitedSpeeds);
+        double minCos = 1;
+        for(int i = 0; i < modules.length; i ++) {
+            double cos = Math.cos((modules[i].getAngle().minus(states[i].angle)).getRadians());
+            minCos = Math.min(minCos, Math.abs(cos));
+        }
         for (int i = 0; i < modules.length; i++) {
             states[i].optimize(modules[i].getAngle());
+            states[i].speedMetersPerSecond *= minCos;
             modules[i].setState(states[i]);
         }
     }
