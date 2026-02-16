@@ -4,7 +4,7 @@ import static edu.wpi.first.units.Units.Rotations;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
-import frc.lib.LoggableIntermediate;
+import frc.lib.loggable.LoggableIntermediate;
 
 public class ChineseBaby extends LoggableIntermediate implements AngularPositionSensor {
 

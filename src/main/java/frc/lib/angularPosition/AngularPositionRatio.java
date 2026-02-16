@@ -1,7 +1,7 @@
 package frc.lib.angularPosition;
 
 import edu.wpi.first.units.measure.Angle;
-import frc.lib.LoggableIntermediate;
+import frc.lib.loggable.LoggableIntermediate;
 
 public class AngularPositionRatio extends LoggableIntermediate implements AngularPositionComponent {
     private final double reductionRatio;

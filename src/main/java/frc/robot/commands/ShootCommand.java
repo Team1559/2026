@@ -2,7 +2,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Indexer2026;
-import frc.robot.subsystems.shooter.Shooter2026;
+import frc.robot.subsystems.Shooter2026;
 
 public class ShootCommand extends Command {
     private final Shooter2026 shooter;

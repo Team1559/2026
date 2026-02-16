@@ -1,4 +1,4 @@
-package frc.robot.subsystems.shooter;
+package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.MetersPerSecond;
@@ -32,16 +32,18 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import frc.lib.LoggableSubsystem;
 import frc.lib.angularPosition.AngularPositionComponent;
 import frc.lib.angularPosition.AngularPositionRatio;
 import frc.lib.angularPosition.AngularPositionSensor;
 import frc.lib.angularPosition.CanCoderIo;
 import frc.lib.angularPosition.ChineseBaby;
 import frc.lib.angularPosition.LimitedAngularPositionIntermediate;
+import frc.lib.loggable.LoggableSubsystem;
 import frc.lib.velocity.AngularVelocityComponent;
 import frc.lib.velocity.SparkFlexIo;
 
@@ -56,20 +58,22 @@ public class Shooter2026 extends LoggableSubsystem {
     private double timestampFlywheelNotReady;
     private final Rotation2d flapperAngle = Rotation2d.fromDegrees(57);
 
-    private final AngularPositionComponent turret; // APC
+    private final AngularPositionComponent turret; 
     private final AngularPositionSensor turretAngleSensor;
-    private final AngularVelocityComponent flywheel; // Velocity Component
-    private final AngularPositionComponent flapper; // Angular Position Component
-    private final AngularVelocityComponent feedWheel; // VelocityComponent
+    private final AngularVelocityComponent flywheel;
+    private final AngularPositionComponent flapper; 
+    private final AngularVelocityComponent feedWheel; 
 
     private final Angle initialTurretOffset;
 
     private final Pose3d turretOffset;
 
-    public final Translation3d blueHubLocation = new Translation3d(4.620, 4.030, Units.feetToMeters(6.0));
-    public final Translation3d redHubLocation = new Translation3d(
+    public static final Translation3d blueHubLocation = new Translation3d(4.620, 4.030, Units.feetToMeters(6.0));
+    public static final Translation3d redHubLocation = new Translation3d(
             FlippingUtil.flipFieldPosition(blueHubLocation.toTranslation2d()))
             .plus(new Translation3d(0, 0, blueHubLocation.getZ()));
+
+    public static final Translation3d ourHubLocation = DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Red ? redHubLocation : blueHubLocation;
 
     public static final LinearAcceleration GRAVITATIONAL_ACCEL = MetersPerSecondPerSecond.of(9.80665);
     private static final Time FLYWHEEL_DEBOUNCE = Seconds.of(0.15);
@@ -94,7 +98,7 @@ public class Shooter2026 extends LoggableSubsystem {
     public Shooter2026(Supplier<Pose2d> robotPositionSupplier) {
         this(robotPositionSupplier, new Pose3d(Units.inchesToMeters(9), Units.inchesToMeters(7),
                 Units.inchesToMeters(30), Rotation3d.kZero), makeTurret(), null, makeFlywheel(), makeFeedwheel(),
-                makeBaby());// TODO: Offset
+                makeBaby()); // TODO: Offset
     }
 
     private static SparkFlexIo makeFlywheel() {

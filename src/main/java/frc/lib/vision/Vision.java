@@ -3,7 +3,7 @@ package frc.lib.vision;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.VecBuilder;
-import frc.lib.LoggableSubsystem;
+import frc.lib.loggable.LoggableSubsystem;
 
 public class Vision extends LoggableSubsystem {
     private final VisionComponent[] cameras;
