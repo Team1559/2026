@@ -74,7 +74,8 @@ public class Robot extends LoggedRobot {
 
         
         registerNamedCommands();
-        autoChooser = AutoBuilder.buildAutoChooser("a");
+        autoChooser = AutoBuilder.buildAutoChooser("Do Nothing");
+        autoChooser.addOption("Do Nothing", new InstantCommand());
         SmartDashboard.putData(autoChooser);
 
         DriverStation.silenceJoystickConnectionWarning(true);
