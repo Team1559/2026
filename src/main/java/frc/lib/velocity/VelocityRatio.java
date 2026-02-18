@@ -7,6 +7,7 @@ public class VelocityRatio extends LoggableIntermediate implements AngularVeloci
     private final double reductionRatio;
     private final AngularVelocityComponent child;
 
+    /**The reduction ratio is in motor rotations over mechanism rotations. */
     public VelocityRatio(String name, double reductionRatio, AngularVelocityComponent child) {
         super(name);
         this.reductionRatio = reductionRatio;

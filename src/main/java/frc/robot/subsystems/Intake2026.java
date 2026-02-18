@@ -12,25 +12,27 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
+import frc.lib.limitSwitch.BooleanComponent;
 import frc.lib.limitSwitch.LimitSwitchIo;
 import frc.lib.velocity.SparkFlexIo;
 import frc.lib.velocity.VelocityRatio;
 import frc.lib.velocity.VelocitySubsystem;
+import frc.lib.voltage.VoltageComponent;
 
 public class Intake2026 extends VelocitySubsystem {
-    private static final int INTAKE_MOTOR_ID = 0; // TODO: Set intake motor ID chubb
-    private static final int ELBOW_MOTOR_ID = 0;
+    private static final int INTAKE_MOTOR_ID = 22;
+    private static final int ELBOW_MOTOR_ID = 21;
     private static final double FORWARDS_VELOCITY_RPM = 300;
-    private static final double REVERSE_VELOCITY_RPM = 150;
+    private static final double REVERSE_VELOCITY_RPM = -150;
 
-    private final SparkFlexIo elbowMotor;
+    private final VoltageComponent elbowMotor;
     
-    private final LimitSwitchIo lowerLimitSwitch;
-    private final LimitSwitchIo upperLimitSwitch;
+    // private final BooleanComponent lowerLimitSwitch;
+    // private final BooleanComponent upperLimitSwitch;
 
 
-    private final int LOWER_LIMIT_SWITCH_CHANNEL = 0; //TODO add channels
-    private final int UPPER_LIMIT_SWITCH_CHANNEL = 0;
+    // private final int LOWER_LIMIT_SWITCH_CHANNEL = 0; //TODO add channels
+    // private final int UPPER_LIMIT_SWITCH_CHANNEL = 0;
 
     public Intake2026() {
         super("Intake", new VelocityRatio("GearRatio", 3,
@@ -38,16 +40,17 @@ public class Intake2026 extends VelocitySubsystem {
 
         elbowMotor = new SparkFlexIo("ElbowMotor", new SparkFlex(ELBOW_MOTOR_ID, MotorType.kBrushless), makeElbowConfig());
 
-        lowerLimitSwitch = new LimitSwitchIo("LowerLimitSwitch", new DigitalInput(LOWER_LIMIT_SWITCH_CHANNEL));
-        upperLimitSwitch = new LimitSwitchIo("UpperLimitSwitch", new DigitalInput(UPPER_LIMIT_SWITCH_CHANNEL));
+        // lowerLimitSwitch = new LimitSwitchIo("LowerLimitSwitch", new DigitalInput(LOWER_LIMIT_SWITCH_CHANNEL));
+        // upperLimitSwitch = new LimitSwitchIo("UpperLimitSwitch", new DigitalInput(UPPER_LIMIT_SWITCH_CHANNEL));
     }
 
     private static SparkFlexConfig makeIntakeConfig() {
         SparkFlexConfig config = new SparkFlexConfig();
         config.idleMode(IdleMode.kBrake);
-        config.inverted(false);
+        config.inverted(true);
         config.smartCurrentLimit(80);
         config.closedLoop.pid(0, 0, 0); //TODO: Set these later
+        config.closedLoop.feedForward.kV(0.00055);
         return config;
     }
 
@@ -90,23 +93,23 @@ public class Intake2026 extends VelocitySubsystem {
     @Override
     public void periodic() {
         super.periodic();
-        lowerLimitSwitch.periodic();
-        upperLimitSwitch.periodic();
+        // lowerLimitSwitch.periodic();
+        // upperLimitSwitch.periodic();
     }
 
-    public boolean isAtUpperLimit() {
-        return upperLimitSwitch.get();
-    }
+    // public boolean isAtUpperLimit() {
+    //     return upperLimitSwitch.getAsBoolean();
+    // }
 
-    public boolean isAtLowerLimit() {
-        return lowerLimitSwitch.get();
-    }
+    // public boolean isAtLowerLimit() {
+    //     return lowerLimitSwitch.getAsBoolean();
+    // }
 
-    public Command downCommand() {
-        return new FunctionalCommand(() -> moveElbowDown(), () -> {}, (x) -> stopElbow(), () -> isAtLowerLimit(), this);
-    }
+    // public Command downCommand() {
+    //     return new FunctionalCommand(() -> moveElbowDown(), () -> {}, (x) -> stopElbow(), () -> isAtLowerLimit(), this);
+    // }
 
-    public Command upCommand() {
-        return new FunctionalCommand(() -> moveElbowUp(), () -> {}, (x) -> stopElbow(), () -> isAtUpperLimit(), this);
-    }
+    // public Command upCommand() {
+    //     return new FunctionalCommand(() -> moveElbowUp(), () -> {}, (x) -> stopElbow(), () -> isAtUpperLimit(), this);
+    // }
 }

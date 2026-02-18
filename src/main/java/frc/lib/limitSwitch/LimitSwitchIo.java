@@ -26,7 +26,7 @@ public class LimitSwitchIo extends LoggableIo<LimitSwitchIo.LimitSwitchIoInputs>
     }
 
     @Override
-    public boolean get() {
+    public boolean getAsBoolean() {
         return getInputs().atLimit;
     }
 }

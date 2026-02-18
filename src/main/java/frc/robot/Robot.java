@@ -74,8 +74,7 @@ public class Robot extends LoggedRobot {
 
         
         registerNamedCommands();
-        autoChooser = AutoBuilder.buildAutoChooser("Do Nothing");
-        autoChooser.addOption("Do Nothing", new InstantCommand());
+        autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData(autoChooser);
 
         DriverStation.silenceJoystickConnectionWarning(true);
@@ -90,8 +89,8 @@ public class Robot extends LoggedRobot {
 
     public void registerNamedCommands() {
         NamedCommands.registerCommand("DrivetrainStop", new StopCommand(drivetrain).withTimeout(1));
-        NamedCommands.registerCommand("IntakeDown", intake.downCommand());
-        NamedCommands.registerCommand("IntakeUp", intake.upCommand());
+        // NamedCommands.registerCommand("IntakeDown", intake.downCommand());
+        // NamedCommands.registerCommand("IntakeUp", intake.upCommand());
         NamedCommands.registerCommand("HubAim", shooter.getAimCommand(Shooter2026.ourHubLocation));
         NamedCommands.registerCommand("Shoot", new ShootCommand(indexer, shooter));
         NamedCommands.registerCommand("RunIntakeForwards", new InstantCommand(() -> intake.runForwards()));
@@ -110,10 +109,13 @@ public class Robot extends LoggedRobot {
     }
 
     public void setTestBindings() {
+        drivetrain.setDefaultCommand(new TeleopDriveCommand(() -> pilotController.getLeftY()*-1, () -> pilotController.getLeftX()*-1, () -> pilotController.getRightX() * -1, SwerveDrive2026Competition.SWERVE_CONSTRAINTS, drivetrain, () -> pilotController.rightBumper().getAsBoolean()));
+
         pilotController.a().whileTrue(new StartEndCommand(() -> shooter.setSpinFeedwheel(true), () -> shooter.setSpinFeedwheel(false), shooter));
         pilotController.b().whileTrue(new StartEndCommand(() -> shooter.setSpinFlywheel(true), () -> shooter.setSpinFlywheel(false)));
         pilotController.povRight().whileTrue(new InstantCommand(() -> shooter.setTurretAngle(Degrees.of(60)), shooter));
         pilotController.povLeft().whileTrue(new InstantCommand(() -> shooter.setTurretAngle(Degrees.of(-60)), shooter));
+
         pilotController.rightTrigger().onTrue(shooter.getAimCommand(Shooter2026.ourHubLocation));
 
         pilotController.povUp().whileTrue(new StartEndCommand(() -> intake.moveElbowUp(), () -> intake.stopElbow(), intake));
