@@ -18,8 +18,8 @@ public class Vision2026 extends Vision {
     
     private static VisionCameraIo[] createCameras(SwerveDrive drivetrain){
         Supplier<Rotation2d> yaw = () -> drivetrain.getPosition().getRotation();
-        VisionCameraIo frontRight = new LimelightCameraIo("FrontRight", "limelight-frontr", yaw);
-        VisionCameraIo frontLeft = new LimelightCameraIo("FrontLeft", "limelight-frontl", yaw);
+        VisionCameraIo frontRight = new LimelightCameraIo("FrontRight", "limelight-frontl", yaw);
+        //VisionCameraIo frontLeft = new LimelightCameraIo("FrontLeft", "limelight-backr", yaw);
 
         return new VisionCameraIo[]{frontRight, frontLeft};
     }

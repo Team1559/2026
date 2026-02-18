@@ -1,5 +1,8 @@
 package frc.lib.vision;
 
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -12,14 +15,16 @@ import edu.wpi.first.math.geometry.Pose3d;
 import frc.lib.LoggableSubsystem;
 import frc.lib.vision.VisionCameraIo.PoseObservation;
 import frc.lib.vision.VisionCameraIo.PoseObservationType;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.DriverStation;
 
 public class Vision extends LoggableSubsystem {
-    private static final double linearStdDevBaseline = 1; // TODO: set constants
-    private static final double angularStdDevBaseline = 1;
+    private static final double linearStdDevBaseline = 0.1; // TODO: set constants
+    private static final double angularStdDevBaseline = 0.1;
     private static final double linearStdDevMegatag2Factor = 1;
-    private static final double angularStdDevMegatag2Factor = 1;
-    private static final double maxAmbiguity = 0;
-    private static final double maxZError = 0;
+    private static final double angularStdDevMegatag2Factor = Double.POSITIVE_INFINITY;
+    private static final double maxAmbiguity = 0.4;
+    private static final Distance maxZError = Inches.of(1);
     private final VisionComponent[] cameras;
     private final VisionConsumer visionConsumer;
     private final AprilTagFieldLayout aprilTagLayout;
@@ -53,7 +58,8 @@ public class Vision extends LoggableSubsystem {
             for (PoseObservation observation : cam.getPoseObservations()) {
                 boolean rejectPose = observation.tagCount() == 0 // Must have at least one tag
                         || (observation.tagCount() == 1 && observation.ambiguity() > maxAmbiguity)
-                        || Math.abs(observation.pose().getZ()) > maxZError // TODO: pass in max z error
+                        || Math.abs(observation.pose().getZ()) > maxZError.in(Meters) // TODO: pass in max z error
+                        || (observation.type() == PoseObservationType.MEGATAG_2 && DriverStation.isDisabled())
 
                         // Must be within the field boundaries
                         || observation.pose().getX() < 0.0
