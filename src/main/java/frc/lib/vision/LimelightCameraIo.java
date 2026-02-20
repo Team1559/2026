@@ -6,9 +6,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import org.littletonrobotics.junction.Logger;
-
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -51,39 +48,27 @@ public class LimelightCameraIo extends VisionCameraIo {
         // Read new pose observations from NetworkTables
         Set<Integer> tagIds = new LinkedHashSet<>();
         List<PoseObservation> poseObservations = new LinkedList<>();
-        
+
         for (TimestampedDoubleArray rawSample : megatag1Subscriber.readQueue()) {
-            if (rawSample.value.length == 0) {
-                continue;
+            PoseObservation poseObservation = getPoseObservation(rawSample, PoseObservationType.MEGATAG_1);
+            if (poseObservation != null) {
+                poseObservations.add(poseObservation);
+
+                for (int i = 11; i < rawSample.value.length; i += 7) {
+                    tagIds.add((int) rawSample.value[i]);
+                }
             }
-            for (int i = 11; i < rawSample.value.length; i += 7) {
-                tagIds.add((int) rawSample.value[i]);
-            }
-            poseObservations.add(
-                    new PoseObservation(
-                            rawSample.timestamp * 1.0e-6 - rawSample.value[6] * 1.0e-3,
-                            parsePose(rawSample.value),
-                            rawSample.value.length >= 18 ? rawSample.value[17] : 0.0,
-                            (int) rawSample.value[7],
-                            rawSample.value[9],
-                            PoseObservationType.MEGATAG_1));
         }
 
         for (TimestampedDoubleArray rawSample : megatag2Subscriber.readQueue()) {
-            if (rawSample.value.length == 0) {
-                continue;
+            PoseObservation poseObservation = getPoseObservation(rawSample, PoseObservationType.MEGATAG_2);
+            if (poseObservation != null) {
+                poseObservations.add(poseObservation);
+
+                for (int i = 11; i < rawSample.value.length; i += 7) {
+                    tagIds.add((int) rawSample.value[i]);
+                }
             }
-            for (int i = 11; i < rawSample.value.length; i += 7) {
-                tagIds.add((int) rawSample.value[i]);
-            }
-            poseObservations.add(
-                    new PoseObservation(
-                            rawSample.timestamp * 1.0e-6 - rawSample.value[6] * 1.0e-3,
-                            parsePose(rawSample.value),
-                            0.0,
-                            (int) rawSample.value[7],
-                            rawSample.value[9],
-                            PoseObservationType.MEGATAG_2));
         }
 
         // Save pose observations to inputs object
@@ -107,5 +92,18 @@ public class LimelightCameraIo extends VisionCameraIo {
                         Units.degreesToRadians(rawLLArray[3]),
                         Units.degreesToRadians(rawLLArray[4]),
                         Units.degreesToRadians(rawLLArray[5])));
+    }
+
+    private PoseObservation getPoseObservation(TimestampedDoubleArray rawSample, PoseObservationType type) {
+        if (rawSample.value.length == 0) {
+            return null;
+        }
+        return new PoseObservation(
+                rawSample.timestamp * 1.0e-6 - rawSample.value[6] * 1.0e-3,
+                parsePose(rawSample.value),
+                (rawSample.value.length >= 18 && type == PoseObservationType.MEGATAG_1) ? rawSample.value[17] : 0.0,
+                (int) rawSample.value[7],
+                rawSample.value[9],
+                PoseObservationType.MEGATAG_1);
     }
 }
