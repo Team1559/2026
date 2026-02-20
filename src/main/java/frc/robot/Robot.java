@@ -5,6 +5,7 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Rotation;
 
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -45,7 +46,7 @@ public class Robot extends LoggedRobot {
     private final SwerveDrive drivetrain;
     private final Vision2026 vision;
     private final Shooter2026 shooter;
-    private final Intake2026 intake;
+    //private final Intake2026 intake;
     private final Indexer2026 indexer;
     private static final boolean IS_REPLAY = false;
     private int loopIterations = 0;
@@ -69,7 +70,7 @@ public class Robot extends LoggedRobot {
         drivetrain = new SwerveDrive2026Competition();
         vision = new Vision2026 (drivetrain);
         shooter = new Shooter2026(drivetrain::getPosition);
-        intake = new Intake2026();
+        //intake = new Intake2026();
         indexer = new Indexer2026();
 
         
@@ -93,19 +94,21 @@ public class Robot extends LoggedRobot {
         // NamedCommands.registerCommand("IntakeUp", intake.upCommand());
         NamedCommands.registerCommand("HubAim", shooter.getAimCommand(Shooter2026.ourHubLocation));
         NamedCommands.registerCommand("Shoot", new ShootCommand(indexer, shooter));
-        NamedCommands.registerCommand("RunIntakeForwards", new InstantCommand(() -> intake.runForwards()));
-        NamedCommands.registerCommand("StopIntake", new InstantCommand(() -> intake.stop()));
+        // NamedCommands.registerCommand("RunIntakeForwards", new InstantCommand(() -> intake.runForwards()));
+        // NamedCommands.registerCommand("StopIntake", new InstantCommand(() -> intake.stop()));
     }
 
     public void setTeleopBindings() {
         drivetrain.setDefaultCommand(new TeleopDriveCommand(() -> pilotController.getLeftY()*-1, () -> pilotController.getLeftX()*-1, () -> pilotController.getRightX() * -1, SwerveDrive2026Competition.SWERVE_CONSTRAINTS, drivetrain, () -> pilotController.rightBumper().getAsBoolean()));
         
-        pilotController.a().whileTrue(new StartEndCommand(() -> intake.runForwards(), () -> intake.stop(), intake));
-        pilotController.b().whileTrue(new StartEndCommand(() -> intake.runReverse(), () -> intake.stop(), intake));
+        // pilotController.a().whileTrue(new StartEndCommand(() -> intake.runForwards(), () -> intake.stop(), intake));
+        // pilotController.b().whileTrue(new StartEndCommand(() -> intake.runReverse(), () -> intake.stop(), intake));
         pilotController.rightTrigger().whileTrue(new ShootCommand(indexer, shooter));
+        pilotController.leftTrigger().onTrue(shooter.getAimCommand(Shooter2026.ourHubLocation));
+
         
-        pilotController.povUp().whileTrue(new StartEndCommand(() -> intake.moveElbowUp(), () -> intake.stopElbow(), intake));
-        pilotController.povDown().whileTrue(new StartEndCommand(() -> intake.moveElbowDown(), () -> intake.stopElbow(), intake));
+        // pilotController.povUp().whileTrue(new StartEndCommand(() -> intake.moveElbowUp(), () -> intake.stopElbow(), intake));
+        // pilotController.povDown().whileTrue(new StartEndCommand(() -> intake.moveElbowDown(), () -> intake.stopElbow(), intake));
     }
 
     public void setTestBindings() {
@@ -118,11 +121,13 @@ public class Robot extends LoggedRobot {
 
         pilotController.rightTrigger().onTrue(shooter.getAimCommand(Shooter2026.ourHubLocation));
 
-        pilotController.povUp().whileTrue(new StartEndCommand(() -> intake.moveElbowUp(), () -> intake.stopElbow(), intake));
-        pilotController.povDown().whileTrue(new StartEndCommand(() -> intake.moveElbowDown(), () -> intake.stopElbow(), intake));
+        pilotController.x().onTrue(new InstantCommand(() -> shooter.setTurretAngle(Degrees.of(0))));
 
-        pilotController.rightBumper().whileTrue(new StartEndCommand(() -> intake.runForwards(), () -> intake.stop(), intake));
-        pilotController.leftBumper().whileTrue(new StartEndCommand(() -> intake.runReverse(), () -> intake.stop(), intake));
+        // pilotController.povUp().whileTrue(new StartEndCommand(() -> intake.moveElbowUp(), () -> intake.stopElbow(), intake));
+        // pilotController.povDown().whileTrue(new StartEndCommand(() -> intake.moveElbowDown(), () -> intake.stopElbow(), intake));
+
+        // pilotController.rightBumper().whileTrue(new StartEndCommand(() -> intake.runForwards(), () -> intake.stop(), intake));
+        // pilotController.leftBumper().whileTrue(new StartEndCommand(() -> intake.runReverse(), () -> intake.stop(), intake));
 
         pilotController.y().whileTrue(new StartEndCommand(() -> indexer.runForwards(), () -> indexer.stop(), indexer));
     }

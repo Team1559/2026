@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.FeetPerSecond;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
@@ -78,7 +79,7 @@ public class Shooter2026 extends LoggableSubsystem {
 
     public static final LinearAcceleration GRAVITATIONAL_ACCEL = MetersPerSecondPerSecond.of(9.80665);
     private static final Time FLYWHEEL_DEBOUNCE = Seconds.of(0.15);
-    private static final AngularVelocity tolerance = RPM.of(50);
+    private static final AngularVelocity tolerance = RPM.of(10);
 
     public Shooter2026(Supplier<Pose2d> robotPositionSupplier, Pose3d turretOffset, AngularPositionComponent turret,
             AngularPositionComponent flapper, AngularVelocityComponent flywheel, AngularVelocityComponent feedWheel,
@@ -104,7 +105,7 @@ public class Shooter2026 extends LoggableSubsystem {
     private static SparkFlexIo makeFlywheel() {
         SparkFlexConfig config = new SparkFlexConfig(); // TODO: Configure
         config.closedLoop.pid(0, 0, 0);
-        config.closedLoop.feedForward.kV(0.000153); // Volts per rpm
+        config.closedLoop.feedForward.kV(0.000151); // Volts per rpm (0.000153)
         config.inverted(false);
         config.idleMode(IdleMode.kCoast);
         config.voltageCompensation(12.0);
@@ -114,7 +115,7 @@ public class Shooter2026 extends LoggableSubsystem {
     private static SparkFlexIo makeFeedwheel() {
         SparkFlexConfig config = new SparkFlexConfig(); // TODO: Configure
         config.closedLoop.pid(0, 0, 0);
-        config.closedLoop.feedForward.kV(1 / 565.0); // Volts per rpm
+        config.closedLoop.feedForward.kV(0.00016); // Volts per rpm
         config.idleMode(IdleMode.kBrake);
         config.voltageCompensation(12.0);
         return new SparkFlexIo("Feedwheel", new SparkFlex(16, MotorType.kBrushless), config);
@@ -122,10 +123,11 @@ public class Shooter2026 extends LoggableSubsystem {
 
     private static AngularPositionComponent makeTurret() {
         SparkFlexConfig config = new SparkFlexConfig(); // TODO: Configure
-        config.closedLoop.pid(0.1, 0.0008, 0.01); // P: 2, i:0, d:0.2
+        config.closedLoop.pid(0.1, 0.0008, 0.01);
         config.closedLoop.iZone(0.1);
         config.voltageCompensation(12.0);
         config.inverted(true);
+        config.idleMode(IdleMode.kBrake);
         return new LimitedAngularPositionIntermediate("Turret", Degrees.of(-100), Degrees.of(100),
                 new AngularPositionRatio("GearRatio", 10d,
                         new SparkFlexIo("TurretMotor", new SparkFlex(19, MotorType.kBrushless), config)));
@@ -177,7 +179,7 @@ public class Shooter2026 extends LoggableSubsystem {
 
     public boolean isFlywheelReady() {
 
-        if (Math.abs(flywheel.getCurrentVelocity().minus(targetFlywheelVelocity).in(RPM)) < tolerance.in(RPM)) {
+        if (Math.abs(flywheel.getCurrentVelocity().minus(targetFlywheelVelocity).in(RPM)) < tolerance.in(RPM) && targetFlywheelVelocity.gt(RPM.zero())) {
             return Timer.getTimestamp() - timestampFlywheelNotReady > FLYWHEEL_DEBOUNCE.in(Seconds);
         } else {
             timestampFlywheelNotReady = Timer.getTimestamp();
@@ -251,9 +253,9 @@ public class Shooter2026 extends LoggableSubsystem {
         Logger.recordOutput(getOutputLogPath("TargetProjectileVelocity"), projectileVelocity);
 
         if (spinFlywheel && Double.isFinite(projectileVelocity.in(MetersPerSecond))) {
-            targetFlywheelVelocity = RPM.of(0); // TODO: create actual equation
+            targetFlywheelVelocity = RPM.of(373 + 137 * projectileVelocity.in(FeetPerSecond) - 0.371 * Math.pow(projectileVelocity.in(FeetPerSecond), 2)); // TODO: create actual equation
             Logger.recordOutput(getOutputLogPath("TargetFlywheelVelocity"), targetFlywheelVelocity);
-            // flywheel.setTargetVelocity(targetAngularVelocity);
+            flywheel.setTargetVelocity(targetFlywheelVelocity);
         } else {
             flywheel.stop();
         }
@@ -281,15 +283,15 @@ public class Shooter2026 extends LoggableSubsystem {
         
 
         if (spinFeedwheel) {
-            feedWheel.setTargetVelocity(RPM.of(50));
+            feedWheel.setTargetVelocity(RPM.of(1500));
         } else {
             feedWheel.stop();
         }
-        if (spinFlywheel) {
-            flywheel.setTargetVelocity(RPM.of(4000));
-        } else {
-            flywheel.stop();
-        }
+        // if (spinFlywheel) {
+        //     flywheel.setTargetVelocity(RPM.of(10000));
+        // } else {
+        //     flywheel.stop();
+        // }
     }
 
     public void setTurretAngle(Angle setAngle) {
