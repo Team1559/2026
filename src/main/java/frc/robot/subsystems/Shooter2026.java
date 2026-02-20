@@ -58,7 +58,7 @@ public class Shooter2026 extends LoggableSubsystem {
     private boolean spinFlywheel;
     private boolean spinFeedwheel;
     private double timestampFlywheelNotReady;
-    private final Rotation2d flapperAngle = Rotation2d.fromDegrees(57);
+    private final Rotation2d flapperAngle = Rotation2d.fromDegrees(59);
 
     private final AngularPositionComponent turret; 
     private final AngularPositionSensor turretAngleSensor;
@@ -104,7 +104,7 @@ public class Shooter2026 extends LoggableSubsystem {
 
     private static SparkFlexIo makeFlywheel() {
         SparkFlexConfig config = new SparkFlexConfig(); // TODO: Configure
-        config.closedLoop.pid(0, 0, 0);
+        config.closedLoop.pid(0.0005, 0, 0.05); //0.0005, 0, 0.01
         config.closedLoop.feedForward.kV(0.000151); // Volts per rpm (0.000153)
         config.inverted(false);
         config.idleMode(IdleMode.kCoast);
