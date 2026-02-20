@@ -46,9 +46,9 @@ public class Robot extends LoggedRobot {
     private final DriverAssist driverAssist;
     private final SwerveDrive drivetrain;
     private final Vision2026 vision;
-    private final Shooter2026 shooter;
-    private final Intake2026 intake;
-    private final Indexer2026 indexer;
+    //private final Shooter2026 shooter;
+    //private final Intake2026 intake;
+    //private final Indexer2026 indexer;
     private static final boolean IS_REPLAY = false;
     private int loopIterations = 0;
     @SuppressWarnings("resource") //pdh must stay open for connection
@@ -71,9 +71,9 @@ public class Robot extends LoggedRobot {
         driverAssist = new DriverAssist("DriverAssist");
         drivetrain = new SwerveDrive2026Competition();
         vision = new Vision2026 (drivetrain);
-        shooter = new Shooter2026(drivetrain::getPosition);
-        intake = new Intake2026();
-        indexer = new Indexer2026();
+        // shooter = new Shooter2026(drivetrain::getPosition);
+        // intake = new Intake2026();
+        // indexer = new Indexer2026();
 
         
         registerNamedCommands();
@@ -96,20 +96,20 @@ public class Robot extends LoggedRobot {
 
     public void setTeleopBindings() {
         drivetrain.setDefaultCommand(new TeleopDriveCommand(()->pilotController.getLeftY()*-1, ()->pilotController.getLeftX()*-1, () -> pilotController.getRightX() * -1, SwerveDrive2026Competition.SWERVE_CONSTRAINTS, drivetrain, ()->pilotController.rightBumper().getAsBoolean()));
-        pilotController.a().whileTrue(new StartEndCommand(() -> intake.runForwards(), () -> intake.stop(), intake));
-        pilotController.b().whileTrue(new StartEndCommand(() -> intake.runReverse(), () -> intake.stop(), intake));
-        pilotController.rightTrigger().whileTrue(new ShootCommand(indexer, shooter));
+        //pilotController.a().whileTrue(new StartEndCommand(() -> intake.runForwards(), () -> intake.stop(), intake));
+        //pilotController.b().whileTrue(new StartEndCommand(() -> intake.runReverse(), () -> intake.stop(), intake));
+        //pilotController.rightTrigger().whileTrue(new ShootCommand(indexer, shooter));
     }
 
     public void setTestBindings() {
-        pilotController.a().whileTrue(new StartEndCommand(() -> shooter.setSpinFeedwheel(true), () -> shooter.setSpinFeedwheel(false), shooter));
-        pilotController.b().whileTrue(new StartEndCommand(() -> shooter.setSpinFlywheel(true), () -> shooter.setSpinFlywheel(false))); //TODO: cannot run both at the same time, make it one command
-        pilotController.povRight().whileTrue(new InstantCommand(() -> shooter.setTurretAngle(Degrees.of(60)), shooter));
-        pilotController.povLeft().whileTrue(new InstantCommand(() -> shooter.setTurretAngle(Degrees.of(-60)), shooter));
-        pilotController.povUp().onTrue(shooter.getAimCommand(shooter.redHubLocation));
-        pilotController.rightBumper().whileTrue(new StartEndCommand(() -> intake.runForwards(), () -> intake.stop(), intake));
-        pilotController.leftBumper().whileTrue(new StartEndCommand(() -> intake.runReverse(), () -> intake.stop(), intake));
-        pilotController.y().whileTrue(new StartEndCommand(() -> indexer.runForwards(), () -> indexer.stop(), indexer));
+        //pilotController.a().whileTrue(new StartEndCommand(() -> shooter.setSpinFeedwheel(true), () -> shooter.setSpinFeedwheel(false), shooter));
+        // pilotController.b().whileTrue(new StartEndCommand(() -> shooter.setSpinFlywheel(true), () -> shooter.setSpinFlywheel(false))); //TODO: cannot run both at the same time, make it one command
+        // pilotController.povRight().whileTrue(new InstantCommand(() -> shooter.setTurretAngle(Degrees.of(60)), shooter));
+        // pilotController.povLeft().whileTrue(new InstantCommand(() -> shooter.setTurretAngle(Degrees.of(-60)), shooter));
+        // pilotController.povUp().onTrue(shooter.getAimCommand(shooter.redHubLocation));
+        // pilotController.rightBumper().whileTrue(new StartEndCommand(() -> intake.runForwards(), () -> intake.stop(), intake));
+        // pilotController.leftBumper().whileTrue(new StartEndCommand(() -> intake.runReverse(), () -> intake.stop(), intake));
+        // pilotController.y().whileTrue(new StartEndCommand(() -> indexer.runForwards(), () -> indexer.stop(), indexer));
     }
 
     @Override

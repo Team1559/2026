@@ -10,6 +10,7 @@ import frc.lib.vision.LimelightCameraIo;
 import frc.lib.vision.Vision;
 import frc.lib.vision.VisionCameraIo;
 
+
 public class Vision2026 extends Vision {
     
     public Vision2026(SwerveDrive drivetrain){
@@ -18,10 +19,12 @@ public class Vision2026 extends Vision {
     
     private static VisionCameraIo[] createCameras(SwerveDrive drivetrain){
         Supplier<Rotation2d> yaw = () -> drivetrain.getPosition().getRotation();
-        VisionCameraIo frontRight = new LimelightCameraIo("FrontRight", "limelight-frontl", yaw);
-        //VisionCameraIo frontLeft = new LimelightCameraIo("FrontLeft", "limelight-backr", yaw);
+        VisionCameraIo frontStraight = new LimelightCameraIo("FrontStraight", "limelight-fronts", yaw);
+        VisionCameraIo frontLeft = new LimelightCameraIo("FrontLeft", "limelight", yaw);
+        VisionCameraIo backLeft = new LimelightCameraIo("BackLeft", "limelight-backl", yaw);
 
-        return new VisionCameraIo[]{frontRight, frontLeft};
+
+        return new VisionCameraIo[]{frontStraight, frontLeft, backLeft};
     }
     
 }
