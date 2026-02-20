@@ -79,7 +79,7 @@ public class Shooter2026 extends LoggableSubsystem {
 
     public static final LinearAcceleration GRAVITATIONAL_ACCEL = MetersPerSecondPerSecond.of(9.80665);
     private static final Time FLYWHEEL_DEBOUNCE = Seconds.of(0.15);
-    private static final AngularVelocity tolerance = RPM.of(10);
+    private static final AngularVelocity tolerance = RPM.of(20);
 
     public Shooter2026(Supplier<Pose2d> robotPositionSupplier, Pose3d turretOffset, AngularPositionComponent turret,
             AngularPositionComponent flapper, AngularVelocityComponent flywheel, AngularVelocityComponent feedWheel,

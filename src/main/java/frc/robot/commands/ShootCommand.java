@@ -21,6 +21,7 @@ public class ShootCommand extends Command {
         shooter.setSpinFlywheel(true);
         shooter.setSpinFeedwheel(false);
         indexer.stop();
+        canShoot = false;
     }
 
     @Override
