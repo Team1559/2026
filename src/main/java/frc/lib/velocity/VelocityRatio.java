@@ -1,12 +1,13 @@
 package frc.lib.velocity;
 
 import edu.wpi.first.units.measure.AngularVelocity;
-import frc.lib.LoggableIntermediate;
+import frc.lib.loggable.LoggableIntermediate;
 
 public class VelocityRatio extends LoggableIntermediate implements AngularVelocityComponent {
     private final double reductionRatio;
     private final AngularVelocityComponent child;
 
+    /**The reduction ratio is in motor rotations over mechanism rotations. */
     public VelocityRatio(String name, double reductionRatio, AngularVelocityComponent child) {
         super(name);
         this.reductionRatio = reductionRatio;

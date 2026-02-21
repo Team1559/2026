@@ -1,4 +1,4 @@
-package frc.lib;
+package frc.lib.loggable;
 
 import java.util.LinkedHashSet;
 import java.util.Set;

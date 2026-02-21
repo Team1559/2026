@@ -7,7 +7,7 @@ import org.littletonrobotics.junction.inputs.LoggableInputs;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Timer;
-import frc.lib.LoggableIo;
+import frc.lib.loggable.LoggableIo;
 
 public class SwerveModuleIo extends LoggableIo<SwerveModuleIo.SwerveInputs> implements SwerveModule {
     @AutoLog

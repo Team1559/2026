@@ -1,4 +1,4 @@
-package frc.lib;
+package frc.lib.loggable;
 
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.inputs.LoggableInputs;

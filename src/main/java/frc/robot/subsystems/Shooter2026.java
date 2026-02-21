@@ -1,6 +1,8 @@
-package frc.robot.subsystems.shooter;
+package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.FeetPerSecond;
+import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.RPM;
@@ -32,48 +34,50 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import frc.lib.LoggableSubsystem;
-import frc.lib.angularPosition.AngularPositionComponent;
-import frc.lib.angularPosition.AngularPositionRatio;
-import frc.lib.angularPosition.AngularPositionSensor;
-import frc.lib.angularPosition.CanCoderIo;
-import frc.lib.angularPosition.ChineseBaby;
-import frc.lib.angularPosition.LimitedAngularPositionIntermediate;
+import frc.lib.angular_position.AngularPositionComponent;
+import frc.lib.angular_position.AngularPositionRatio;
+import frc.lib.angular_position.AngularPositionSensor;
+import frc.lib.angular_position.CanCoderIo;
+import frc.lib.angular_position.ChineseRemainderAngle;
+import frc.lib.angular_position.LimitedAngularPositionIntermediate;
+import frc.lib.loggable.LoggableSubsystem;
 import frc.lib.velocity.AngularVelocityComponent;
 import frc.lib.velocity.SparkFlexIo;
 
 public class Shooter2026 extends LoggableSubsystem {
     private final Supplier<Pose2d> robotPositionSupplier;
 
-    private AngularVelocity targetFlywheelVelocity;
+    private AngularVelocity targetFlywheelVelocity = RPM.zero(); //Init at zero to fix crash due to null in isFlywheelReady
     private Translation3d targetFieldSpace;
     private Translation2d barrierOffset;
     private boolean spinFlywheel;
     private boolean spinFeedwheel;
     private double timestampFlywheelNotReady;
-    private final Rotation2d flapperAngle = Rotation2d.fromDegrees(57);
+    private final Rotation2d flapperAngle = Rotation2d.fromDegrees(59);
 
-    private final AngularPositionComponent turret; // APC
+    private final AngularPositionComponent turret; 
     private final AngularPositionSensor turretAngleSensor;
-    private final AngularVelocityComponent flywheel; // Velocity Component
-    private final AngularPositionComponent flapper; // Angular Position Component
-    private final AngularVelocityComponent feedWheel; // VelocityComponent
+    private final AngularVelocityComponent flywheel;
+    private final AngularPositionComponent flapper; 
+    private final AngularVelocityComponent feedWheel; 
 
     private final Angle initialTurretOffset;
 
     private final Pose3d turretOffset;
 
-    public final Translation3d blueHubLocation = new Translation3d(4.620, 4.030, Units.feetToMeters(6.0));
-    public final Translation3d redHubLocation = new Translation3d(
+    public static final Translation3d blueHubLocation = new Translation3d(4.620, 4.030, Units.feetToMeters(6.0));
+    public static final Translation3d redHubLocation = new Translation3d(
             FlippingUtil.flipFieldPosition(blueHubLocation.toTranslation2d()))
             .plus(new Translation3d(0, 0, blueHubLocation.getZ()));
 
     public static final LinearAcceleration GRAVITATIONAL_ACCEL = MetersPerSecondPerSecond.of(9.80665);
     private static final Time FLYWHEEL_DEBOUNCE = Seconds.of(0.15);
-    private static final AngularVelocity tolerance = RPM.of(50);
+    private static final AngularVelocity tolerance = RPM.of(20);
 
     public Shooter2026(Supplier<Pose2d> robotPositionSupplier, Pose3d turretOffset, AngularPositionComponent turret,
             AngularPositionComponent flapper, AngularVelocityComponent flywheel, AngularVelocityComponent feedWheel,
@@ -88,20 +92,19 @@ public class Shooter2026 extends LoggableSubsystem {
         this.turretAngleSensor = turretAngleSensor;
         initialTurretOffset = turret.getAngle().minus(turretAngleSensor.getAngle());
         this.addChildren(turret, flywheel, flapper, feedWheel, turretAngleSensor);
-        turret.setPercievedAngle(turretAngleSensor.getAngle());
+        useAbsoluteAngle();
     }
 
     public Shooter2026(Supplier<Pose2d> robotPositionSupplier) {
-        this(robotPositionSupplier, new Pose3d(Units.inchesToMeters(9), Units.inchesToMeters(7),
-                Units.inchesToMeters(30), Rotation3d.kZero), makeTurret(), null, makeFlywheel(), makeFeedwheel(),
-                makeBaby());// TODO: Offset
+        this(robotPositionSupplier, new Pose3d(Inches.of(5.5), Inches.of(5.5), Inches.of(28), Rotation3d.kZero), makeTurret(), null, makeFlywheel(), makeFeedwheel(),
+        makeCrtAngleSensor());
     }
 
     private static SparkFlexIo makeFlywheel() {
         SparkFlexConfig config = new SparkFlexConfig(); // TODO: Configure
-        config.closedLoop.pid(0, 0, 0);
-        config.closedLoop.feedForward.kV(0.000153); // Volts per rpm
-        config.inverted(true);
+        config.closedLoop.pid(0.0005, 0, 0.05); //0.0005, 0, 0.01
+        config.closedLoop.feedForward.kV(0.000151); // Volts per rpm (0.000153)
+        config.inverted(false);
         config.idleMode(IdleMode.kCoast);
         config.voltageCompensation(12.0);
         return new SparkFlexIo("Flywheel", new SparkFlex(17, MotorType.kBrushless), config);
@@ -110,7 +113,7 @@ public class Shooter2026 extends LoggableSubsystem {
     private static SparkFlexIo makeFeedwheel() {
         SparkFlexConfig config = new SparkFlexConfig(); // TODO: Configure
         config.closedLoop.pid(0, 0, 0);
-        config.closedLoop.feedForward.kV(1 / 565.0); // Volts per rpm
+        config.closedLoop.feedForward.kV(0.00016); // Volts per rpm
         config.idleMode(IdleMode.kBrake);
         config.voltageCompensation(12.0);
         return new SparkFlexIo("Feedwheel", new SparkFlex(16, MotorType.kBrushless), config);
@@ -118,12 +121,18 @@ public class Shooter2026 extends LoggableSubsystem {
 
     private static AngularPositionComponent makeTurret() {
         SparkFlexConfig config = new SparkFlexConfig(); // TODO: Configure
-        config.closedLoop.pid(0.1, 0.000001, 0); // P: 2, i:0, d:0.2
+        config.closedLoop.pid(0.1, 0.0008, 0.01);
+        config.closedLoop.iZone(0.1);
         config.voltageCompensation(12.0);
         config.inverted(true);
+        config.idleMode(IdleMode.kBrake);
         return new LimitedAngularPositionIntermediate("Turret", Degrees.of(-100), Degrees.of(100),
-                new AngularPositionRatio("GearRatio", 30,
+                new AngularPositionRatio("GearRatio", 10d,
                         new SparkFlexIo("TurretMotor", new SparkFlex(19, MotorType.kBrushless), config)));
+    }
+
+    public Angle getAngle(){
+        return turret.getAngle();
     }
 
     private static SparkFlexIo makeFlapper() {
@@ -133,22 +142,15 @@ public class Shooter2026 extends LoggableSubsystem {
         return new SparkFlexIo("Flapper", new SparkFlex(0, MotorType.kBrushless), config); // TODO: ID motor
     }
 
-    private static AngularPositionSensor makeBaby() {
+    private static AngularPositionSensor makeCrtAngleSensor() {
         CANcoderConfiguration configOne = new CANcoderConfiguration();
-        configOne.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-        CanCoderIo canCoderOne = new CanCoderIo("TurretGearOne", new CANcoder(14), Radians.of(1.756408), configOne); // TODO:
-                                                                                                                     // calibrate
-                                                                                                                     // offsets
-                                                                                                                     // 2.006447
-
+        configOne.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
+        CanCoderIo canCoderOne = new CanCoderIo("TurretGearOne", new CANcoder(14), Radians.of(-0.676486), configOne);
         CANcoderConfiguration configTwo = new CANcoderConfiguration();
-        configTwo.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-        CanCoderIo canCoderTwo = new CanCoderIo("TurretGearTwo", new CANcoder(15), Radians.of(-2.357728), configTwo); // TODO:
-                                                                                                                      // calibrate
-                                                                                                                      // offsets
-                                                                                                                      // -1.79169
+        configTwo.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
+        CanCoderIo canCoderTwo = new CanCoderIo("TurretGearTwo", new CANcoder(15), Radians.of(1.007825), configTwo);
 
-        return new ChineseBaby("ChineseBaby", 19, 21, 200, canCoderTwo, canCoderOne, Degrees.of(-180), Degrees.of(180));
+        return new ChineseRemainderAngle("CrtAngleSensor", 19, 21, 200, canCoderTwo, canCoderOne, Degrees.of(-180), Degrees.of(180));
     }
 
     public void setTargetFieldSpace(Translation3d target, Translation2d barrierOffset) {
@@ -164,13 +166,18 @@ public class Shooter2026 extends LoggableSubsystem {
         this.spinFeedwheel = spinFeedwheel;
     }
 
+    public void useAbsoluteAngle(){
+        turret.setPercievedAngle(turretAngleSensor.getAngle());
+        Logger.recordOutput(getOutputLogPath("CrtAngle"), turretAngleSensor.getAngle());
+    }
+
     public AngularVelocity getTargetFlywheelVelocity() {
         return targetFlywheelVelocity;
     }
 
     public boolean isFlywheelReady() {
 
-        if (Math.abs(flywheel.getCurrentVelocity().minus(targetFlywheelVelocity).in(RPM)) < tolerance.in(RPM)) {
+        if (Math.abs(flywheel.getCurrentVelocity().minus(targetFlywheelVelocity).in(RPM)) < tolerance.in(RPM) && targetFlywheelVelocity.gt(RPM.zero())) {
             return Timer.getTimestamp() - timestampFlywheelNotReady > FLYWHEEL_DEBOUNCE.in(Seconds);
         } else {
             timestampFlywheelNotReady = Timer.getTimestamp();
@@ -244,9 +251,9 @@ public class Shooter2026 extends LoggableSubsystem {
         Logger.recordOutput(getOutputLogPath("TargetProjectileVelocity"), projectileVelocity);
 
         if (spinFlywheel && Double.isFinite(projectileVelocity.in(MetersPerSecond))) {
-            targetFlywheelVelocity = RPM.of(0); // TODO: create actual equation
+            targetFlywheelVelocity = RPM.of(373 + 137 * projectileVelocity.in(FeetPerSecond) - 0.371 * Math.pow(projectileVelocity.in(FeetPerSecond), 2)); // TODO: create actual equation
             Logger.recordOutput(getOutputLogPath("TargetFlywheelVelocity"), targetFlywheelVelocity);
-            // flywheel.setTargetVelocity(targetAngularVelocity);
+            flywheel.setTargetVelocity(targetFlywheelVelocity);
         } else {
             flywheel.stop();
         }
@@ -264,20 +271,19 @@ public class Shooter2026 extends LoggableSubsystem {
         Logger.recordOutput(getOutputLogPath("TargetFieldSpace"), targetFieldSpace);
         Logger.recordOutput(getOutputLogPath("TargetShooterSpace"), target);
         Logger.recordOutput(getOutputLogPath("SpinningFlywheel"), spinFlywheel);
-        Logger.recordOutput(getOutputLogPath("ChineseBabyAngle"), turretAngleSensor.getAngle());
         Logger.recordOutput(getOutputLogPath("OutputVelocity"), flywheel.getCurrentVelocity());
         Logger.recordOutput(getOutputLogPath("TurretAngle"), turret.getAngle());
         Logger.recordOutput(getOutputLogPath("IsFlywheelReady?"), isFlywheelReady());
 
+        if (DriverStation.isTest()){
+            Logger.recordOutput(getOutputLogPath("CrtAngle"), turretAngleSensor.getAngle());
+        }
+        
+
         if (spinFeedwheel) {
-            feedWheel.setTargetVelocity(RPM.of(500));
+            feedWheel.setTargetVelocity(RPM.of(1500));
         } else {
             feedWheel.stop();
-        }
-        if (spinFlywheel) {
-            flywheel.setTargetVelocity(RPM.of(5000));
-        } else {
-            flywheel.stop();
         }
     }
 
@@ -298,7 +304,11 @@ public class Shooter2026 extends LoggableSubsystem {
         return new Translation2d(targetOnPlane.getX(), targetOnPlane.getZ()); // Z is up, is referred to as Y in 2d
     }
 
-    public Command getAimCommand(Translation3d target) {
-        return new InstantCommand(() -> setTargetFieldSpace(target, null));
+    public Command getAimCommand(Supplier<Translation3d> target) {
+        return new InstantCommand(() -> setTargetFieldSpace(target.get(), null));
+    }
+
+    public static Translation3d ourHubLocation() {
+        return DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Red ? redHubLocation : blueHubLocation;
     }
 }

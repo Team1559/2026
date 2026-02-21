@@ -1,4 +1,4 @@
-package frc.lib;
+package frc.lib.loggable;
 
 public interface LoggableComponent {
     void periodic();

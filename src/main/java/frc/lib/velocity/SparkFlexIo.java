@@ -2,7 +2,7 @@ package frc.lib.velocity;
 
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Rotations;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Volts;
 
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.Logger;
@@ -16,15 +16,15 @@ import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.config.SparkFlexConfig;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.units.AngularVelocityUnit;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
-import frc.lib.LoggableIo;
-import frc.lib.angularPosition.AngularPositionComponent;
+import edu.wpi.first.units.measure.Voltage;
+import frc.lib.angular_position.AngularPositionComponent;
+import frc.lib.loggable.LoggableIo;
+import frc.lib.voltage.VoltageComponent;
 
-public class SparkFlexIo extends LoggableIo<SparkFlexIo.SparkFlexIoInputs> implements AngularVelocityComponent, AngularPositionComponent {
+public class SparkFlexIo extends LoggableIo<SparkFlexIo.SparkFlexIoInputs> implements AngularVelocityComponent, AngularPositionComponent, VoltageComponent {
     @AutoLog
     public static abstract class SparkFlexIoInputs implements LoggableInputs {
         public double motorCurrent;
@@ -56,13 +56,11 @@ public class SparkFlexIo extends LoggableIo<SparkFlexIo.SparkFlexIoInputs> imple
     @Override
     public void setTargetVelocity(AngularVelocity targetVelocity) {
         Logger.recordOutput(getOutputLogPath("TargetVelocity"), targetVelocity);
-        Logger.recordOutput(getOutputLogPath("Running"), true);
         motorController.setSetpoint(targetVelocity.in(Units.RPM), ControlType.kVelocity);
     }
 
     @Override
     public void stop() {
-        Logger.recordOutput(getOutputLogPath("Running"), false);
         motor.stopMotor();
         Logger.recordOutput(getOutputLogPath("TargetVelocity"), RPM.zero());
     }
@@ -96,5 +94,11 @@ public class SparkFlexIo extends LoggableIo<SparkFlexIo.SparkFlexIoInputs> imple
     @Override
     public void setPercievedAngle(Angle angle) {
         encoder.setPosition(angle.in(Units.Rotations));
+    }
+
+    @Override
+    public void setVoltage(Voltage voltage) {
+        motor.setVoltage(voltage);
+        Logger.recordOutput(getOutputLogPath("Voltage"), voltage.in(Volts));
     }
 }

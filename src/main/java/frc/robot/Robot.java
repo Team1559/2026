@@ -5,6 +5,7 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Rotation;
 
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -26,28 +27,26 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.lib.DriverAssist;
 import frc.lib.commands.StopCommand;
 import frc.lib.swerve.SwerveDrive;
 import frc.lib.swerve.TeleopDriveCommand;
 import frc.robot.commands.ShootCommand;
 import frc.robot.subsystems.Indexer2026;
 import frc.robot.subsystems.Intake2026;
+import frc.robot.subsystems.Shooter2026;
 import frc.robot.subsystems.SwerveDrive2026Competition;
 import frc.robot.subsystems.SwerveDrive2026Practice;
 import frc.robot.subsystems.Vision2026;
-import frc.robot.subsystems.shooter.Shooter2026;
 
 public class Robot extends LoggedRobot {
 
     private final SendableChooser<Command> autoChooser;
     private final CommandXboxController pilotController;
     private final CommandXboxController coPilotController;
-    private final DriverAssist driverAssist;
     private final SwerveDrive drivetrain;
     private final Vision2026 vision;
     private final Shooter2026 shooter;
-    private final Intake2026 intake;
+    //private final Intake2026 intake;
     private final Indexer2026 indexer;
     private static final boolean IS_REPLAY = false;
     private int loopIterations = 0;
@@ -68,16 +67,15 @@ public class Robot extends LoggedRobot {
         Logger.recordOutput("hi/test", ":)"); // Leave as easter egg
         pilotController = new CommandXboxController(0);
         coPilotController = new CommandXboxController(1);
-        driverAssist = new DriverAssist("DriverAssist");
         drivetrain = new SwerveDrive2026Competition();
         vision = new Vision2026 (drivetrain);
         shooter = new Shooter2026(drivetrain::getPosition);
-        intake = new Intake2026();
+        //intake = new Intake2026();
         indexer = new Indexer2026();
 
         
         registerNamedCommands();
-        autoChooser = AutoBuilder.buildAutoChooser("a");
+        autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData(autoChooser);
 
         DriverStation.silenceJoystickConnectionWarning(true);
@@ -91,24 +89,46 @@ public class Robot extends LoggedRobot {
     }
 
     public void registerNamedCommands() {
-        NamedCommands.registerCommand("StopCommand", new StopCommand(drivetrain).withTimeout(1));
+        NamedCommands.registerCommand("DrivetrainStop", new StopCommand(drivetrain).withTimeout(1));
+        // NamedCommands.registerCommand("IntakeDown", intake.downCommand());
+        // NamedCommands.registerCommand("IntakeUp", intake.upCommand());
+        NamedCommands.registerCommand("HubAim", shooter.getAimCommand(Shooter2026::ourHubLocation));
+        NamedCommands.registerCommand("Shoot", new ShootCommand(indexer, shooter));
+        // NamedCommands.registerCommand("RunIntakeForwards", new InstantCommand(() -> intake.runForwards()));
+        // NamedCommands.registerCommand("StopIntake", new InstantCommand(() -> intake.stop()));
     }
 
     public void setTeleopBindings() {
-        drivetrain.setDefaultCommand(new TeleopDriveCommand(()->pilotController.getLeftY()*-1, ()->pilotController.getLeftX()*-1, () -> pilotController.getRightX() * -1, SwerveDrive2026Competition.SWERVE_CONSTRAINTS, drivetrain, ()->pilotController.rightBumper().getAsBoolean()));
-        pilotController.a().whileTrue(new StartEndCommand(() -> intake.runForwards(), () -> intake.stop(), intake));
-        pilotController.b().whileTrue(new StartEndCommand(() -> intake.runReverse(), () -> intake.stop(), intake));
+        drivetrain.setDefaultCommand(new TeleopDriveCommand(() -> pilotController.getLeftY()*-1, () -> pilotController.getLeftX()*-1, () -> pilotController.getRightX() * -1, SwerveDrive2026Competition.SWERVE_CONSTRAINTS, drivetrain, () -> pilotController.rightBumper().getAsBoolean()));
+        
+        // pilotController.a().whileTrue(new StartEndCommand(() -> intake.runForwards(), () -> intake.stop(), intake));
+        // pilotController.b().whileTrue(new StartEndCommand(() -> intake.runReverse(), () -> intake.stop(), intake));
         pilotController.rightTrigger().whileTrue(new ShootCommand(indexer, shooter));
+        pilotController.leftTrigger().onTrue(shooter.getAimCommand(Shooter2026::ourHubLocation));
+
+        
+        // pilotController.povUp().whileTrue(new StartEndCommand(() -> intake.moveElbowUp(), () -> intake.stopElbow(), intake));
+        // pilotController.povDown().whileTrue(new StartEndCommand(() -> intake.moveElbowDown(), () -> intake.stopElbow(), intake));
     }
 
     public void setTestBindings() {
+        drivetrain.setDefaultCommand(new TeleopDriveCommand(() -> pilotController.getLeftY()*-1, () -> pilotController.getLeftX()*-1, () -> pilotController.getRightX() * -1, SwerveDrive2026Competition.SWERVE_CONSTRAINTS, drivetrain, () -> pilotController.rightBumper().getAsBoolean()));
+
         pilotController.a().whileTrue(new StartEndCommand(() -> shooter.setSpinFeedwheel(true), () -> shooter.setSpinFeedwheel(false), shooter));
-        pilotController.b().whileTrue(new StartEndCommand(() -> shooter.setSpinFlywheel(true), () -> shooter.setSpinFlywheel(false))); //TODO: cannot run both at the same time, make it one command
+        pilotController.b().whileTrue(new StartEndCommand(() -> shooter.setSpinFlywheel(true), () -> shooter.setSpinFlywheel(false)));
         pilotController.povRight().whileTrue(new InstantCommand(() -> shooter.setTurretAngle(Degrees.of(60)), shooter));
         pilotController.povLeft().whileTrue(new InstantCommand(() -> shooter.setTurretAngle(Degrees.of(-60)), shooter));
-        pilotController.povUp().onTrue(shooter.getAimCommand(shooter.redHubLocation));
-        pilotController.rightBumper().whileTrue(new StartEndCommand(() -> intake.runForwards(), () -> intake.stop(), intake));
-        pilotController.leftBumper().whileTrue(new StartEndCommand(() -> intake.runReverse(), () -> intake.stop(), intake));
+
+        pilotController.rightTrigger().onTrue(shooter.getAimCommand(Shooter2026::ourHubLocation));
+
+        pilotController.x().onTrue(new InstantCommand(() -> shooter.setTurretAngle(Degrees.of(0))));
+
+        // pilotController.povUp().whileTrue(new StartEndCommand(() -> intake.moveElbowUp(), () -> intake.stopElbow(), intake));
+        // pilotController.povDown().whileTrue(new StartEndCommand(() -> intake.moveElbowDown(), () -> intake.stopElbow(), intake));
+
+        // pilotController.rightBumper().whileTrue(new StartEndCommand(() -> intake.runForwards(), () -> intake.stop(), intake));
+        // pilotController.leftBumper().whileTrue(new StartEndCommand(() -> intake.runReverse(), () -> intake.stop(), intake));
+
         pilotController.y().whileTrue(new StartEndCommand(() -> indexer.runForwards(), () -> indexer.stop(), indexer));
     }
 

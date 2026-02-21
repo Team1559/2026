@@ -11,10 +11,10 @@ import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.VecBuilder;
+import frc.lib.loggable.LoggableSubsystem;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
-import frc.lib.LoggableSubsystem;
 import frc.lib.vision.VisionComponent.PoseObservation;
 import frc.lib.vision.VisionComponent.PoseObservationType;
 

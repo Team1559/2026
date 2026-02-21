@@ -1,9 +1,8 @@
 package frc.lib.velocity;
 
 import static edu.wpi.first.units.Units.RPM;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
 
-import frc.lib.LoggableSubsystem;
+import frc.lib.loggable.LoggableSubsystem;
 
 public class VelocitySubsystem extends LoggableSubsystem {
     private final AngularVelocityComponent[] children;

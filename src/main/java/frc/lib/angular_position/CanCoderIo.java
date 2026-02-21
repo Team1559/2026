@@ -1,4 +1,4 @@
-package frc.lib.angularPosition;
+package frc.lib.angular_position;
 import static edu.wpi.first.units.Units.Rotations;
 
 import org.littletonrobotics.junction.AutoLog;
@@ -9,7 +9,7 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 
 import edu.wpi.first.units.measure.Angle;
-import frc.lib.LoggableIo;
+import frc.lib.loggable.LoggableIo;
 
 public class CanCoderIo extends LoggableIo<CanCoderIo.CanCoderIoInputs> implements AngularPositionSensor{
 

@@ -22,7 +22,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.lib.LoggableSubsystem;
+import frc.lib.loggable.LoggableSubsystem;
 import frc.lib.vision.VisionConsumer;
 
 public class SwerveDrive extends LoggableSubsystem implements VisionConsumer {

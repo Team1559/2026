@@ -1,6 +1,6 @@
 package frc.lib.elevator;
 
-import frc.lib.LoggableComponent;
+import frc.lib.loggable.LoggableComponent;
 
 public interface ElevatorComponent extends LoggableComponent {
     void setTargetPosition(double pos);

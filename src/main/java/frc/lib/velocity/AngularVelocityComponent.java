@@ -1,7 +1,7 @@
 package frc.lib.velocity;
 
 import edu.wpi.first.units.measure.AngularVelocity;
-import frc.lib.LoggableComponent;
+import frc.lib.loggable.LoggableComponent;
 
 public interface AngularVelocityComponent extends LoggableComponent {
     void setTargetVelocity(AngularVelocity TargetVelocity);
