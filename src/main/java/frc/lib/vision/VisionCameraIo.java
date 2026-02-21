@@ -10,12 +10,9 @@ import frc.lib.loggable.LoggableIo;
 public class VisionCameraIo extends LoggableIo<VisionCameraIo.VisionInputs> implements VisionComponent {
     @AutoLog
     public static abstract class VisionInputs implements LoggableInputs {
-        public Pose2d pose = Pose2d.kZero;
-        public double timestamp;
-        public boolean hasPose;
-        public double stdevX;
-        public double stdevY;
-        public Rotation2d stdevRotation = Rotation2d.kZero;
+        public boolean isConnected = false;
+        public int[] tagIds = new int[0];
+        public PoseObservation[] poseObservations = new PoseObservation[0];
     }
 
     public VisionCameraIo(String name) {
@@ -23,32 +20,16 @@ public class VisionCameraIo extends LoggableIo<VisionCameraIo.VisionInputs> impl
     }
 
     @Override
-    public Pose2d getPose() {
-        return getInputs().pose;
+    public int[] getTagIds() {
+        return getInputs().tagIds;
     }
 
     @Override
-    public double getTimestamp() {
-        return getInputs().timestamp;
+    public PoseObservation[] getPoseObservations() {
+        return getInputs().poseObservations;
     }
 
-    @Override
-    public boolean hasPose() {
-        return getInputs().hasPose;
-    }
-
-    @Override
-    public double getStdevX() {
-        return getInputs().stdevX;
-    }
-
-    @Override
-    public double getStdevY() {
-        return getInputs().stdevY;
-    }
-
-    @Override
-    public Rotation2d getStdevRotation() {
-        return getInputs().stdevRotation;
+    public boolean isConnected() {
+        return getInputs().isConnected;
     }
 }

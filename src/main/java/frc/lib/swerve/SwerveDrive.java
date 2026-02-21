@@ -113,6 +113,7 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer {
         this.maxRotationalAcceleration = maxRotationalAcceleration;
     }
 
+    @Override
     public void addVisionMeasurement(Pose2d estimatedPose2d, double timestamp, Matrix<N3, N1> standardDeviation) {
         estimator.addVisionMeasurement(estimatedPose2d, timestamp, standardDeviation);
     }
