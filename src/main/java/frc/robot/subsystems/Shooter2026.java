@@ -304,8 +304,8 @@ public class Shooter2026 extends LoggableSubsystem {
         return new Translation2d(targetOnPlane.getX(), targetOnPlane.getZ()); // Z is up, is referred to as Y in 2d
     }
 
-    public Command getAimCommand(Translation3d target) {
-        return new InstantCommand(() -> setTargetFieldSpace(target, null));
+    public Command getAimCommand(Supplier<Translation3d> target) {
+        return new InstantCommand(() -> setTargetFieldSpace(target.get(), null));
     }
 
     public static Translation3d ourHubLocation() {
