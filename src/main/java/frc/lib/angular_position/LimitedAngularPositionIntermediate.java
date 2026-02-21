@@ -1,4 +1,4 @@
-package frc.lib.angularPosition;
+package frc.lib.angular_position;
 
 import static edu.wpi.first.units.Units.Radians;
 

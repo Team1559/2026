@@ -26,8 +26,6 @@ public class Indexer2026 extends VoltageSubsystem {
         config.idleMode(IdleMode.kBrake);
         config.inverted(false);
         config.smartCurrentLimit(80);
-        config.closedLoop.pid(0, 0, 0); // TODO: Set these later
-        config.closedLoop.feedForward.kV(0.001);
         return config;
     }
 

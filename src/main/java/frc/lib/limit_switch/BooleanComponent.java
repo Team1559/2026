@@ -1,4 +1,4 @@
-package frc.lib.limitSwitch;
+package frc.lib.limit_switch;
 
 import java.util.function.BooleanSupplier;
 

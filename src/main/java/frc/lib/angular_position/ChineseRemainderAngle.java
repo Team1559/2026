@@ -1,4 +1,4 @@
-package frc.lib.angularPosition;
+package frc.lib.angular_position;
 
 import static edu.wpi.first.units.Units.Rotations;
 
@@ -6,7 +6,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
 import frc.lib.loggable.LoggableIntermediate;
 
-public class ChineseBaby extends LoggableIntermediate implements AngularPositionSensor {
+
+//Rest in peace chinese ba​by 2/21/2026
+public class ChineseRemainderAngle extends LoggableIntermediate implements AngularPositionSensor {
 
     private final AngularPositionSensor childOne;
     private final AngularPositionSensor childTwo;
@@ -22,7 +24,7 @@ public class ChineseBaby extends LoggableIntermediate implements AngularPosition
      * gearOne causes consistent, small errors
      * gearTwo causes inconsistent, large errors
      */
-    public ChineseBaby(String name, int gearOneTeeth, int gearTwoTeeth, int largeGearTeeth, AngularPositionSensor childOne, AngularPositionSensor childTwo, Angle minAngle, Angle maxAngle){
+    public ChineseRemainderAngle(String name, int gearOneTeeth, int gearTwoTeeth, int largeGearTeeth, AngularPositionSensor childOne, AngularPositionSensor childTwo, Angle minAngle, Angle maxAngle){
         
         super(name);
 

@@ -1,4 +1,4 @@
-package frc.lib.angularPosition;
+package frc.lib.angular_position;
 
 import edu.wpi.first.units.measure.Angle;
 import frc.lib.loggable.LoggableComponent;

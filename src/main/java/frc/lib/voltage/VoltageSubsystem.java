@@ -7,36 +7,27 @@ import frc.lib.loggable.LoggableSubsystem;
 
 public class VoltageSubsystem extends LoggableSubsystem {
     private final VoltageComponent[] children;
-    boolean running;
-    Voltage targetVoltage;
+    private Voltage targetVoltage;
 
-    public VoltageSubsystem(String name, VoltageComponent... children){
+    public VoltageSubsystem(String name, VoltageComponent... children) {
         super(name);
         this.children = children;
         addChildren(children);
     }
 
-    public void run(Voltage voltage){
-        running = true;
+    public void run(Voltage voltage) {
         this.targetVoltage = voltage;
     }
 
-    public void stop(){
-        running = false;
-        this.targetVoltage = Volts.of(0);
+    public void stop() {
+        this.targetVoltage = Volts.zero();
     }
 
     @Override
     public void periodic() {
         super.periodic();
-        if (running){
-            for (VoltageComponent i : children){
-                i.setVoltage(targetVoltage);
-            }
-        } else {
-            for (VoltageComponent i : children){
-                i.setVoltage(Volts.of(0));
-            }
+        for (VoltageComponent i : children) {
+            i.setVoltage(targetVoltage);
         }
     }
 }

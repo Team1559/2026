@@ -92,7 +92,7 @@ public class Robot extends LoggedRobot {
         NamedCommands.registerCommand("DrivetrainStop", new StopCommand(drivetrain).withTimeout(1));
         // NamedCommands.registerCommand("IntakeDown", intake.downCommand());
         // NamedCommands.registerCommand("IntakeUp", intake.upCommand());
-        NamedCommands.registerCommand("HubAim", shooter.getAimCommand(Shooter2026.ourHubLocation));
+        NamedCommands.registerCommand("HubAim", shooter.getAimCommand(Shooter2026.ourHubLocation()));
         NamedCommands.registerCommand("Shoot", new ShootCommand(indexer, shooter));
         // NamedCommands.registerCommand("RunIntakeForwards", new InstantCommand(() -> intake.runForwards()));
         // NamedCommands.registerCommand("StopIntake", new InstantCommand(() -> intake.stop()));
@@ -104,7 +104,7 @@ public class Robot extends LoggedRobot {
         // pilotController.a().whileTrue(new StartEndCommand(() -> intake.runForwards(), () -> intake.stop(), intake));
         // pilotController.b().whileTrue(new StartEndCommand(() -> intake.runReverse(), () -> intake.stop(), intake));
         pilotController.rightTrigger().whileTrue(new ShootCommand(indexer, shooter));
-        pilotController.leftTrigger().onTrue(shooter.getAimCommand(Shooter2026.ourHubLocation));
+        pilotController.leftTrigger().onTrue(shooter.getAimCommand(Shooter2026.ourHubLocation()));
 
         
         // pilotController.povUp().whileTrue(new StartEndCommand(() -> intake.moveElbowUp(), () -> intake.stopElbow(), intake));
@@ -119,7 +119,7 @@ public class Robot extends LoggedRobot {
         pilotController.povRight().whileTrue(new InstantCommand(() -> shooter.setTurretAngle(Degrees.of(60)), shooter));
         pilotController.povLeft().whileTrue(new InstantCommand(() -> shooter.setTurretAngle(Degrees.of(-60)), shooter));
 
-        pilotController.rightTrigger().onTrue(shooter.getAimCommand(Shooter2026.ourHubLocation));
+        pilotController.rightTrigger().onTrue(shooter.getAimCommand(Shooter2026.ourHubLocation()));
 
         pilotController.x().onTrue(new InstantCommand(() -> shooter.setTurretAngle(Degrees.of(0))));
 

@@ -6,14 +6,10 @@ import org.littletonrobotics.junction.Logger;
 
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkFlexConfig;
 
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.FunctionalCommand;
-import frc.lib.limitSwitch.BooleanComponent;
-import frc.lib.limitSwitch.LimitSwitchIo;
+import frc.lib.loggable.LoggableComponent;
 import frc.lib.velocity.SparkFlexIo;
 import frc.lib.velocity.VelocityRatio;
 import frc.lib.velocity.VelocitySubsystem;
@@ -40,6 +36,7 @@ public class Intake2026 extends VelocitySubsystem {
 
         elbowMotor = new SparkFlexIo("ElbowMotor", new SparkFlex(ELBOW_MOTOR_ID, MotorType.kBrushless), makeElbowConfig());
 
+        addChildren(elbowMotor);
         // lowerLimitSwitch = new LimitSwitchIo("LowerLimitSwitch", new DigitalInput(LOWER_LIMIT_SWITCH_CHANNEL));
         // upperLimitSwitch = new LimitSwitchIo("UpperLimitSwitch", new DigitalInput(UPPER_LIMIT_SWITCH_CHANNEL));
     }

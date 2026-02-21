@@ -1,4 +1,4 @@
-package frc.lib.limitSwitch;
+package frc.lib.limit_switch;
 
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
@@ -13,7 +13,7 @@ public class LimitSwitchIo extends LoggableIo<LimitSwitchIo.LimitSwitchIoInputs>
         boolean atLimit = false;
     }
 
-    public final DigitalInput limitSwitch;
+    private final DigitalInput limitSwitch;
 
     public LimitSwitchIo(String name, DigitalInput limitSwitch){
         super(name, new LimitSwitchIoInputsAutoLogged());
@@ -21,12 +21,12 @@ public class LimitSwitchIo extends LoggableIo<LimitSwitchIo.LimitSwitchIoInputs>
     }
 
     @Override
-    public void periodic() {
-        super.periodic();
+    public boolean getAsBoolean() {
+        return getInputs().atLimit;
     }
 
     @Override
-    public boolean getAsBoolean() {
-        return getInputs().atLimit;
+    protected void updateInputs(LimitSwitchIoInputs inputs) {
+        inputs.atLimit = limitSwitch.get();
     }
 }

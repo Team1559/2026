@@ -20,7 +20,7 @@ import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
-import frc.lib.angularPosition.AngularPositionComponent;
+import frc.lib.angular_position.AngularPositionComponent;
 import frc.lib.loggable.LoggableIo;
 import frc.lib.voltage.VoltageComponent;
 
@@ -56,13 +56,11 @@ public class SparkFlexIo extends LoggableIo<SparkFlexIo.SparkFlexIoInputs> imple
     @Override
     public void setTargetVelocity(AngularVelocity targetVelocity) {
         Logger.recordOutput(getOutputLogPath("TargetVelocity"), targetVelocity);
-        Logger.recordOutput(getOutputLogPath("Running"), true);
         motorController.setSetpoint(targetVelocity.in(Units.RPM), ControlType.kVelocity);
     }
 
     @Override
     public void stop() {
-        Logger.recordOutput(getOutputLogPath("Running"), false);
         motor.stopMotor();
         Logger.recordOutput(getOutputLogPath("TargetVelocity"), RPM.zero());
     }
@@ -101,6 +99,6 @@ public class SparkFlexIo extends LoggableIo<SparkFlexIo.SparkFlexIoInputs> imple
     @Override
     public void setVoltage(Voltage voltage) {
         motor.setVoltage(voltage);
-        Logger.recordOutput(getOutputLogPath("SetVoltage"), voltage.in(Volts));
+        Logger.recordOutput(getOutputLogPath("Voltage"), voltage.in(Volts));
     }
 }
