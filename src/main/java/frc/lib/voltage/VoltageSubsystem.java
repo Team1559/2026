@@ -1,5 +1,6 @@
 package frc.lib.voltage;
 
+import static edu.wpi.first.units.Units.Volt;
 import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.units.measure.Voltage;
@@ -7,7 +8,7 @@ import frc.lib.loggable.LoggableSubsystem;
 
 public class VoltageSubsystem extends LoggableSubsystem {
     private final VoltageComponent[] children;
-    private Voltage targetVoltage;
+    private Voltage targetVoltage = Volt.zero();
 
     public VoltageSubsystem(String name, VoltageComponent... children) {
         super(name);
