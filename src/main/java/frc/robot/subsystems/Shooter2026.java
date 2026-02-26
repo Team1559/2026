@@ -268,23 +268,21 @@ public class Shooter2026 extends LoggableSubsystem {
         // Time estimate = calculateTargetLocationTurretSpace(calculateTargetShooterSpace(), flapperAngle).getX() / 
     }
 
-    private Distance error(Time T, Pose3d initialHubPose, Translation3d hubVelocity, Angle pitch) {
+    private Distance error(Time T, Translation3d initialHubPose, Translation3d hubVelocity, Rotation2d pitch) {
+        Translation3d hubPoseAtT = initialHubPose.plus(hubVelocity.times(T.in(Seconds)));
         return Meter.of(
                 (initialHubPose.getZ() + hubVelocity.getZ() * T.in(Seconds))
                         + (0.5) * GRAVITATIONAL_ACCEL.in(MetersPerSecondPerSecond) * Math.pow(T.in(Seconds), 2)
-                        - Math.tan(pitch.in(Radians)) * Math.sqrt(
-                                Math.pow(initialHubPose.getX() + hubVelocity.getX() * T.in(Seconds), 2)
-                                        + Math.pow(initialHubPose.getY() + hubVelocity.getY() * T.in(Seconds), 2)));
+                        - Math.tan(pitch.getRadians()) * hubPoseAtT.toTranslation2d().getNorm());
     }
 
-    private LinearVelocity errorDerivative(Time T, Pose3d initialHubPose, Translation3d hubVelocity, Angle pitch) {
+    private LinearVelocity errorDerivative(Time T, Translation3d initialHubPose, Translation3d hubVelocity, Rotation2d pitch) {
+        Translation3d hubPoseAtT = initialHubPose.plus(hubVelocity.times(T.in(Seconds)));
         return MetersPerSecond.of(hubVelocity.getZ() + GRAVITATIONAL_ACCEL.in(MetersPerSecondPerSecond) * T.in(Seconds)
-                - Math.tan(pitch.in(Radians)) * (((hubVelocity.getX()
+                - Math.tan( pitch.getRadians() ) * (((hubVelocity.getX()
                         * (initialHubPose.getX() + hubVelocity.getX() * T.in(Seconds)))
                         + (hubVelocity.getY() * (initialHubPose.getY() + hubVelocity.getY() * T.in(Seconds))))
-                        / (Math.sqrt(
-                                Math.pow(initialHubPose.getX() + hubVelocity.getX() * T.in(Seconds), 2)
-                                        + Math.pow(initialHubPose.getY() + hubVelocity.getY() * T.in(Seconds), 2)))));
+                        / hubPoseAtT.toTranslation2d().getNorm()));
     }
 
     @Override
