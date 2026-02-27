@@ -1,13 +1,17 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.FeetPerSecond;
+import static edu.wpi.first.units.Units.Hertz;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meter;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 
 import java.util.function.Supplier;
@@ -29,6 +33,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -36,6 +41,7 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
@@ -53,6 +59,7 @@ import frc.lib.velocity.SparkFlexIo;
 
 public class Shooter2026 extends LoggableSubsystem {
     private final Supplier<Pose2d> robotPositionSupplier;
+    private final Supplier<ChassisSpeeds> robotSpeedSupplier;
 
     private AngularVelocity targetFlywheelVelocity = RPM.zero(); // Init at zero to fix crash due to null in
                                                                  // isFlywheelReady
@@ -61,7 +68,7 @@ public class Shooter2026 extends LoggableSubsystem {
     private boolean spinFlywheel;
     private boolean spinFeedwheel;
     private double timestampFlywheelNotReady;
-    private final Rotation2d flapperAngle = Rotation2d.fromDegrees(59);
+    private static final Rotation2d flapperAngle = Rotation2d.fromDegrees(59);
 
     private final AngularPositionComponent turret;
     private final AngularPositionSensor turretAngleSensor;
@@ -82,11 +89,12 @@ public class Shooter2026 extends LoggableSubsystem {
     private static final Time FLYWHEEL_DEBOUNCE = Seconds.of(0.15);
     private static final AngularVelocity tolerance = RPM.of(20);
 
-    public Shooter2026(Supplier<Pose2d> robotPositionSupplier, Pose3d turretOffset, AngularPositionComponent turret,
+    public Shooter2026(Supplier<Pose2d> robotPositionSupplier, Supplier<ChassisSpeeds> robotSpeedSupplier, Pose3d turretOffset, AngularPositionComponent turret,
             AngularPositionComponent flapper, AngularVelocityComponent flywheel, AngularVelocityComponent feedWheel,
             AngularPositionSensor turretAngleSensor) {
         super("Shooter");
         this.robotPositionSupplier = robotPositionSupplier;
+        this.robotSpeedSupplier = robotSpeedSupplier;
         this.turretOffset = turretOffset;
         this.turret = turret;
         this.flywheel = flywheel;
@@ -98,8 +106,8 @@ public class Shooter2026 extends LoggableSubsystem {
         useAbsoluteAngle();
     }
 
-    public Shooter2026(Supplier<Pose2d> robotPositionSupplier) {
-        this(robotPositionSupplier, new Pose3d(Inches.of(5.5), Inches.of(5.5), Inches.of(28), Rotation3d.kZero),
+    public Shooter2026(Supplier<Pose2d> robotPositionSupplier, Supplier<ChassisSpeeds> robotSpeedSupplier) {
+        this(robotPositionSupplier, robotSpeedSupplier, new Pose3d(Inches.of(5.5), Inches.of(5.5), Inches.of(28), Rotation3d.kZero),
                 makeTurret(), null, makeFlywheel(), makeFeedwheel(),
                 makeCrtAngleSensor());
     }
@@ -191,12 +199,11 @@ public class Shooter2026 extends LoggableSubsystem {
         }
     }
 
-    private Translation3d calculateTargetShooterSpace() {
+    private static Translation3d calculateTargetShooterSpace(Translation3d targetFieldSpace, Pose2d robotPosition, Pose3d turretOffset) {
         if (targetFieldSpace == null) {
             return null;
         }
         // Target Position in robot coordinates
-        Pose2d robotPosition = robotPositionSupplier.get();
         Translation3d robotTranslation = new Translation3d(robotPosition.getTranslation());
         Rotation3d robotRotation = new Rotation3d(robotPosition.getRotation());
         Translation3d robotToTarget = targetFieldSpace.minus(robotTranslation).rotateBy(robotRotation.unaryMinus());
@@ -250,66 +257,95 @@ public class Shooter2026 extends LoggableSubsystem {
         }
     }
 
-    private LinearVelocity calculateProjectileSpeedFixedAngle(Translation2d target, Rotation2d angle) {
+    private static LinearVelocity calculateProjectileSpeedFixedAngle(Translation2d target, Rotation2d angle) {
         return MetersPerSecond
                 .of(Math.sqrt(GRAVITATIONAL_ACCEL.in(MetersPerSecondPerSecond) * (Math.pow(target.getX(), 2))
                         / (2 * Math.pow(angle.getCos(), 2) * (target.getX() * angle.getTan() - target.getY()))));
 
     }
 
-    private AngularVelocity calculateFlywheelVelocity(LinearVelocity projectileVelocity) {
+    private static AngularVelocity calculateFlywheelVelocity(LinearVelocity projectileVelocity) {
         return RPM.of(373 + 137 * projectileVelocity.in(FeetPerSecond)
                 - 0.371 * Math.pow(projectileVelocity.in(FeetPerSecond), 2));
     }
 
-    private Time calculateNewtonsMethod() {
-        return Seconds.zero();//TODO: Finish implementation
-        // All poses, velocites, etc are turret space unless otherwise specified
-        // Time estimate = calculateTargetLocationTurretSpace(calculateTargetShooterSpace(), flapperAngle).getX() / 
+    private static Translation3d calculateVirtualTarget(Time initialGuess, Translation3d initialHubPose, Translation3d hubVelocity, Rotation2d pitch) {
+        Time guess = initialGuess;
+        for(int i = 0; i < 10; i++){
+            Distance error = error(guess, initialHubPose, hubVelocity, pitch);
+            if (error.lt(Meters.of(0.01))) {
+                break;
+            }
+            LinearVelocity errorDerivative = errorDerivative(guess, initialHubPose, hubVelocity, pitch);
+            guess = guess.minus(error.div(errorDerivative));
+        }
+        
+        return targetAtTimeT(guess, initialHubPose, hubVelocity);
+
     }
 
-    private Distance error(Time T, Translation3d initialHubPose, Translation3d hubVelocity, Rotation2d pitch) {
-        Translation3d hubPoseAtT = initialHubPose.plus(hubVelocity.times(T.in(Seconds)));
-        return Meter.of(
-                (initialHubPose.getZ() + hubVelocity.getZ() * T.in(Seconds))
-                        + (0.5) * GRAVITATIONAL_ACCEL.in(MetersPerSecondPerSecond) * Math.pow(T.in(Seconds), 2)
-                        - Math.tan(pitch.getRadians()) * hubPoseAtT.toTranslation2d().getNorm());
+    private static Translation3d targetAtTimeT(Time T, Translation3d initialHubPose, Translation3d hubVelocity) {
+        return initialHubPose.plus(hubVelocity.times(T.in(Seconds)));
     }
 
-    private LinearVelocity errorDerivative(Time T, Translation3d initialHubPose, Translation3d hubVelocity, Rotation2d pitch) {
-        Translation3d hubPoseAtT = initialHubPose.plus(hubVelocity.times(T.in(Seconds)));
-        return MetersPerSecond.of(hubVelocity.getZ() + GRAVITATIONAL_ACCEL.in(MetersPerSecondPerSecond) * T.in(Seconds)
-                - Math.tan( pitch.getRadians() ) * (((hubVelocity.getX()
-                        * (initialHubPose.getX() + hubVelocity.getX() * T.in(Seconds)))
-                        + (hubVelocity.getY() * (initialHubPose.getY() + hubVelocity.getY() * T.in(Seconds))))
-                        / hubPoseAtT.toTranslation2d().getNorm()));
+    private static Distance error(Time T, Translation3d initialHubPose, Translation3d hubVelocity, Rotation2d pitch) {
+        Translation3d hubPoseAtT = targetAtTimeT(T, initialHubPose, hubVelocity);
+        return hubPoseAtT.getMeasureZ().plus(GRAVITATIONAL_ACCEL.times(T).times(T).times(0.5))
+                .minus(Meters.of(pitch.getTan() * hubPoseAtT.toTranslation2d().getNorm()));
     }
+
+
+    private static LinearVelocity errorDerivative(Time T, Translation3d initialHubPose, Translation3d hubVelocity,
+            Rotation2d pitch) {
+        Translation3d hubPoseAtT = targetAtTimeT(T, initialHubPose, hubVelocity);
+        LinearVelocity bigFreakingFraction = MetersPerSecond.of(pitch.getTan()
+                * (((hubVelocity.getX() * hubPoseAtT.getX()) + (hubVelocity.getY() * hubPoseAtT.getY()))
+                        / (hubPoseAtT.toTranslation2d().getNorm())));
+
+        return hubVelocity.getMeasureZ().per(Second).plus(GRAVITATIONAL_ACCEL.times(T))
+                .minus(bigFreakingFraction);
+            }
+
 
     @Override
     public void periodic() {
         super.periodic();
-        Translation3d target = calculateTargetShooterSpace();
+        Translation3d target = calculateTargetShooterSpace(targetFieldSpace, robotPositionSupplier.get(), turretOffset);
         if (target != null) {
-
             Rotation2d turretAngle = calculateTargetTurretAngle(target);
-            Logger.recordOutput(getOutputLogPath("TargetTurretAngle"), turretAngle);
-            turret.setTargetAngle(turretAngle.getMeasure().plus(initialTurretOffset));
-
             Translation2d targetTurretSpace = calculateTargetLocationTurretSpace(target, turretAngle);
-            Logger.recordOutput(getOutputLogPath("TargetTurretSpace"), targetTurretSpace);
-
             LinearVelocity projectileVelocity = calculateProjectileSpeedFixedAngle(targetTurretSpace, flapperAngle);
-            Logger.recordOutput(getOutputLogPath("TargetProjectileVelocity"), projectileVelocity);
+            
+            Time initialGuess = targetTurretSpace.getMeasureX().div(projectileVelocity.times(flapperAngle.getCos()));
+            Logger.recordOutput(getOutputLogPath("InitialGuess"), initialGuess);
+            
+            ChassisSpeeds robotSpeed = robotSpeedSupplier.get();
+            Translation3d targetSpeed = new Translation3d(robotSpeed.vxMetersPerSecond, robotSpeed.vyMetersPerSecond, 0).unaryMinus().rotateBy(turretOffset.getRotation().unaryMinus());
+            Logger.recordOutput(getOutputLogPath("TargetSpeed"), targetSpeed);
+            
+            Translation3d virtualTarget = calculateVirtualTarget(initialGuess, target, targetSpeed, flapperAngle);
+            Logger.recordOutput(getOutputLogPath("VirtualTarget"), virtualTarget);
+            
+            turretAngle = calculateTargetTurretAngle(virtualTarget);
+            Logger.recordOutput(getOutputLogPath("TurretAngleSetpoint"), turretAngle);
+            turret.setTargetAngle(turretAngle.getMeasure());
+
+            targetTurretSpace = calculateTargetLocationTurretSpace(virtualTarget, turretAngle);
+            Logger.recordOutput(getOutputLogPath("VirtualTargetTurretSpace"), targetTurretSpace);
+            projectileVelocity = calculateProjectileSpeedFixedAngle(targetTurretSpace, flapperAngle);
+            Logger.recordOutput(getOutputLogPath("ProjectileVelocitySetpoint"), projectileVelocity);
 
             if (spinFlywheel && Double.isFinite(projectileVelocity.in(MetersPerSecond))) {
-                targetFlywheelVelocity = calculateFlywheelVelocity(projectileVelocity); 
+                targetFlywheelVelocity = calculateFlywheelVelocity(projectileVelocity);
                 Logger.recordOutput(getOutputLogPath("TargetFlywheelVelocity"), targetFlywheelVelocity);
                 flywheel.setTargetVelocity(targetFlywheelVelocity);
             } else {
                 Logger.recordOutput(getOutputLogPath("TargetFlywheelVelocity"), 0);
                 flywheel.stop();
             }
+
         }
+
         Logger.recordOutput(getOutputLogPath("TargetFieldSpace"), targetFieldSpace);
         Logger.recordOutput(getOutputLogPath("TargetShooterSpace"), target);
         Logger.recordOutput(getOutputLogPath("SpinningFlywheel"), spinFlywheel);
@@ -328,16 +364,54 @@ public class Shooter2026 extends LoggableSubsystem {
         }
     }
 
+    // public static void main(String[] args) {
+    //     Translation3d target = new Translation3d(2.0, 1.0, Feet.of(6).in(Meters));
+    //     if (target != null) {
+    //         Rotation2d turretAngle = calculateTargetTurretAngle(target);
+    //         Translation2d targetTurretSpace = calculateTargetLocationTurretSpace(target, turretAngle);
+    //         LinearVelocity projectileVelocity = calculateProjectileSpeedFixedAngle(targetTurretSpace, flapperAngle);
+            
+    //         Time initialGuess = targetTurretSpace.getMeasureX().div(projectileVelocity.times(flapperAngle.getCos()));
+            
+    //         ChassisSpeeds robotSpeed = robotSpeedSupplier.get();
+    //         Translation3d targetSpeed = new Translation3d(robotSpeed.vxMetersPerSecond, robotSpeed.vyMetersPerSecond, 0).unaryMinus().rotateBy(turretOffset.getRotation().unaryMinus());
+    //         Logger.recordOutput(getOutputLogPath("TargetSpeed"), targetSpeed);
+            
+    //         Translation3d virtualTarget = calculateVirtualTarget(initialGuess, target, targetSpeed, flapperAngle);
+    //         Logger.recordOutput(getOutputLogPath("VirtualTarget"), virtualTarget);
+            
+    //         turretAngle = calculateTargetTurretAngle(virtualTarget);
+    //         Logger.recordOutput(getOutputLogPath("TurretAngleSetpoint"), turretAngle);
+    //         turret.setTargetAngle(turretAngle.getMeasure());
+
+    //         targetTurretSpace = calculateTargetLocationTurretSpace(virtualTarget, turretAngle);
+    //         Logger.recordOutput(getOutputLogPath("VirtualTargetTurretSpace"), targetTurretSpace);
+    //         projectileVelocity = calculateProjectileSpeedFixedAngle(targetTurretSpace, flapperAngle);
+    //         Logger.recordOutput(getOutputLogPath("ProjectileVelocitySetpoint"), projectileVelocity);
+
+    //         if (spinFlywheel && Double.isFinite(projectileVelocity.in(MetersPerSecond))) {
+    //             targetFlywheelVelocity = calculateFlywheelVelocity(projectileVelocity);
+    //             Logger.recordOutput(getOutputLogPath("TargetFlywheelVelocity"), targetFlywheelVelocity);
+    //             flywheel.setTargetVelocity(targetFlywheelVelocity);
+    //         } else {
+    //             Logger.recordOutput(getOutputLogPath("TargetFlywheelVelocity"), 0);
+    //             flywheel.stop();
+    //         }
+
+    //     }
+        
+    // }
+
     public void setTurretAngle(Angle setAngle) {
         turret.setTargetAngle(setAngle);
         Logger.recordOutput(getOutputLogPath("TargetTurretAngle"), setAngle);
     }
 
-    private Rotation2d calculateTargetTurretAngle(Translation3d targetShooterSpace) {
+    private static Rotation2d calculateTargetTurretAngle(Translation3d targetShooterSpace) {
         return new Rotation2d(targetShooterSpace.getX(), targetShooterSpace.getY());
     }
 
-    private Translation2d calculateTargetLocationTurretSpace(Translation3d target3d, Rotation2d turretAngle) {
+    private static Translation2d calculateTargetLocationTurretSpace(Translation3d target3d, Rotation2d turretAngle) {
         Translation3d targetOnPlane = target3d.rotateBy(new Rotation3d(turretAngle.unaryMinus()));
         if (!(Math.abs(targetOnPlane.getY()) < 1E-6)) {
             System.out.println("TargetOnPlane has a Y value of " + targetOnPlane.getY() + ", should be 0");

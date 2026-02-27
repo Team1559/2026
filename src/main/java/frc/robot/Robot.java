@@ -69,7 +69,7 @@ public class Robot extends LoggedRobot {
         coPilotController = new CommandXboxController(1);
         drivetrain = new SwerveDrive2026Competition();
         vision = new Vision2026 (drivetrain);
-        shooter = new Shooter2026(drivetrain::getPosition);
+        shooter = new Shooter2026(drivetrain::getPosition, drivetrain::getCurrentSpeed);
         //intake = new Intake2026();
         indexer = new Indexer2026();
 
