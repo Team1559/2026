@@ -93,7 +93,7 @@ public class Robot extends LoggedRobot {
         // NamedCommands.registerCommand("IntakeDown", intake.downCommand());
         // NamedCommands.registerCommand("IntakeUp", intake.upCommand());
         NamedCommands.registerCommand("HubAim", shooter.getAimCommand(Shooter2026::ourHubLocation));
-        NamedCommands.registerCommand("Shoot", new ShootCommand(indexer, shooter));
+        NamedCommands.registerCommand("Shoot", new ShootCommand(indexer, shooter,Shooter2026::ourHubLocation));
         // NamedCommands.registerCommand("RunIntakeForwards", new InstantCommand(() -> intake.runForwards()));
         // NamedCommands.registerCommand("StopIntake", new InstantCommand(() -> intake.stop()));
     }
@@ -103,8 +103,7 @@ public class Robot extends LoggedRobot {
         
         // pilotController.a().whileTrue(new StartEndCommand(() -> intake.runForwards(), () -> intake.stop(), intake));
         // pilotController.b().whileTrue(new StartEndCommand(() -> intake.runReverse(), () -> intake.stop(), intake));
-        pilotController.rightTrigger().whileTrue(new ShootCommand(indexer, shooter));
-        pilotController.leftTrigger().onTrue(shooter.getAimCommand(Shooter2026::ourHubLocation));
+        pilotController.rightTrigger().whileTrue(new ShootCommand(indexer, shooter, Shooter2026::ourHubLocation));
 
         
         // pilotController.povUp().whileTrue(new StartEndCommand(() -> intake.moveElbowUp(), () -> intake.stopElbow(), intake));
