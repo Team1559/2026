@@ -7,7 +7,7 @@ import frc.lib.loggable.LoggableSubsystem;
 
 public class VoltageSubsystem extends LoggableSubsystem {
     private final VoltageComponent[] children;
-    private Voltage targetVoltage;
+    private Voltage targetVoltage = Volts.zero();
 
     public VoltageSubsystem(String name, VoltageComponent... children) {
         super(name);
