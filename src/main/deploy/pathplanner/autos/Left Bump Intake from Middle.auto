@@ -7,19 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Left Bump To Shoot"
+            "pathName": "Left Bump To Mid"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left Bump Back Up"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "Shoot"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Left Shoot To Tower"
           }
         }
       ]

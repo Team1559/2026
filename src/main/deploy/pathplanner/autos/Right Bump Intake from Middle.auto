@@ -7,7 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Right Bump To Outpost"
+            "pathName": "Right Bump To Mid"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Front Right Bump To Shoot Pos"
           }
         },
         {
