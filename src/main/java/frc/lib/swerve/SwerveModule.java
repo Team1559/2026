@@ -3,9 +3,10 @@ package frc.lib.swerve;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import frc.lib.NeutralOutput;
 import frc.lib.loggable.LoggableComponent;
 
-public interface SwerveModule extends LoggableComponent {
+public interface SwerveModule extends LoggableComponent, NeutralOutput {
 
     /**
      * Sets the speed of the wheel.

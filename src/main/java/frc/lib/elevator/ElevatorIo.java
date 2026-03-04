@@ -66,4 +66,9 @@ public class ElevatorIo extends LoggableIo<ElevatorIo.ElevatorInputs> implements
     public double getHeightError() {
         return getInputs().heightError;
     }
+
+    @Override
+    public void neutralOutput() {
+        
+    }
 }

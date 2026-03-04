@@ -22,9 +22,9 @@ public class LimitedAngularPositionIntermediate extends LoggableIntermediate imp
     }
 
     @Override
-    public void setTargetAngle(Angle angle) {
+    public void setAngle(Angle angle) {
         Angle setPoint = Radians.of(MathUtil.clamp(angle.in(Units.Radians), minAngle.in(Units.Radians), maxAngle.in(Units.Radians)));
-        child.setTargetAngle(setPoint);
+        child.setAngle(setPoint);
     }
 
     @Override
@@ -35,6 +35,11 @@ public class LimitedAngularPositionIntermediate extends LoggableIntermediate imp
     @Override
     public void setPercievedAngle(Angle angle) {
         child.setPercievedAngle(angle);
+    }
+
+    @Override
+    public void neutralOutput() {
+        child.neutralOutput();
     }
     
 }

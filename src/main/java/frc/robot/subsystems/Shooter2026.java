@@ -231,15 +231,15 @@ public class Shooter2026 extends LoggableSubsystem {
         Translation2d projectileVelocity = new Translation2d(velocityX, velocityY);
         Logger.recordOutput(getOutputLogPath("TargetProjectileVelocity"), projectileVelocity);
 
-        flapper.setTargetAngle(projectileVelocity.getAngle().getMeasure());
+        flapper.setAngle(projectileVelocity.getAngle().getMeasure());
 
         if (spinFlywheel) {
             AngularVelocity targetAngularVelocity = RPM.of(projectileVelocity.getNorm()); // TODO: create actual
                                                                                           // equation
             Logger.recordOutput(getOutputLogPath("TargetFlywheelVelocity"), targetAngularVelocity);
-            flywheel.setTargetVelocity(targetAngularVelocity);
+            flywheel.setVelocity(targetAngularVelocity);
         } else {
-            flywheel.stop();
+            flywheel.neutralOutput();
             Logger.recordOutput(getOutputLogPath("TargetFlywheelVelocity"), RPM.of(0));
         }
     }
@@ -253,9 +253,9 @@ public class Shooter2026 extends LoggableSubsystem {
         if (spinFlywheel && Double.isFinite(projectileVelocity.in(MetersPerSecond))) {
             targetFlywheelVelocity = RPM.of(373 + 137 * projectileVelocity.in(FeetPerSecond) - 0.371 * Math.pow(projectileVelocity.in(FeetPerSecond), 2)); // TODO: create actual equation
             Logger.recordOutput(getOutputLogPath("TargetFlywheelVelocity"), targetFlywheelVelocity);
-            flywheel.setTargetVelocity(targetFlywheelVelocity);
+            flywheel.setVelocity(targetFlywheelVelocity);
         } else {
-            flywheel.stop();
+            flywheel.neutralOutput();
         }
     }
 
@@ -281,21 +281,21 @@ public class Shooter2026 extends LoggableSubsystem {
         
 
         if (spinFeedwheel) {
-            feedWheel.setTargetVelocity(RPM.of(1500));
+            feedWheel.setVelocity(RPM.of(1500));
         } else {
-            feedWheel.stop();
+            feedWheel.neutralOutput();
         }
     }
 
     public void setTurretAngle(Angle setAngle) {
-        turret.setTargetAngle(setAngle);
+        turret.setAngle(setAngle);
         Logger.recordOutput(getOutputLogPath("TargetTurretAngle"), setAngle);
     }
 
     private Translation2d aimTurret(Translation3d target3d) {
         Rotation2d turretAngle = new Rotation2d(target3d.getX(), target3d.getY());
         Logger.recordOutput(getOutputLogPath("TargetTurretAngle"), turretAngle);
-        turret.setTargetAngle(turretAngle.getMeasure().plus(initialTurretOffset));
+        turret.setAngle(turretAngle.getMeasure().plus(initialTurretOffset));
 
         Translation3d targetOnPlane = target3d.rotateBy(new Rotation3d(turretAngle.unaryMinus()));
         if (!(Math.abs(targetOnPlane.getY()) < 1E-6)) {

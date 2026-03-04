@@ -1,5 +1,7 @@
 package frc.lib.swerve;
 
+import java.nio.channels.NetworkChannel;
+
 import org.littletonrobotics.junction.Logger;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -22,10 +24,11 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.lib.NeutralOutput;
 import frc.lib.loggable.LoggableSubsystem;
 import frc.lib.vision.VisionConsumer;
 
-public class SwerveDrive extends LoggableSubsystem implements VisionConsumer {
+public class SwerveDrive extends LoggableSubsystem implements VisionConsumer, NeutralOutput {
     private final SwerveModule[] modules;
     private final SwerveDriveKinematics kinematics;
     private final SwerveDrivePoseEstimator estimator;
@@ -236,5 +239,12 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer {
             return maxLinearVelocity;
         }
 
+    }
+
+    @Override
+    public void neutralOutput() {
+        for(SwerveModule module : modules) {
+            module.neutralOutput();
+        }
     }
 }
