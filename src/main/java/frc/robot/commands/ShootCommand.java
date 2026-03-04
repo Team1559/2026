@@ -27,7 +27,7 @@ public class ShootCommand extends Command {
         shooter.setTargetFieldSpace(targetSupplier.get(), Translation2d.kZero);
         shooter.setSpinFlywheel(true);
         shooter.setSpinFeedwheel(false);
-        indexer.stop();
+        indexer.neutralOutput();
         canShoot = false;
     }
 
@@ -38,7 +38,7 @@ public class ShootCommand extends Command {
             shooter.setSpinFeedwheel(true);
         } else {
             canShoot = shooter.isFlywheelReady();
-            indexer.stop();
+            indexer.neutralOutput();
             shooter.setSpinFeedwheel(false);
         }
     }
@@ -47,7 +47,7 @@ public class ShootCommand extends Command {
     public void end(boolean interrupted) {
         shooter.setSpinFeedwheel(false);
         shooter.setSpinFlywheel(false);
-        indexer.stop();
+        indexer.neutralOutput();
     }
 
 }

@@ -20,12 +20,17 @@ public class AngularPositionRatio extends LoggableIntermediate implements Angula
     }
 
     @Override
-    public void setTargetAngle(Angle angle) {
-        child.setTargetAngle(angle.times(reductionRatio));
+    public void setAngle(Angle angle) {
+        child.setAngle(angle.times(reductionRatio));
     }
 
     @Override
     public void setPercievedAngle(Angle angle) {
         child.setPercievedAngle(angle.times(reductionRatio));
+    }
+
+    @Override
+    public void neutralOutput() {
+        child.neutralOutput();
     }
 }

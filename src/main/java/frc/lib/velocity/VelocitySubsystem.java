@@ -2,12 +2,14 @@ package frc.lib.velocity;
 
 import static edu.wpi.first.units.Units.RPM;
 
+import edu.wpi.first.units.measure.AngularVelocity;
+import frc.lib.NeutralOutput;
 import frc.lib.loggable.LoggableSubsystem;
 
-public class VelocitySubsystem extends LoggableSubsystem {
+public class VelocitySubsystem extends LoggableSubsystem implements NeutralOutput {
     private final AngularVelocityComponent[] children;
-    private double targetVelocityRpm;
-    private boolean running;
+    private AngularVelocity velocitySetpoint;
+   
 
     public VelocitySubsystem(String name, AngularVelocityComponent... children) {
         super(name);
@@ -15,25 +17,25 @@ public class VelocitySubsystem extends LoggableSubsystem {
         addChildren(children);
     }
 
-    public void run(double velocityRpm) {
-        running = true;
-        targetVelocityRpm = velocityRpm;
+    public void run(AngularVelocity setpoint) {
+        velocitySetpoint = setpoint;
     }
 
-    public void stop() {
-        running = false;
+    @Override
+    public void neutralOutput() {
+      velocitySetpoint=null;
     }
 
     @Override
     public void periodic() {
         super.periodic();
-        if (running) {
+        if (velocitySetpoint!=null) {
             for (AngularVelocityComponent i : children) {
-                i.setTargetVelocity(RPM.of(targetVelocityRpm));
+                i.setVelocity(velocitySetpoint);
             }
         } else {
             for (AngularVelocityComponent i : children) {
-                i.stop();
+                i.neutralOutput();
             }
         }
     }

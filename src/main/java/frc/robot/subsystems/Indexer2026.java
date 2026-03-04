@@ -35,8 +35,8 @@ public class Indexer2026 extends VoltageSubsystem {
     }
 
     @Override
-    public void stop() {
-        super.stop();
+    public void neutralOutput() {
+        super.neutralOutput();
         Logger.recordOutput(getOutputLogPath("TargetVoltage"), 0.0);
     }
 

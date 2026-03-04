@@ -3,11 +3,12 @@ package frc.lib.voltage;
 import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.units.measure.Voltage;
+import frc.lib.NeutralOutput;
 import frc.lib.loggable.LoggableSubsystem;
 
-public class VoltageSubsystem extends LoggableSubsystem {
+public class VoltageSubsystem extends LoggableSubsystem implements NeutralOutput {
     private final VoltageComponent[] children;
-    private Voltage targetVoltage = Volts.zero();
+    private Voltage setpoint;
 
     public VoltageSubsystem(String name, VoltageComponent... children) {
         super(name);
@@ -15,19 +16,20 @@ public class VoltageSubsystem extends LoggableSubsystem {
         addChildren(children);
     }
 
-    public void run(Voltage voltage) {
-        this.targetVoltage = voltage;
-    }
-
-    public void stop() {
-        this.targetVoltage = Volts.zero();
+    public void run(Voltage setpoint) {
+        this.setpoint = setpoint;
     }
 
     @Override
     public void periodic() {
         super.periodic();
         for (VoltageComponent i : children) {
-            i.setVoltage(targetVoltage);
+            i.setVoltage(setpoint);
         }
+    }
+
+    @Override
+    public void neutralOutput() {
+        setpoint = Volts.zero();   
     }
 }

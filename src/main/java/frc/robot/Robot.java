@@ -128,7 +128,7 @@ public class Robot extends LoggedRobot {
         // pilotController.rightBumper().whileTrue(new StartEndCommand(() -> intake.runForwards(), () -> intake.stop(), intake));
         // pilotController.leftBumper().whileTrue(new StartEndCommand(() -> intake.runReverse(), () -> intake.stop(), intake));
 
-        pilotController.y().whileTrue(new StartEndCommand(() -> indexer.runForwards(), () -> indexer.stop(), indexer));
+        pilotController.y().whileTrue(new StartEndCommand(() -> indexer.runForwards(), () -> indexer.neutralOutput(), indexer));
     }
 
     @Override

@@ -248,15 +248,15 @@ public class Shooter2026 extends LoggableSubsystem {
         Translation2d projectileVelocity = new Translation2d(velocityX, velocityY);
         Logger.recordOutput(getOutputLogPath("TargetProjectileVelocity"), projectileVelocity);
 
-        flapper.setTargetAngle(projectileVelocity.getAngle().getMeasure());
+        flapper.setAngle(projectileVelocity.getAngle().getMeasure());
 
         if (spinFlywheel) {
             AngularVelocity targetAngularVelocity = RPM.of(projectileVelocity.getNorm()); // TODO: create actual
                                                                                           // equation
             Logger.recordOutput(getOutputLogPath("TargetFlywheelVelocity"), targetAngularVelocity);
-            flywheel.setTargetVelocity(targetAngularVelocity);
+            flywheel.setVelocity(targetAngularVelocity);
         } else {
-            flywheel.stop();
+            flywheel.neutralOutput();
             Logger.recordOutput(getOutputLogPath("TargetFlywheelVelocity"), RPM.of(0));
         }
     }
@@ -362,15 +362,15 @@ public class Shooter2026 extends LoggableSubsystem {
         }
 
         if (spinFeedwheel) {
-            feedWheel.setTargetVelocity(RPM.of(1500));
+            feedWheel.setVelocity(RPM.of(1500));
         } else {
-            feedWheel.stop();
+            feedWheel.neutralOutput();
         }
     }
 
     
     public void setTurretAngle(Angle setAngle) {
-        turret.setTargetAngle(setAngle);
+        turret.setAngle(setAngle);
         Logger.recordOutput(getOutputLogPath("TargetTurretAngle"), setAngle);
     }
 
