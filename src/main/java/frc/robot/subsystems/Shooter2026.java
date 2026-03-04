@@ -332,7 +332,7 @@ public class Shooter2026 extends LoggableSubsystem {
 
             turretAngle = calculateTargetTurretAngle(virtualTarget);
             Logger.recordOutput(getOutputLogPath("TurretAngleSetpoint"), turretAngle);
-            turret.setTargetAngle(turretAngle.getMeasure());
+            turret.setAngle(turretAngle.getMeasure());
 
             targetTurretSpace = calculateTargetLocationTurretSpace(virtualTarget, turretAngle);
             Logger.recordOutput(getOutputLogPath("VirtualTargetTurretSpace"), targetTurretSpace);
@@ -342,10 +342,10 @@ public class Shooter2026 extends LoggableSubsystem {
             if (spinFlywheel && Double.isFinite(projectileVelocity.in(MetersPerSecond))) {
                 targetFlywheelVelocity = calculateFlywheelVelocity(projectileVelocity);
                 Logger.recordOutput(getOutputLogPath("TargetFlywheelVelocity"), targetFlywheelVelocity);
-                flywheel.setTargetVelocity(targetFlywheelVelocity);
+                flywheel.setVelocity(targetFlywheelVelocity);
             } else {
                 Logger.recordOutput(getOutputLogPath("TargetFlywheelVelocity"), 0);
-                flywheel.stop();
+                flywheel.neutralOutput();
             }
 
         }
