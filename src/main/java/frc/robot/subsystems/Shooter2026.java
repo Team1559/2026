@@ -1,17 +1,13 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.FeetPerSecond;
-import static edu.wpi.first.units.Units.Hertz;
 import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 
@@ -42,7 +38,6 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Time;
-import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
@@ -81,10 +76,12 @@ public class Shooter2026 extends LoggableSubsystem {
 
     private final Pose3d turretOffset;
 
-    public static final Translation3d blueHubLocation = new Translation3d(4.620, 4.030, Units.feetToMeters(6.0));
-    public static final Translation3d redHubLocation = new Translation3d(
-            FlippingUtil.flipFieldPosition(blueHubLocation.toTranslation2d()))
-            .plus(new Translation3d(0, 0, blueHubLocation.getZ()));
+    public static final Translation3d BLUE_HUB_LOCATION = new Translation3d(4.620, 4.030, Units.feetToMeters(6.0));
+    public static final Translation3d RED_HUB_LOCATION = new Translation3d(
+            FlippingUtil.flipFieldPosition(BLUE_HUB_LOCATION.toTranslation2d()))
+            .plus(new Translation3d(0, 0, BLUE_HUB_LOCATION.getZ()));
+    public static final Translation3d BLUE_FERRY_ONE = new Translation3d(Inches.of(27),Inches.of(317.69-24),Inches.of(0));
+    public static final Translation3d BLUE_FERRY_TWO = new Translation3d(Inches.of(27),Inches.of(24),Inches.of(0)); 
 
     public static final LinearAcceleration GRAVITATIONAL_ACCEL = MetersPerSecondPerSecond.of(9.80665);
     private static final Time FLYWHEEL_DEBOUNCE = Seconds.of(0.15);
@@ -116,8 +113,8 @@ public class Shooter2026 extends LoggableSubsystem {
     }
 
     private static SparkFlexIo makeFlywheel() {
-        SparkFlexConfig config = new SparkFlexConfig(); // TODO: Configure
-        config.closedLoop.pid(0.0005, 0, 0.05); // 0.0005, 0, 0.01
+        SparkFlexConfig config = new SparkFlexConfig(); 
+        config.closedLoop.pid(0.0005, 0, 0.05); 
         config.closedLoop.feedForward.kV(0.000151); // Volts per rpm (0.000153)
         config.inverted(false);
         config.idleMode(IdleMode.kCoast);
@@ -391,6 +388,34 @@ public class Shooter2026 extends LoggableSubsystem {
     }
 
     public static Translation3d ourHubLocation() {
-        return DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Red ? redHubLocation : blueHubLocation;
+        return DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Red ? RED_HUB_LOCATION : BLUE_HUB_LOCATION;
+    }
+
+    public Translation3d targetLocation() {
+        Alliance alliance = DriverStation.getAlliance().orElse(Alliance.Red);
+        Translation3d target;
+        Pose2d robotLocation = robotPositionSupplier.get();
+        if(alliance==Alliance.Red){
+            robotLocation = FlippingUtil.flipFieldPose(robotLocation);
+        }
+        if(robotLocation.getMeasureX().lt(Inches.of(182.11))){
+            target = BLUE_HUB_LOCATION;
+        }
+        else if(robotLocation.getMeasureY().gt(Inches.of(158.84))){
+            target = BLUE_FERRY_ONE;
+        }
+        else{
+            target = BLUE_FERRY_TWO;
+        }
+
+        if(alliance==Alliance.Red){
+            return flip(target);
+        }
+        return target;
+    }
+    public static Translation3d flip(Translation3d t){
+        Translation2d flipped2d = FlippingUtil.flipFieldPosition(t.toTranslation2d());
+        return new Translation3d(flipped2d.getX(),flipped2d.getY(),t.getZ());
+
     }
 }

@@ -1,7 +1,5 @@
 package frc.lib.velocity;
 
-import static edu.wpi.first.units.Units.RPM;
-
 import edu.wpi.first.units.measure.AngularVelocity;
 import frc.lib.NeutralOutput;
 import frc.lib.loggable.LoggableSubsystem;

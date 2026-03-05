@@ -5,7 +5,6 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Rotation;
 
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -35,7 +34,6 @@ import frc.robot.subsystems.Indexer2026;
 import frc.robot.subsystems.Intake2026;
 import frc.robot.subsystems.Shooter2026;
 import frc.robot.subsystems.SwerveDrive2026Competition;
-import frc.robot.subsystems.SwerveDrive2026Practice;
 import frc.robot.subsystems.Vision2026;
 
 public class Robot extends LoggedRobot {
@@ -46,7 +44,7 @@ public class Robot extends LoggedRobot {
     private final SwerveDrive drivetrain;
     private final Vision2026 vision;
     private final Shooter2026 shooter;
-    //private final Intake2026 intake;
+    private final Intake2026 intake;
     private final Indexer2026 indexer;
     private static final boolean IS_REPLAY = false;
     private int loopIterations = 0;
@@ -70,7 +68,7 @@ public class Robot extends LoggedRobot {
         drivetrain = new SwerveDrive2026Competition();
         vision = new Vision2026 (drivetrain);
         shooter = new Shooter2026(drivetrain::getPosition, drivetrain::getCurrentSpeed);
-        //intake = new Intake2026();
+        intake = new Intake2026();
         indexer = new Indexer2026();
 
         
@@ -90,24 +88,24 @@ public class Robot extends LoggedRobot {
 
     public void registerNamedCommands() {
         NamedCommands.registerCommand("DrivetrainStop", new StopCommand(drivetrain).withTimeout(1));
-        // NamedCommands.registerCommand("IntakeDown", intake.downCommand());
-        // NamedCommands.registerCommand("IntakeUp", intake.upCommand());
-        NamedCommands.registerCommand("HubAim", shooter.getAimCommand(Shooter2026::ourHubLocation));
+        //TODO: Intake up and down
         NamedCommands.registerCommand("Shoot", new ShootCommand(indexer, shooter,Shooter2026::ourHubLocation));
-        // NamedCommands.registerCommand("RunIntakeForwards", new InstantCommand(() -> intake.runForwards()));
-        // NamedCommands.registerCommand("StopIntake", new InstantCommand(() -> intake.stop()));
+        NamedCommands.registerCommand("RunIntakeForwards", new InstantCommand(() -> intake.runForwards()));
+        NamedCommands.registerCommand("StopIntake", new InstantCommand(() -> intake.neutralOutput()));
     }
 
     public void setTeleopBindings() {
         drivetrain.setDefaultCommand(new TeleopDriveCommand(() -> pilotController.getLeftY()*-1, () -> pilotController.getLeftX()*-1, () -> pilotController.getRightX() * -1, SwerveDrive2026Competition.SWERVE_CONSTRAINTS, drivetrain, () -> pilotController.rightBumper().getAsBoolean()));
         
-        // pilotController.a().whileTrue(new StartEndCommand(() -> intake.runForwards(), () -> intake.stop(), intake));
-        // pilotController.b().whileTrue(new StartEndCommand(() -> intake.runReverse(), () -> intake.stop(), intake));
-        pilotController.rightTrigger().whileTrue(new ShootCommand(indexer, shooter, Shooter2026::ourHubLocation));
+        pilotController.leftTrigger().whileTrue(new StartEndCommand(() -> intake.runForwards(), () -> intake.neutralOutput(), intake));
+        pilotController.leftTrigger().whileTrue(new StartEndCommand(() -> indexer.runForwards(), () -> indexer.neutralOutput(), indexer)); //Run indexer alongside intake
+        pilotController.povUp().whileTrue(new StartEndCommand(() -> intake.moveElbowUp(), () -> intake.elbowNeutral(), intake));
 
-        
-        // pilotController.povUp().whileTrue(new StartEndCommand(() -> intake.moveElbowUp(), () -> intake.stopElbow(), intake));
-        // pilotController.povDown().whileTrue(new StartEndCommand(() -> intake.moveElbowDown(), () -> intake.stopElbow(), intake));
+        pilotController.rightTrigger().whileTrue(new ShootCommand(indexer, shooter,shooter::targetLocation));
+        //TODO: Left bumper toggles intake OR other intake up/down binding
+
+        //Copilot gets uh oh buttons
+        coPilotController.a().whileTrue(new StartEndCommand(() -> intake.runReverse(), () -> intake.neutralOutput(), intake));
     }
 
     public void setTestBindings() {

@@ -13,7 +13,6 @@ import edu.wpi.first.units.measure.Voltage;
 import com.revrobotics.spark.config.SparkFlexConfig;
 
 import frc.lib.velocity.SparkFlexIo;
-import frc.lib.velocity.VelocityRatio;
 import frc.lib.voltage.VoltageComponent;
 import frc.lib.voltage.VoltageSubsystem;
 
@@ -22,7 +21,10 @@ public class Intake2026 extends VoltageSubsystem {
     private static final int ELBOW_MOTOR_ID = 21;
     private static final Voltage FORWARD_VOLTAGE = Volts.of(5);
     private static final Voltage REVERSE_VOLTAGE = Volts.of(-5);
-    
+    private static final Voltage ELBOW_UP_VOLTAGE = Volts.of(6);
+    private static final Voltage ELBOW_DOWN_VOLTAGE = Volts.of(-2);
+    private static final Voltage HOLD_ELBOW_UP = Volts.of(1);
+    private static final Voltage HOLD_ELBOW_DOWN = Volts.of(0);
 
     private final VoltageComponent elbowMotor;
 
@@ -50,7 +52,7 @@ public class Intake2026 extends VoltageSubsystem {
     private static SparkFlexConfig makeIntakeConfig() {
         SparkFlexConfig config = new SparkFlexConfig();
         config.idleMode(IdleMode.kBrake);
-        config.inverted(true);
+        config.inverted(false);
         config.smartCurrentLimit(80);
         return config;
     }
@@ -62,16 +64,29 @@ public class Intake2026 extends VoltageSubsystem {
         return config;
     }
 
+    public void elbowNeutral(){
+        elbowMotor.neutralOutput();
+        Logger.recordOutput(getOutputLogPath("ElbowState"), "neutral");
+    }
+
     public void moveElbowUp() {
-        elbowMotor.setVoltage(Volts.of(6));
+        elbowMotor.setVoltage(ELBOW_UP_VOLTAGE);
+        Logger.recordOutput(getOutputLogPath("ElbowState"), "move up");
     }
 
     public void moveElbowDown() {
-        elbowMotor.setVoltage(Volts.of(-6));
+        elbowMotor.setVoltage(ELBOW_DOWN_VOLTAGE);
+        Logger.recordOutput(getOutputLogPath("ElbowState"), "move down");
     }
 
-    public void stopElbow() {
-        elbowMotor.setVoltage(Volts.of(0));
+    public void holdElbowUp() {
+        elbowMotor.setVoltage(HOLD_ELBOW_UP);
+        Logger.recordOutput(getOutputLogPath("ElbowState"), "hold up");
+    }
+
+    public void holdElbowDown() {
+        elbowMotor.setVoltage(HOLD_ELBOW_DOWN);
+        Logger.recordOutput(getOutputLogPath("ElbowState"), "hold down");
     }
 
     public void runForwards() {

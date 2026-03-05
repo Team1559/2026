@@ -1,7 +1,5 @@
 package frc.lib.swerve;
 
-import java.nio.channels.NetworkChannel;
-
 import org.littletonrobotics.junction.Logger;
 
 import com.pathplanner.lib.auto.AutoBuilder;

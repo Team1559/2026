@@ -8,7 +8,7 @@ import frc.lib.loggable.LoggableSubsystem;
 
 public class VoltageSubsystem extends LoggableSubsystem implements NeutralOutput {
     private final VoltageComponent[] children;
-    private Voltage setpoint;
+    private Voltage setpoint = Volts.zero();
 
     public VoltageSubsystem(String name, VoltageComponent... children) {
         super(name);
