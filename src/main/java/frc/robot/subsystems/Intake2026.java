@@ -1,17 +1,23 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Volts;
 
 import org.littletonrobotics.junction.Logger;
 
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-
-import edu.wpi.first.units.measure.Voltage;
-
 import com.revrobotics.spark.config.SparkFlexConfig;
 
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Voltage;
+import frc.lib.angular_position.AngularPositionSensor;
+import frc.lib.angular_position.CanCoderIo;
 import frc.lib.velocity.SparkFlexIo;
 import frc.lib.voltage.VoltageComponent;
 import frc.lib.voltage.VoltageSubsystem;
@@ -19,20 +25,21 @@ import frc.lib.voltage.VoltageSubsystem;
 public class Intake2026 extends VoltageSubsystem {
     private static final int INTAKE_MOTOR_ID = 22;
     private static final int ELBOW_MOTOR_ID = 21;
+    private static final int ELBOW_ENCODER_ID = 0; // TODO: find ID value
     private static final Voltage FORWARD_VOLTAGE = Volts.of(5);
     private static final Voltage REVERSE_VOLTAGE = Volts.of(-5);
     private static final Voltage ELBOW_UP_VOLTAGE = Volts.of(6);
     private static final Voltage ELBOW_DOWN_VOLTAGE = Volts.of(-2);
     private static final Voltage HOLD_ELBOW_UP = Volts.of(1);
     private static final Voltage HOLD_ELBOW_DOWN = Volts.of(0);
+    private static final Angle ELBOW_OFFSET = Radians.of(0);
+    private static final Angle UP_ANGLE = Degrees.of(90);
+    private static final Angle DOWN_ANGLE = Degrees.of(0);
 
     private final VoltageComponent elbowMotor;
+    private final AngularPositionSensor elbowEncoder;
 
-    // private final BooleanComponent lowerLimitSwitch;
-    // private final BooleanComponent upperLimitSwitch;
-
-    // private final int LOWER_LIMIT_SWITCH_CHANNEL = 0; //TODO add channels
-    // private final int UPPER_LIMIT_SWITCH_CHANNEL = 0;
+    private ElbowState elbowState = ElbowState.NEUTRAL;
 
     public Intake2026() {
         super("Intake",
@@ -42,11 +49,10 @@ public class Intake2026 extends VoltageSubsystem {
         elbowMotor = new SparkFlexIo("ElbowMotor", new SparkFlex(ELBOW_MOTOR_ID, MotorType.kBrushless),
                 makeElbowConfig());
 
-        addChildren(elbowMotor);
-        // lowerLimitSwitch = new LimitSwitchIo("LowerLimitSwitch", new
-        // DigitalInput(LOWER_LIMIT_SWITCH_CHANNEL));
-        // upperLimitSwitch = new LimitSwitchIo("UpperLimitSwitch", new
-        // DigitalInput(UPPER_LIMIT_SWITCH_CHANNEL));
+        elbowEncoder = new CanCoderIo("ElbowEncoder", new CANcoder(ELBOW_ENCODER_ID), ELBOW_OFFSET,
+                makeEncoderConfig());
+
+        addChildren(elbowMotor, elbowEncoder);
     }
 
     private static SparkFlexConfig makeIntakeConfig() {
@@ -64,61 +70,72 @@ public class Intake2026 extends VoltageSubsystem {
         return config;
     }
 
-    public void elbowNeutral(){
-        elbowMotor.neutralOutput();
-        Logger.recordOutput(getOutputLogPath("ElbowState"), "neutral");
+    private static CANcoderConfiguration makeEncoderConfig() {
+        CANcoderConfiguration config = new CANcoderConfiguration();
+        config.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive; // TODO: Get CW or CCW
+        return config;
     }
 
     public void moveElbowUp() {
-        elbowMotor.setVoltage(ELBOW_UP_VOLTAGE);
-        Logger.recordOutput(getOutputLogPath("ElbowState"), "move up");
+        elbowState = ElbowState.UP;
     }
 
     public void moveElbowDown() {
-        elbowMotor.setVoltage(ELBOW_DOWN_VOLTAGE);
-        Logger.recordOutput(getOutputLogPath("ElbowState"), "move down");
+        elbowState = ElbowState.DOWN;
     }
 
-    public void holdElbowUp() {
-        elbowMotor.setVoltage(HOLD_ELBOW_UP);
-        Logger.recordOutput(getOutputLogPath("ElbowState"), "hold up");
-    }
-
-    public void holdElbowDown() {
-        elbowMotor.setVoltage(HOLD_ELBOW_DOWN);
-        Logger.recordOutput(getOutputLogPath("ElbowState"), "hold down");
+    public void elbowNeutral() {
+        elbowState = ElbowState.NEUTRAL;
     }
 
     public void runForwards() {
-        run(FORWARD_VOLTAGE);
-        Logger.recordOutput(getOutputLogPath("IntakeDirection"), "forwards");
+        setVoltage(FORWARD_VOLTAGE);
     }
 
     public void runReverse() {
-        run(REVERSE_VOLTAGE);
-        Logger.recordOutput(getOutputLogPath("IntakeDirection"), "reverse");
+        setVoltage(REVERSE_VOLTAGE);
     }
 
     @Override
     public void neutralOutput() {
         super.neutralOutput();
-        Logger.recordOutput(getOutputLogPath("IntakeDirection"), "stop");
     }
 
     @Override
     public void periodic() {
         super.periodic();
-        // lowerLimitSwitch.periodic();
-        // upperLimitSwitch.periodic();
+        Logger.recordOutput(getOutputLogPath("ElbowUp"), isAtUpperLimit());
+        Logger.recordOutput(getOutputLogPath("ElbowDown"), isAtLowerLimit());
+        Logger.recordOutput(getOutputLogPath("ElbowState"), elbowState);
+
+        switch (elbowState) {
+            case NEUTRAL:
+                elbowMotor.neutralOutput();
+                break;
+            case UP:
+                if (isAtUpperLimit()) {
+                    elbowMotor.setVoltage(HOLD_ELBOW_UP);
+                } else {
+                    elbowMotor.setVoltage(ELBOW_UP_VOLTAGE);
+                }
+                break;
+            case DOWN:
+                if (isAtLowerLimit()) {
+                    elbowMotor.setVoltage(HOLD_ELBOW_DOWN);
+                } else {
+                    elbowMotor.setVoltage(ELBOW_DOWN_VOLTAGE);
+                }
+                break;
+        }
     }
 
-    // public boolean isAtUpperLimit() {
-    // return upperLimitSwitch.getAsBoolean();
-    // }
+    public boolean isAtUpperLimit() {
+        return elbowEncoder.getAngle().gte(UP_ANGLE);
+    }
 
-    // public boolean isAtLowerLimit() {
-    // return lowerLimitSwitch.getAsBoolean();
-    // }
+    public boolean isAtLowerLimit() {
+        return elbowEncoder.getAngle().lte(DOWN_ANGLE);
+    }
 
     // public Command downCommand() {
     // return new FunctionalCommand(() -> moveElbowDown(), () -> {}, (x) ->
@@ -129,4 +146,10 @@ public class Intake2026 extends VoltageSubsystem {
     // return new FunctionalCommand(() -> moveElbowUp(), () -> {}, (x) ->
     // stopElbow(), () -> isAtUpperLimit(), this);
     // }
+
+    private enum ElbowState {
+        UP,
+        DOWN,
+        NEUTRAL
+    }
 }

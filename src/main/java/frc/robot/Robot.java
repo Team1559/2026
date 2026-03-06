@@ -30,6 +30,7 @@ import frc.lib.commands.StopCommand;
 import frc.lib.swerve.SwerveDrive;
 import frc.lib.swerve.TeleopDriveCommand;
 import frc.robot.commands.ShootCommand;
+import frc.robot.commands.WiggleIntakeCommand;
 import frc.robot.subsystems.Indexer2026;
 import frc.robot.subsystems.Intake2026;
 import frc.robot.subsystems.Shooter2026;
@@ -88,24 +89,29 @@ public class Robot extends LoggedRobot {
 
     public void registerNamedCommands() {
         NamedCommands.registerCommand("DrivetrainStop", new StopCommand(drivetrain).withTimeout(1));
-        //TODO: Intake up and down
+        
+        NamedCommands.registerCommand("IntakeUp", new InstantCommand(intake::moveElbowUp));
+        NamedCommands.registerCommand("IntakeDown", new InstantCommand(intake::moveElbowDown));
         NamedCommands.registerCommand("Shoot", new ShootCommand(indexer, shooter,Shooter2026::ourHubLocation));
-        NamedCommands.registerCommand("RunIntakeForwards", new InstantCommand(() -> intake.runForwards()));
-        NamedCommands.registerCommand("StopIntake", new InstantCommand(() -> intake.neutralOutput()));
+        NamedCommands.registerCommand("RunIntakeForwards", new InstantCommand(intake::runForwards));
+        NamedCommands.registerCommand("StopIntake", new InstantCommand(intake::neutralOutput));
     }
 
     public void setTeleopBindings() {
         drivetrain.setDefaultCommand(new TeleopDriveCommand(() -> pilotController.getLeftY()*-1, () -> pilotController.getLeftX()*-1, () -> pilotController.getRightX() * -1, SwerveDrive2026Competition.SWERVE_CONSTRAINTS, drivetrain, () -> pilotController.rightBumper().getAsBoolean()));
         
-        pilotController.leftTrigger().whileTrue(new StartEndCommand(() -> intake.runForwards(), () -> intake.neutralOutput(), intake));
-        pilotController.leftTrigger().whileTrue(new StartEndCommand(() -> indexer.runForwards(), () -> indexer.neutralOutput(), indexer)); //Run indexer alongside intake
-        pilotController.povUp().whileTrue(new StartEndCommand(() -> intake.moveElbowUp(), () -> intake.elbowNeutral(), intake));
+        pilotController.leftTrigger().whileTrue(new StartEndCommand(intake::runForwards, intake::neutralOutput, intake));
+        pilotController.leftTrigger().whileTrue(new StartEndCommand(indexer::runForwards, indexer::neutralOutput, indexer)); //Run indexer alongside intake
+        pilotController.povUp().onTrue(new InstantCommand(intake::moveElbowUp, intake));
+        pilotController.povDown().onTrue(new InstantCommand(intake::moveElbowDown, intake));
+        pilotController.rightBumper().whileTrue(new WiggleIntakeCommand(intake));
 
         pilotController.rightTrigger().whileTrue(new ShootCommand(indexer, shooter,shooter::targetLocation));
         //TODO: Left bumper toggles intake OR other intake up/down binding
 
         //Copilot gets uh oh buttons
-        coPilotController.a().whileTrue(new StartEndCommand(() -> intake.runReverse(), () -> intake.neutralOutput(), intake));
+        coPilotController.a().whileTrue(new StartEndCommand(intake::runReverse, intake::neutralOutput, intake));
+        coPilotController.b().whileTrue(new StartEndCommand(indexer::runReverse, indexer::neutralOutput, indexer));
     }
 
     public void setTestBindings() {
@@ -120,13 +126,7 @@ public class Robot extends LoggedRobot {
 
         pilotController.x().onTrue(new InstantCommand(() -> shooter.setTurretAngle(Degrees.of(0))));
 
-        // pilotController.povUp().whileTrue(new StartEndCommand(() -> intake.moveElbowUp(), () -> intake.stopElbow(), intake));
-        // pilotController.povDown().whileTrue(new StartEndCommand(() -> intake.moveElbowDown(), () -> intake.stopElbow(), intake));
-
-        // pilotController.rightBumper().whileTrue(new StartEndCommand(() -> intake.runForwards(), () -> intake.stop(), intake));
-        // pilotController.leftBumper().whileTrue(new StartEndCommand(() -> intake.runReverse(), () -> intake.stop(), intake));
-
-        pilotController.y().whileTrue(new StartEndCommand(() -> indexer.runForwards(), () -> indexer.neutralOutput(), indexer));
+        pilotController.y().whileTrue(new StartEndCommand(indexer::runForwards, indexer::neutralOutput, indexer));
     }
 
     @Override
