@@ -25,16 +25,16 @@ import frc.lib.voltage.VoltageSubsystem;
 public class Intake2026 extends VoltageSubsystem {
     private static final int INTAKE_MOTOR_ID = 22;
     private static final int ELBOW_MOTOR_ID = 21;
-    private static final int ELBOW_ENCODER_ID = 0; // TODO: find ID value
+    private static final int ELBOW_ENCODER_ID = 16; // TODO: find ID value
     private static final Voltage FORWARD_VOLTAGE = Volts.of(5);
     private static final Voltage REVERSE_VOLTAGE = Volts.of(-5);
-    private static final Voltage ELBOW_UP_VOLTAGE = Volts.of(6);
-    private static final Voltage ELBOW_DOWN_VOLTAGE = Volts.of(-2);
-    private static final Voltage HOLD_ELBOW_UP = Volts.of(1);
-    private static final Voltage HOLD_ELBOW_DOWN = Volts.of(0);
-    private static final Angle ELBOW_OFFSET = Radians.of(0);
-    private static final Angle UP_ANGLE = Degrees.of(90);
-    private static final Angle DOWN_ANGLE = Degrees.of(0);
+    private static final Voltage ELBOW_UP_VOLTAGE = Volts.of(3);
+    private static final Voltage ELBOW_DOWN_VOLTAGE = Volts.of(-1);
+    private static final Voltage HOLD_ELBOW_UP = Volts.of(0.5);
+    private static final Voltage HOLD_ELBOW_DOWN = Volts.of(-0.2);
+    private static final Angle ELBOW_OFFSET = Radians.of(2.623107);
+    private static final Angle UP_ANGLE = Degrees.of(86);
+    private static final Angle DOWN_ANGLE = Degrees.of(30);
 
     private final VoltageComponent elbowMotor;
     private final AngularPositionSensor elbowEncoder;
@@ -72,7 +72,8 @@ public class Intake2026 extends VoltageSubsystem {
 
     private static CANcoderConfiguration makeEncoderConfig() {
         CANcoderConfiguration config = new CANcoderConfiguration();
-        config.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive; // TODO: Get CW or CCW
+        config.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
+        config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
         return config;
     }
 
@@ -136,16 +137,6 @@ public class Intake2026 extends VoltageSubsystem {
     public boolean isAtLowerLimit() {
         return elbowEncoder.getAngle().lte(DOWN_ANGLE);
     }
-
-    // public Command downCommand() {
-    // return new FunctionalCommand(() -> moveElbowDown(), () -> {}, (x) ->
-    // stopElbow(), () -> isAtLowerLimit(), this);
-    // }
-
-    // public Command upCommand() {
-    // return new FunctionalCommand(() -> moveElbowUp(), () -> {}, (x) ->
-    // stopElbow(), () -> isAtUpperLimit(), this);
-    // }
 
     private enum ElbowState {
         UP,

@@ -43,9 +43,8 @@ public class SparkFlexIo extends LoggableIo<SparkFlexIo.SparkFlexIoInputs> imple
         motor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         motorController = motor.getClosedLoopController();
         encoder = motor.getEncoder();
-        Logger.recordOutput(getOutputLogPath("Active"), false);
     }
-
+    
     @Override
     protected void updateInputs(SparkFlexIoInputs inputs) {
         inputs.currentVelocity = RPM.of(encoder.getVelocity());

@@ -49,7 +49,8 @@ public class Robot extends LoggedRobot {
     private final Indexer2026 indexer;
     private static final boolean IS_REPLAY = false;
     private int loopIterations = 0;
-    @SuppressWarnings("resource") //pdh must stay open for connection
+
+    @SuppressWarnings("resource") // pdh must stay open for connection
     public Robot() {
         super(0.02);
         if (IS_REPLAY) {
@@ -61,18 +62,17 @@ public class Robot extends LoggedRobot {
             Logger.addDataReceiver(new WPILOGWriter());
             Logger.addDataReceiver(new NT4Publisher());
         }
-        
+
         Logger.start();
         Logger.recordOutput("hi/test", ":)"); // Leave as easter egg
         pilotController = new CommandXboxController(0);
         coPilotController = new CommandXboxController(1);
         drivetrain = new SwerveDrive2026Competition();
-        vision = new Vision2026 (drivetrain);
+        vision = new Vision2026(drivetrain);
         shooter = new Shooter2026(drivetrain::getPosition, drivetrain::getCurrentSpeed);
         intake = new Intake2026();
         indexer = new Indexer2026();
 
-        
         registerNamedCommands();
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData(autoChooser);
@@ -89,36 +89,52 @@ public class Robot extends LoggedRobot {
 
     public void registerNamedCommands() {
         NamedCommands.registerCommand("DrivetrainStop", new StopCommand(drivetrain).withTimeout(1));
-        
+        NamedCommands.registerCommand("Wiggle", new WiggleIntakeCommand(intake));
         NamedCommands.registerCommand("IntakeUp", new InstantCommand(intake::moveElbowUp));
         NamedCommands.registerCommand("IntakeDown", new InstantCommand(intake::moveElbowDown));
-        NamedCommands.registerCommand("Shoot", new ShootCommand(indexer, shooter,Shooter2026::ourHubLocation));
+        NamedCommands.registerCommand("Shoot", new ShootCommand(indexer, shooter, Shooter2026::ourHubLocation));
         NamedCommands.registerCommand("RunIntakeForwards", new InstantCommand(intake::runForwards));
         NamedCommands.registerCommand("StopIntake", new InstantCommand(intake::neutralOutput));
+        NamedCommands.registerCommand("Intake", new StartEndCommand(intake::runForwards, intake::neutralOutput));
     }
 
     public void setTeleopBindings() {
-        drivetrain.setDefaultCommand(new TeleopDriveCommand(() -> pilotController.getLeftY()*-1, () -> pilotController.getLeftX()*-1, () -> pilotController.getRightX() * -1, SwerveDrive2026Competition.SWERVE_CONSTRAINTS, drivetrain, () -> pilotController.rightBumper().getAsBoolean()));
-        
-        pilotController.leftTrigger().whileTrue(new StartEndCommand(intake::runForwards, intake::neutralOutput, intake));
-        pilotController.leftTrigger().whileTrue(new StartEndCommand(indexer::runForwards, indexer::neutralOutput, indexer)); //Run indexer alongside intake
-        pilotController.povUp().onTrue(new InstantCommand(intake::moveElbowUp, intake));
-        pilotController.povDown().onTrue(new InstantCommand(intake::moveElbowDown, intake));
+        drivetrain.setDefaultCommand(new TeleopDriveCommand(() -> pilotController.getLeftY() * -1,
+                () -> pilotController.getLeftX() * -1, () -> pilotController.getRightX() * -1,
+                SwerveDrive2026Competition.SWERVE_CONSTRAINTS, drivetrain, () -> false));
+
+        pilotController.leftBumper()
+                .whileTrue(new TeleopDriveCommand(() -> pilotController.getLeftY() * -1,
+                        () -> pilotController.getLeftX() * -1, () -> pilotController.getRightX() * -1,
+                        SwerveDrive2026Competition.SLOW_SWERVE_CONSTRAINTS, drivetrain, () -> false));
+
+        pilotController.leftTrigger()
+                .whileTrue(new StartEndCommand(intake::runForwards, intake::neutralOutput, intake));
+        pilotController.leftTrigger()
+                .whileTrue(new StartEndCommand(indexer::runForwards, indexer::neutralOutput, indexer)); // Run indexer
+                                                                                                        // alongside
+                                                                                                        // intake
+        pilotController.leftTrigger().onTrue(new InstantCommand(intake::moveElbowDown));
+
+        pilotController.rightStick().onTrue(new InstantCommand(intake::moveElbowUp, intake));
+
+        pilotController.rightTrigger().whileTrue(new ShootCommand(indexer, shooter, shooter::targetLocation));
         pilotController.rightBumper().whileTrue(new WiggleIntakeCommand(intake));
 
-        pilotController.rightTrigger().whileTrue(new ShootCommand(indexer, shooter,shooter::targetLocation));
-        //TODO: Left bumper toggles intake OR other intake up/down binding
-
-        //Copilot gets uh oh buttons
+        // Copilot gets uh oh buttons
         coPilotController.a().whileTrue(new StartEndCommand(intake::runReverse, intake::neutralOutput, intake));
         coPilotController.b().whileTrue(new StartEndCommand(indexer::runReverse, indexer::neutralOutput, indexer));
     }
 
     public void setTestBindings() {
-        drivetrain.setDefaultCommand(new TeleopDriveCommand(() -> pilotController.getLeftY()*-1, () -> pilotController.getLeftX()*-1, () -> pilotController.getRightX() * -1, SwerveDrive2026Competition.SWERVE_CONSTRAINTS, drivetrain, () -> pilotController.rightBumper().getAsBoolean()));
+        drivetrain.setDefaultCommand(new TeleopDriveCommand(() -> pilotController.getLeftY() * -1,
+                () -> pilotController.getLeftX() * -1, () -> pilotController.getRightX() * -1,
+                SwerveDrive2026Competition.SWERVE_CONSTRAINTS, drivetrain, () -> false));
 
-        pilotController.a().whileTrue(new StartEndCommand(() -> shooter.setSpinFeedwheel(true), () -> shooter.setSpinFeedwheel(false), shooter));
-        pilotController.b().whileTrue(new StartEndCommand(() -> shooter.setSpinFlywheel(true), () -> shooter.setSpinFlywheel(false)));
+        pilotController.a().whileTrue(new StartEndCommand(() -> shooter.setSpinFeedwheel(true),
+                () -> shooter.setSpinFeedwheel(false), shooter));
+        pilotController.b().whileTrue(
+                new StartEndCommand(() -> shooter.setSpinFlywheel(true), () -> shooter.setSpinFlywheel(false)));
         pilotController.povRight().whileTrue(new InstantCommand(() -> shooter.setTurretAngle(Degrees.of(60)), shooter));
         pilotController.povLeft().whileTrue(new InstantCommand(() -> shooter.setTurretAngle(Degrees.of(-60)), shooter));
 
@@ -136,12 +152,12 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void robotPeriodic() {
-        if (loopIterations % 1 == 0){
+        if (loopIterations % 1 == 0) {
             CommandScheduler.getInstance().run();
         } else {
             drivetrain.periodic();
         }
-        loopIterations ++;
+        loopIterations++;
     }
 
     @Override

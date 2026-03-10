@@ -6,7 +6,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
 import frc.lib.loggable.LoggableIntermediate;
 
-
 //Rest in peace chinese ba​by 2/21/2026
 public class ChineseRemainderAngle extends LoggableIntermediate implements AngularPositionSensor {
 
@@ -24,8 +23,9 @@ public class ChineseRemainderAngle extends LoggableIntermediate implements Angul
      * gearOne causes consistent, small errors
      * gearTwo causes inconsistent, large errors
      */
-    public ChineseRemainderAngle(String name, int gearOneTeeth, int gearTwoTeeth, int largeGearTeeth, AngularPositionSensor childOne, AngularPositionSensor childTwo, Angle minAngle, Angle maxAngle){
-        
+    public ChineseRemainderAngle(String name, int gearOneTeeth, int gearTwoTeeth, int largeGearTeeth,
+            AngularPositionSensor childOne, AngularPositionSensor childTwo, Angle minAngle, Angle maxAngle) {
+
         super(name);
 
         this.childOne = childOne;
@@ -41,37 +41,38 @@ public class ChineseRemainderAngle extends LoggableIntermediate implements Angul
         this.addChildren(childOne, childTwo);
     }
 
-    @Override 
-    public Angle getAngle(){
+    @Override
+    public Angle getAngle() {
         Rotation2d gearOneAngle = Rotation2d.fromRotations(childOne.getAngle().in(Rotations) % 1);
         Rotation2d gearTwoAngle = Rotation2d.fromRotations(childTwo.getAngle().in(Rotations) % 1);
 
         double minErrRotations = Double.MAX_VALUE;
         Angle ans = null;
-        Angle largeGearAngle = gearOneAngle.times((double)gearOneTeeth / largeGearTeeth).getMeasure();
-        while(largeGearAngle.gte(minAngle)) {
-            Rotation2d expectedGearTwoAngle = Rotation2d.fromRotations(largeGearAngle.times((double)largeGearTeeth / gearTwoTeeth).in(Rotations) % 1);
+        Angle largeGearAngle = gearOneAngle.times((double) gearOneTeeth / largeGearTeeth).getMeasure();
+        while (largeGearAngle.gte(minAngle)) {
+            Rotation2d expectedGearTwoAngle = Rotation2d
+                    .fromRotations(largeGearAngle.times((double) largeGearTeeth / gearTwoTeeth).in(Rotations) % 1);
             double err = Math.abs(expectedGearTwoAngle.minus(gearTwoAngle).getRotations());
-            if(minErrRotations > err) {
+            if (minErrRotations > err) {
                 ans = largeGearAngle;
                 minErrRotations = err;
             }
-            largeGearAngle = largeGearAngle.minus(Rotations.of((double)gearOneTeeth / largeGearTeeth));
+            largeGearAngle = largeGearAngle.minus(Rotations.of((double) gearOneTeeth / largeGearTeeth));
         }
 
-        largeGearAngle = gearOneAngle.times((double)gearOneTeeth / largeGearTeeth).getMeasure();
+        largeGearAngle = gearOneAngle.times((double) gearOneTeeth / largeGearTeeth).getMeasure();
 
-        while(largeGearAngle.lte(maxAngle)) {
-            Rotation2d expectedGearTwoAngle = Rotation2d.fromRotations(largeGearAngle.times((double)largeGearTeeth / gearTwoTeeth).in(Rotations) % 1);
+        while (largeGearAngle.lte(maxAngle)) {
+            Rotation2d expectedGearTwoAngle = Rotation2d
+                    .fromRotations(largeGearAngle.times((double) largeGearTeeth / gearTwoTeeth).in(Rotations) % 1);
             double err = Math.abs(expectedGearTwoAngle.minus(gearTwoAngle).getRotations());
-            if(minErrRotations > err) {
+            if (minErrRotations > err) {
                 ans = largeGearAngle;
                 minErrRotations = err;
             }
-            largeGearAngle = largeGearAngle.plus(Rotations.of((double)gearOneTeeth / largeGearTeeth));
+            largeGearAngle = largeGearAngle.plus(Rotations.of((double) gearOneTeeth / largeGearTeeth));
         }
         return ans;
     }
-    
-    
+
 }

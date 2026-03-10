@@ -13,7 +13,7 @@ public class WiggleIntakeCommand extends Command {
 
     @Override
     public void initialize() {
-        intake.runForwards();
+        // intake.runForwards();
         intake.moveElbowUp();
     }
 
@@ -29,5 +29,6 @@ public class WiggleIntakeCommand extends Command {
     @Override
     public void end(boolean interrupted) {
         intake.moveElbowDown();
+        intake.neutralOutput();
     }
 }

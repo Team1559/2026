@@ -5,33 +5,9 @@
     "data": {
       "commands": [
         {
-          "type": "named",
-          "data": {
-            "name": "IntakeDown"
-          }
-        },
-        {
           "type": "path",
           "data": {
-            "pathName": "Left Bump to Center"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "RunIntakeForwards"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Center Intake left"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Center to Left Bump"
+            "pathName": "Right Bump To Outpost"
           }
         },
         {
@@ -62,12 +38,6 @@
                     }
                   ]
                 }
-              },
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Left Bump Back Up"
-                }
               }
             ]
           }
@@ -75,7 +45,7 @@
       ]
     }
   },
-  "resetOdom": true,
+  "resetOdom": false,
   "folder": null,
   "choreoAuto": false
 }
