@@ -4,6 +4,10 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Volts;
 
+import java.text.Normalizer.Form;
+
+import javax.lang.model.util.ElementScanner14;
+
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
@@ -26,7 +30,7 @@ public class Intake2026 extends VoltageSubsystem {
     private static final int INTAKE_MOTOR_ID = 22;
     private static final int ELBOW_MOTOR_ID = 21;
     private static final int ELBOW_ENCODER_ID = 16; // TODO: find ID value
-    private static final Voltage FORWARD_VOLTAGE = Volts.of(5);
+    private static final Voltage FORWARD_VOLTAGE = Volts.of(6);
     private static final Voltage REVERSE_VOLTAGE = Volts.of(-5);
     private static final Voltage ELBOW_UP_VOLTAGE = Volts.of(3);
     private static final Voltage ELBOW_DOWN_VOLTAGE = Volts.of(-1);
@@ -40,7 +44,8 @@ public class Intake2026 extends VoltageSubsystem {
     private final AngularPositionSensor elbowEncoder;
 
     private ElbowState elbowState = ElbowState.NEUTRAL;
-
+    private IntakeState intakeState = IntakeState.NEUTRAL;
+    
     public Intake2026() {
         super("Intake",
                 new SparkFlexIo("IntakeMotor", new SparkFlex(INTAKE_MOTOR_ID, MotorType.kBrushless),
@@ -90,16 +95,16 @@ public class Intake2026 extends VoltageSubsystem {
     }
 
     public void runForwards() {
-        setVoltage(FORWARD_VOLTAGE);
+        intakeState = IntakeState.FOWARDS;
     }
 
     public void runReverse() {
-        setVoltage(REVERSE_VOLTAGE);
+        intakeState = IntakeState.BACKWARDS;
     }
 
     @Override
     public void neutralOutput() {
-        super.neutralOutput();
+        intakeState = IntakeState.NEUTRAL;
     }
 
     @Override
@@ -128,6 +133,26 @@ public class Intake2026 extends VoltageSubsystem {
                 }
                 break;
         }
+
+        switch (intakeState) {
+            case NEUTRAL:
+                super.neutralOutput();
+                break;
+            case FOWARDS:
+                if (isAtLowerLimit()) {
+                    setVoltage(FORWARD_VOLTAGE);
+                } else {
+                    super.neutralOutput();
+                }
+                break;
+            case BACKWARDS:
+                if (isAtLowerLimit()) {
+                    setVoltage(REVERSE_VOLTAGE);
+                } else {
+                    super.neutralOutput();
+                }
+                break;
+        }
     }
 
     public boolean isAtUpperLimit() {
@@ -138,9 +163,19 @@ public class Intake2026 extends VoltageSubsystem {
         return elbowEncoder.getAngle().lte(DOWN_ANGLE);
     }
 
+    public boolean isIntaking(){
+        return intakeState == IntakeState.FOWARDS;
+    }
+
     private enum ElbowState {
         UP,
         DOWN,
         NEUTRAL
+    }
+
+    private enum IntakeState{
+        FOWARDS,
+        BACKWARDS,
+        NEUTRAL,
     }
 }

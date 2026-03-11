@@ -10,44 +10,38 @@ import frc.robot.subsystems.Shooter2026;
 
 public class ShootCommand extends Command {
     private final Shooter2026 shooter;
-    private final Indexer2026 indexer;
     private final Supplier<Translation3d> targetSupplier;
     
     private boolean canShoot = false;
-    public ShootCommand(Indexer2026 indexer, Shooter2026 shooter, Supplier<Translation3d> targetSupplier) {
+    public ShootCommand(Shooter2026 shooter, Supplier<Translation3d> targetSupplier) {
         super();
         this.shooter = shooter;
-        this.indexer = indexer;
         this.targetSupplier = targetSupplier;
-        addRequirements(indexer, shooter);
+        addRequirements(shooter);
     }
 
     @Override
     public void initialize() {
         shooter.setTargetFieldSpace(targetSupplier.get(), Translation2d.kZero);
         shooter.setSpinFlywheel(true);
-        shooter.setSpinFeedwheel(false);
-        indexer.neutralOutput();
+        shooter.setShooting(false);
         canShoot = false;
     }
 
     @Override
     public void execute() {
         if(canShoot){
-            indexer.runForwards();
-            shooter.setSpinFeedwheel(true);
+            shooter.setShooting(true);
         } else {
             canShoot = shooter.isFlywheelReady();
-            indexer.neutralOutput();
-            shooter.setSpinFeedwheel(false);
+            shooter.setShooting(false);
         }
     }
 
     @Override
     public void end(boolean interrupted) {
-        shooter.setSpinFeedwheel(false);
+        shooter.setShooting(false);
         shooter.setSpinFlywheel(false);
-        indexer.neutralOutput();
     }
 
 }

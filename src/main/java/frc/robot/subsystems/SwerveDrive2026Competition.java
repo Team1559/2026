@@ -33,7 +33,7 @@ public class SwerveDrive2026Competition extends SwerveDrive {
     private static final double KRAKEN_MAX_FREE_VELOCITY = 6000.0;
     private static final double BATTERY_VOLTAGE = 12.0;
     private static final double SECONDS_PER_MINUTE = 60.0;
-    private static final double DRIVE_MOTOR_CURRENT = 80.0;
+    private static final double DRIVE_MOTOR_CURRENT = 25; //80.0;
     private static final double COEFFICENT_OF_FRICTION = 0.5;
 
     private static final double SWERVE_MAX_ANGULAR_ACCEL = SWERVE_MAX_ANGULAR_VELOCITY / 0.5;

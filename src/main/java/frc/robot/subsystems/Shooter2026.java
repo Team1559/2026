@@ -7,7 +7,7 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.RPM;
-import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 
@@ -19,6 +19,7 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.pathplanner.lib.util.FlippingUtil;
+import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
@@ -62,7 +63,7 @@ public class Shooter2026 extends LoggableSubsystem {
     private Translation3d targetFieldSpace;
     private Translation2d barrierOffset;
     private boolean spinFlywheel;
-    private boolean spinFeedwheel;
+    private boolean isShooting;
     private double timestampFlywheelNotReady;
     private static final Rotation2d flapperAngle = Rotation2d.fromDegrees(59);
 
@@ -138,6 +139,7 @@ public class Shooter2026 extends LoggableSubsystem {
         config.closedLoop.minOutput(-.15);
         config.closedLoop.pid(.8, 0.0005, 0); // (0.1, 0.0008, 0.01);
         config.closedLoop.iZone(0.2);
+        config.closedLoop.allowedClosedLoopError(Degrees.of(.24 * 10).in(Rotations), ClosedLoopSlot.kSlot0);
         config.voltageCompensation(12.0);
         config.inverted(true);
         config.idleMode(IdleMode.kBrake);
@@ -160,10 +162,10 @@ public class Shooter2026 extends LoggableSubsystem {
     private static AngularPositionSensor makeCrtAngleSensor() {
         CANcoderConfiguration configOne = new CANcoderConfiguration();
         configOne.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-        CanCoderIo canCoderOne = new CanCoderIo("TurretGearOne", new CANcoder(14), Degrees.of(113.466797), configOne);
+        CanCoderIo canCoderOne = new CanCoderIo("TurretGearOne", new CANcoder(14), Degrees.of(109.775), configOne);
         CANcoderConfiguration configTwo = new CANcoderConfiguration();
         configTwo.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-        CanCoderIo canCoderTwo = new CanCoderIo("TurretGearTwo", new CANcoder(15), Degrees.of(139.658203), configTwo);
+        CanCoderIo canCoderTwo = new CanCoderIo("TurretGearTwo", new CANcoder(15), Degrees.of(-76.81), configTwo);
 
         return new ChineseRemainderAngle("CrtAngleSensor", 21, 19, 200, canCoderOne, canCoderTwo, Degrees.of(-180),
                 Degrees.of(180));
@@ -178,8 +180,8 @@ public class Shooter2026 extends LoggableSubsystem {
         this.spinFlywheel = spinFlywheel;
     }
 
-    public void setSpinFeedwheel(boolean spinFeedwheel) {
-        this.spinFeedwheel = spinFeedwheel;
+    public void setShooting(boolean shouldShoot) {
+        this.isShooting = shouldShoot;
     }
 
     public void useAbsoluteAngle() {
@@ -383,7 +385,7 @@ public class Shooter2026 extends LoggableSubsystem {
             Logger.recordOutput(getOutputLogPath("CrtAngle"), turretAngleSensor.getAngle());
         }
 
-        if (spinFeedwheel) {
+        if (isShooting) {
             feedWheel.setVelocity(RPM.of(1500));
         } else {
             feedWheel.neutralOutput();
@@ -439,5 +441,9 @@ public class Shooter2026 extends LoggableSubsystem {
     public static Translation3d flip(Translation3d t) {
         Translation2d flipped2d = FlippingUtil.flipFieldPosition(t.toTranslation2d());
         return new Translation3d(flipped2d.getX(), flipped2d.getY(), t.getZ());
+    }
+
+    public boolean isShooting(){
+        return isShooting;
     }
 }

@@ -5,15 +5,15 @@
     "data": {
       "commands": [
         {
-          "type": "path",
-          "data": {
-            "pathName": "Right Bump to Center"
-          }
-        },
-        {
           "type": "named",
           "data": {
             "name": "IntakeDown"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Right Bump to Center"
           }
         },
         {
@@ -25,7 +25,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Right Bump To Mid"
+            "pathName": "Center Intake Right"
           }
         },
         {
@@ -38,12 +38,6 @@
           "type": "path",
           "data": {
             "pathName": "Center to Right Bump"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Front Right Bump To Shoot Pos"
           }
         },
         {
@@ -73,6 +67,12 @@
                       }
                     }
                   ]
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Right bump back up"
                 }
               }
             ]

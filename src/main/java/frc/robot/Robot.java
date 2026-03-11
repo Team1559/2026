@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.commands.StopCommand;
 import frc.lib.swerve.SwerveDrive;
 import frc.lib.swerve.TeleopDriveCommand;
@@ -92,7 +93,7 @@ public class Robot extends LoggedRobot {
         NamedCommands.registerCommand("Wiggle", new WiggleIntakeCommand(intake));
         NamedCommands.registerCommand("IntakeUp", new InstantCommand(intake::moveElbowUp));
         NamedCommands.registerCommand("IntakeDown", new InstantCommand(intake::moveElbowDown));
-        NamedCommands.registerCommand("Shoot", new ShootCommand(indexer, shooter, Shooter2026::ourHubLocation));
+        NamedCommands.registerCommand("Shoot", new ShootCommand(shooter, Shooter2026::ourHubLocation));
         NamedCommands.registerCommand("RunIntakeForwards", new InstantCommand(intake::runForwards));
         NamedCommands.registerCommand("StopIntake", new InstantCommand(intake::neutralOutput));
         NamedCommands.registerCommand("Intake", new StartEndCommand(intake::runForwards, intake::neutralOutput));
@@ -110,15 +111,12 @@ public class Robot extends LoggedRobot {
 
         pilotController.leftTrigger()
                 .whileTrue(new StartEndCommand(intake::runForwards, intake::neutralOutput, intake));
-        pilotController.leftTrigger()
-                .whileTrue(new StartEndCommand(indexer::runForwards, indexer::neutralOutput, indexer)); // Run indexer
-                                                                                                        // alongside
-                                                                                                        // intake
+        
         pilotController.leftTrigger().onTrue(new InstantCommand(intake::moveElbowDown));
 
         pilotController.rightStick().onTrue(new InstantCommand(intake::moveElbowUp, intake));
 
-        pilotController.rightTrigger().whileTrue(new ShootCommand(indexer, shooter, shooter::targetLocation));
+        pilotController.rightTrigger().whileTrue(new ShootCommand(shooter, shooter::targetLocation));
         pilotController.rightBumper().whileTrue(new WiggleIntakeCommand(intake));
 
         // Copilot gets uh oh buttons
@@ -131,8 +129,8 @@ public class Robot extends LoggedRobot {
                 () -> pilotController.getLeftX() * -1, () -> pilotController.getRightX() * -1,
                 SwerveDrive2026Competition.SWERVE_CONSTRAINTS, drivetrain, () -> false));
 
-        pilotController.a().whileTrue(new StartEndCommand(() -> shooter.setSpinFeedwheel(true),
-                () -> shooter.setSpinFeedwheel(false), shooter));
+        pilotController.a().whileTrue(new StartEndCommand(() -> shooter.setShooting(true),
+                () -> shooter.setShooting(false), shooter));
         pilotController.b().whileTrue(
                 new StartEndCommand(() -> shooter.setSpinFlywheel(true), () -> shooter.setSpinFlywheel(false)));
         pilotController.povRight().whileTrue(new InstantCommand(() -> shooter.setTurretAngle(Degrees.of(60)), shooter));
@@ -145,9 +143,13 @@ public class Robot extends LoggedRobot {
         pilotController.y().whileTrue(new StartEndCommand(indexer::runForwards, indexer::neutralOutput, indexer));
     }
 
+    public void setUniversalBindings() {
+        Trigger indexerTrigger = new Trigger(shooter::isShooting).or(intake::isIntaking);
+        indexerTrigger.whileTrue(new StartEndCommand(indexer::runForwards, indexer::neutralOutput, indexer));
+    }
+
     @Override
     public void robotInit() {
-
     }
 
     @Override
@@ -167,18 +169,29 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void autonomousInit() {
+        setUniversalBindings();
         CommandScheduler.getInstance().schedule(autoChooser.getSelected());
     }
 
     @Override
     public void teleopInit() {
+        intake.neutralOutput();
+        indexer.neutralOutput();
+        shooter.setSpinFlywheel(false);
+        shooter.setShooting(false);
         clearCommandBindings();
+        setUniversalBindings();
         setTeleopBindings();
     }
 
     @Override
     public void testInit() {
+        intake.neutralOutput();
+        indexer.neutralOutput();
+        shooter.setSpinFlywheel(false);
+        shooter.setShooting(false);
         clearCommandBindings();
+        setUniversalBindings();
         setTestBindings();
     }
 
