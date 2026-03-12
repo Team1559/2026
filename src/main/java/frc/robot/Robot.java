@@ -13,8 +13,10 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
+import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.revrobotics.util.StatusLogger;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -28,6 +30,7 @@ import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.commands.StopCommand;
+import frc.lib.leds.Leds;
 import frc.lib.swerve.SwerveDrive;
 import frc.lib.swerve.TeleopDriveCommand;
 import frc.robot.commands.ShootCommand;
@@ -48,12 +51,16 @@ public class Robot extends LoggedRobot {
     private final Shooter2026 shooter;
     private final Intake2026 intake;
     private final Indexer2026 indexer;
+    // private final Leds leds;
+
     private static final boolean IS_REPLAY = false;
     private int loopIterations = 0;
 
     @SuppressWarnings("resource") // pdh must stay open for connection
     public Robot() {
         super(0.02);
+        StatusLogger.disableAutoLogging();
+        SignalLogger.enableAutoLogging(false);
         if (IS_REPLAY) {
             setUseTiming(false);
             String logPath = LogFileUtil.findReplayLog();
@@ -73,7 +80,7 @@ public class Robot extends LoggedRobot {
         shooter = new Shooter2026(drivetrain::getPosition, drivetrain::getCurrentSpeed);
         intake = new Intake2026();
         indexer = new Indexer2026();
-
+        // leds = new Leds(, );
         registerNamedCommands();
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData(autoChooser);
@@ -82,6 +89,8 @@ public class Robot extends LoggedRobot {
 
         PowerDistribution pdh = new PowerDistribution(1, ModuleType.kRev);
         pdh.setSwitchableChannel(true);
+        
+        // leds.setAllianceColor();
     }
 
     public void clearCommandBindings() {
@@ -119,28 +128,19 @@ public class Robot extends LoggedRobot {
         pilotController.rightTrigger().whileTrue(new ShootCommand(shooter, shooter::targetLocation));
         pilotController.rightBumper().whileTrue(new WiggleIntakeCommand(intake));
 
+        pilotController.a().onTrue(new InstantCommand(shooter::useAbsoluteAngle));
+
         // Copilot gets uh oh buttons
         coPilotController.a().whileTrue(new StartEndCommand(intake::runReverse, intake::neutralOutput, intake));
         coPilotController.b().whileTrue(new StartEndCommand(indexer::runReverse, indexer::neutralOutput, indexer));
     }
 
     public void setTestBindings() {
-        drivetrain.setDefaultCommand(new TeleopDriveCommand(() -> pilotController.getLeftY() * -1,
-                () -> pilotController.getLeftX() * -1, () -> pilotController.getRightX() * -1,
-                SwerveDrive2026Competition.SWERVE_CONSTRAINTS, drivetrain, () -> false));
-
-        pilotController.a().whileTrue(new StartEndCommand(() -> shooter.setShooting(true),
-                () -> shooter.setShooting(false), shooter));
-        pilotController.b().whileTrue(
-                new StartEndCommand(() -> shooter.setSpinFlywheel(true), () -> shooter.setSpinFlywheel(false)));
-        pilotController.povRight().whileTrue(new InstantCommand(() -> shooter.setTurretAngle(Degrees.of(60)), shooter));
-        pilotController.povLeft().whileTrue(new InstantCommand(() -> shooter.setTurretAngle(Degrees.of(-60)), shooter));
-
-        pilotController.rightTrigger().onTrue(shooter.getAimCommand(Shooter2026::ourHubLocation));
-
-        pilotController.x().onTrue(new InstantCommand(() -> shooter.setTurretAngle(Degrees.of(0))));
-
-        pilotController.y().whileTrue(new StartEndCommand(indexer::runForwards, indexer::neutralOutput, indexer));
+        pilotController.rightTrigger().whileTrue(new ShootCommand(shooter, shooter::targetLocation));
+        pilotController.leftTrigger()
+                .whileTrue(new StartEndCommand(intake::runForwards, intake::neutralOutput, intake));
+        
+        pilotController.leftTrigger().onTrue(new InstantCommand(intake::moveElbowDown));
     }
 
     public void setUniversalBindings() {

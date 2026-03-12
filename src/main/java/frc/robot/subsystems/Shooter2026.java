@@ -14,6 +14,7 @@ import static edu.wpi.first.units.Units.Seconds;
 import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
+import org.opencv.core.Mat;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -162,10 +163,10 @@ public class Shooter2026 extends LoggableSubsystem {
     private static AngularPositionSensor makeCrtAngleSensor() {
         CANcoderConfiguration configOne = new CANcoderConfiguration();
         configOne.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-        CanCoderIo canCoderOne = new CanCoderIo("TurretGearOne", new CANcoder(14), Degrees.of(109.775), configOne);
+        CanCoderIo canCoderOne = new CanCoderIo("TurretGearOne", new CANcoder(14), Degrees.of(126.386719), configOne);
         CANcoderConfiguration configTwo = new CANcoderConfiguration();
         configTwo.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-        CanCoderIo canCoderTwo = new CanCoderIo("TurretGearTwo", new CANcoder(15), Degrees.of(-76.81), configTwo);
+        CanCoderIo canCoderTwo = new CanCoderIo("TurretGearTwo", new CANcoder(15), Degrees.of(-17.929688), configTwo);
 
         return new ChineseRemainderAngle("CrtAngleSensor", 21, 19, 200, canCoderOne, canCoderTwo, Degrees.of(-180),
                 Degrees.of(180));
@@ -185,8 +186,9 @@ public class Shooter2026 extends LoggableSubsystem {
     }
 
     public void useAbsoluteAngle() {
-        turret.setPercievedAngle(turretAngleSensor.getAngle());
-        Logger.recordOutput(getOutputLogPath("CrtAngle"), turretAngleSensor.getAngle());
+        Angle crtAngle = turretAngleSensor.getAngle();
+        turret.setPercievedAngle(crtAngle);
+        Logger.recordOutput(getOutputLogPath("CrtAngle"), crtAngle);
     }
 
     public AngularVelocity getTargetFlywheelVelocity() {
@@ -372,6 +374,10 @@ public class Shooter2026 extends LoggableSubsystem {
                 Logger.recordOutput(getOutputLogPath("TargetFlywheelVelocity"), RPM.zero());
                 flywheel.neutralOutput();
             }
+
+            Angle turretError = turret.getAngle().minus(turretAngle.getMeasure());
+            Logger.recordOutput(getOutputLogPath("TurretOK"), turretAngle.getDegrees() > -90 && turretAngle.getDegrees() < 150 && turretError.abs(Degrees) < 5); //True if turret is in range of target, RIT
+            Logger.recordOutput(getOutputLogPath("TurretError"), turretError);
         }
 
         Logger.recordOutput(getOutputLogPath("TargetFieldSpace"), targetFieldSpace);
@@ -380,8 +386,7 @@ public class Shooter2026 extends LoggableSubsystem {
         Logger.recordOutput(getOutputLogPath("OutputVelocity"), flywheel.getCurrentVelocity());
         Logger.recordOutput(getOutputLogPath("TurretAngle"), turret.getAngle());
         Logger.recordOutput(getOutputLogPath("IsFlywheelReady?"), isFlywheelReady());
-
-        if (DriverStation.isTest()) {
+        if (DriverStation.isTest() || DriverStation.isDisabled()) {
             Logger.recordOutput(getOutputLogPath("CrtAngle"), turretAngleSensor.getAngle());
         }
 

@@ -18,6 +18,10 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.units.measure.AngularAcceleration;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.LinearAcceleration;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -207,33 +211,33 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer, Ne
     }
 
     public static class SwerveConstraints {
-        private final double maxAngularAccel;
-        private final double maxAngularVelocity;
-        private final double maxLinearAccel;
-        private final double maxLinearVelocity;
+        private final AngularAcceleration maxAngularAccel;
+        private final AngularVelocity maxAngularVelocity;
+        private final LinearAcceleration maxLinearAccel;
+        private final LinearVelocity maxLinearVelocity;
 
-        public SwerveConstraints(double swerveMaxAngularVelocity, double swerveMaxAngularAccel,
-                double swerveMaxLinerVelocity, double swerveMaxLinearAccel) {
+        public SwerveConstraints(AngularVelocity swerveMaxAngularVelocity, AngularAcceleration swerveMaxAngularAccel,
+                LinearVelocity swerveMaxLinearVelocity, LinearAcceleration swerveMaxLinearAccel) {
             this.maxAngularAccel = swerveMaxAngularAccel;
             this.maxAngularVelocity = swerveMaxAngularVelocity;
             this.maxLinearAccel = swerveMaxLinearAccel;
-            this.maxLinearVelocity = swerveMaxLinerVelocity;
+            this.maxLinearVelocity = swerveMaxLinearVelocity;
 
         }
 
-        public double getMaxAngularAccel() {
+        public AngularAcceleration getMaxAngularAccel() {
             return maxAngularAccel;
         }
 
-        public double getMaxAngularVelocity() {
+        public AngularVelocity getMaxAngularVelocity() {
             return maxAngularVelocity;
         }
 
-        public double getMaxLinerAccel() {
+        public LinearAcceleration getMaxLinerAccel() {
             return maxLinearAccel;
         }
 
-        public double getMaxLinearVelocity() {
+        public LinearVelocity getMaxLinearVelocity() {
             return maxLinearVelocity;
         }
 

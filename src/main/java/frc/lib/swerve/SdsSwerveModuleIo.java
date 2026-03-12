@@ -74,7 +74,7 @@ public class SdsSwerveModuleIo extends SwerveModuleIo {
     public SdsSwerveModuleIo(String name, Translation2d location, ModuleType moduleType, TalonFX steerMotor,
             Slot0Configs steerMotorPid,
             TalonFX driveMotor,
-            Slot0Configs driveMotorPid, double driveCurrentLimit, CANcoder cancoder,
+            Slot0Configs driveMotorPid, double driveStatorCurrentLimit, double driveSupplyCurrentLimit, CANcoder cancoder,
             Rotation2d cancoderOffset) {
         super(name, location);
         this.steerMotor = steerMotor;
@@ -98,7 +98,7 @@ public class SdsSwerveModuleIo extends SwerveModuleIo {
                 .withNeutralMode(NeutralModeValue.Brake)
                 .withInverted(moduleType.driveDirection));
         driveMotor.getConfigurator().apply(driveMotorPid);
-        driveMotor.getConfigurator().apply(new CurrentLimitsConfigs().withStatorCurrentLimit(driveCurrentLimit));
+        driveMotor.getConfigurator().apply(new CurrentLimitsConfigs().withStatorCurrentLimit(driveStatorCurrentLimit).withSupplyCurrentLimit(driveSupplyCurrentLimit));
         driveMotor.setPosition(0);
 
         cancoder.getConfigurator().apply(new CANcoderConfiguration());

@@ -1,10 +1,16 @@
 package frc.lib.swerve;
 
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.util.datalog.DataLogRecord.MetadataRecordData;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -17,8 +23,8 @@ public class TeleopDriveCommand extends Command {
     private final DoubleSupplier xSupplier;
     private final DoubleSupplier rSupplier;
 
-    private final double maxLinearVelocity;
-    private final double maxRotationalVelocity;
+    private final LinearVelocity maxLinearVelocity;
+    private final AngularVelocity maxRotationalVelocity;
 
     private final SwerveDrive swerveDrive;
 
@@ -65,9 +71,9 @@ public class TeleopDriveCommand extends Command {
 
         rotation = MathUtil.applyDeadband(rotation, DEADBAND);
 
-        x *= maxLinearVelocity;
-        y *= maxLinearVelocity;
-        rotation *= maxRotationalVelocity;
+        x *= maxLinearVelocity.in(MetersPerSecond);
+        y *= maxLinearVelocity.in(MetersPerSecond);
+        rotation *= maxRotationalVelocity.in(RadiansPerSecond);
 
         ChassisSpeeds chassisSpeeds = new ChassisSpeeds(x, y, rotation);
 
