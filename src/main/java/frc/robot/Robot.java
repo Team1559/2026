@@ -131,8 +131,10 @@ public class Robot extends LoggedRobot {
         pilotController.a().onTrue(new InstantCommand(shooter::useAbsoluteAngle));
 
         // Copilot gets uh oh buttons
-        coPilotController.a().whileTrue(new StartEndCommand(intake::runReverse, intake::neutralOutput, intake));
-        coPilotController.b().whileTrue(new StartEndCommand(indexer::runReverse, indexer::neutralOutput, indexer));
+        coPilotController.leftTrigger().whileTrue(new StartEndCommand(intake::runReverse, intake::neutralOutput, intake));
+        coPilotController.leftBumper().onTrue(new InstantCommand(intake::elbowNeutral));
+        
+        coPilotController.rightTrigger().whileTrue(new StartEndCommand(shooter::reverseAll, shooter::neutralAll, shooter));
     }
 
     public void setTestBindings() {

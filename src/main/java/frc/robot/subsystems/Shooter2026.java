@@ -14,7 +14,6 @@ import static edu.wpi.first.units.Units.Seconds;
 import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
-import org.opencv.core.Mat;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -45,6 +44,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.lib.DirectionalThreeState;
 import frc.lib.angular_position.AngularPositionComponent;
 import frc.lib.angular_position.AngularPositionRatio;
 import frc.lib.angular_position.AngularPositionSensor;
@@ -66,6 +66,11 @@ public class Shooter2026 extends LoggableSubsystem {
     private boolean spinFlywheel;
     private boolean isShooting;
     private double timestampFlywheelNotReady;
+
+    private DirectionalThreeState feedwheelState = DirectionalThreeState.NEUTRAL;
+    private DirectionalThreeState flywheelState = DirectionalThreeState.NEUTRAL;
+
+
     private static final Rotation2d flapperAngle = Rotation2d.fromDegrees(59);
 
     private final AngularPositionComponent turret;
@@ -179,10 +184,16 @@ public class Shooter2026 extends LoggableSubsystem {
 
     public void setSpinFlywheel(boolean spinFlywheel) {
         this.spinFlywheel = spinFlywheel;
+        if (spinFlywheel) {
+            flywheelState = DirectionalThreeState.FOWARD;
+        }
     }
 
     public void setShooting(boolean shouldShoot) {
         this.isShooting = shouldShoot;
+        if (isShooting) {
+            feedwheelState = DirectionalThreeState.FOWARD;
+        }
     }
 
     public void useAbsoluteAngle() {
@@ -366,10 +377,12 @@ public class Shooter2026 extends LoggableSubsystem {
             projectileVelocity = calculateProjectileSpeedFixedAngle(targetTurretSpace, flapperAngle);
             Logger.recordOutput(getOutputLogPath("ProjectileVelocitySetpoint"), projectileVelocity);
 
-            if (spinFlywheel && Double.isFinite(projectileVelocity.in(MetersPerSecond))) {
+            if (flywheelState == DirectionalThreeState.FOWARD && Double.isFinite(projectileVelocity.in(MetersPerSecond))) {
                 targetFlywheelVelocity = calculateFlywheelVelocity(projectileVelocity);
                 Logger.recordOutput(getOutputLogPath("TargetFlywheelVelocity"), targetFlywheelVelocity);
                 flywheel.setVelocity(targetFlywheelVelocity);
+            } else if (flywheelState == DirectionalThreeState.REVERSE) {
+                flywheel.setVelocity(RPM.of(-1000));
             } else {
                 Logger.recordOutput(getOutputLogPath("TargetFlywheelVelocity"), RPM.zero());
                 flywheel.neutralOutput();
@@ -382,7 +395,8 @@ public class Shooter2026 extends LoggableSubsystem {
 
         Logger.recordOutput(getOutputLogPath("TargetFieldSpace"), targetFieldSpace);
         Logger.recordOutput(getOutputLogPath("TargetShooterSpace"), target);
-        Logger.recordOutput(getOutputLogPath("SpinningFlywheel"), spinFlywheel);
+        Logger.recordOutput(getOutputLogPath("FlywheelStaet"), flywheelState);
+        Logger.recordOutput(getOutputLogPath("FeedwheelState"), feedwheelState);
         Logger.recordOutput(getOutputLogPath("OutputVelocity"), flywheel.getCurrentVelocity());
         Logger.recordOutput(getOutputLogPath("TurretAngle"), turret.getAngle());
         Logger.recordOutput(getOutputLogPath("IsFlywheelReady?"), isFlywheelReady());
@@ -390,8 +404,10 @@ public class Shooter2026 extends LoggableSubsystem {
             Logger.recordOutput(getOutputLogPath("CrtAngle"), turretAngleSensor.getAngle());
         }
 
-        if (isShooting) {
+        if (feedwheelState == DirectionalThreeState.FOWARD) {
             feedWheel.setVelocity(RPM.of(1500));
+        } else if (feedwheelState == DirectionalThreeState.REVERSE) {
+            feedWheel.setVelocity(RPM.of(-1000));
         } else {
             feedWheel.neutralOutput();
         }
@@ -451,4 +467,15 @@ public class Shooter2026 extends LoggableSubsystem {
     public boolean isShooting(){
         return isShooting;
     }
+
+    public void neutralAll(){
+        flywheelState = DirectionalThreeState.NEUTRAL;
+        feedwheelState = DirectionalThreeState.NEUTRAL;
+    }
+
+    public void reverseAll(){
+        flywheelState = DirectionalThreeState.REVERSE;
+        feedwheelState = DirectionalThreeState.REVERSE;
+    }
+
 }
