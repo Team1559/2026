@@ -1,5 +1,6 @@
 package frc.lib.angular_position;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Rotations;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -75,4 +76,27 @@ public class ChineseRemainderAngle extends LoggableIntermediate implements Angul
         return ans;
     }
 
+
+    private static class ConstantAngleSensor extends LoggableIntermediate implements AngularPositionSensor {
+        private final Rotation2d angle;
+
+        public ConstantAngleSensor(Rotation2d angle) {
+            super("no");
+            this.angle = angle;
+        }
+
+        @Override
+        public Angle getAngle() {
+            return angle.getMeasure();
+        }
+    }
+
+    public static void main(String[] args) {
+        var angle1 = new ConstantAngleSensor(Rotation2d.fromDegrees(-87.71));
+        var angle2 = new ConstantAngleSensor(Rotation2d.fromDegrees(-152.49));
+        var ab = new ChineseRemainderAngle("null", 21, 19, 200, angle1, angle2, Degrees.of(-180), Degrees.of(180));
+        var ba = new ChineseRemainderAngle("null", 19, 21, 200, angle2, angle1, Degrees.of(-180), Degrees.of(180));
+        System.out.println(ab.getAngle().in(Degrees));
+        System.out.println(ba.getAngle().in(Degrees));
+    }
 }

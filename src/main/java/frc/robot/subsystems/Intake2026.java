@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
 
 import java.text.Normalizer.Form;
@@ -36,7 +37,7 @@ public class Intake2026 extends VoltageSubsystem {
     private static final Voltage ELBOW_DOWN_VOLTAGE = Volts.of(-1);
     private static final Voltage HOLD_ELBOW_UP = Volts.of(0.5);
     private static final Voltage HOLD_ELBOW_DOWN = Volts.of(-0.2);
-    private static final Angle ELBOW_OFFSET = Radians.of(2.623107);
+    private static final Angle ELBOW_OFFSET = Rotations.of(0.757813);
     private static final Angle UP_ANGLE = Degrees.of(86);
     private static final Angle DOWN_ANGLE = Degrees.of(30);
 

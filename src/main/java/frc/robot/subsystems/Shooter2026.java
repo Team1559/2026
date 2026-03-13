@@ -168,10 +168,10 @@ public class Shooter2026 extends LoggableSubsystem {
     private static AngularPositionSensor makeCrtAngleSensor() {
         CANcoderConfiguration configOne = new CANcoderConfiguration();
         configOne.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-        CanCoderIo canCoderOne = new CanCoderIo("TurretGearOne", new CANcoder(14), Degrees.of(126.386719), configOne);
+        CanCoderIo canCoderOne = new CanCoderIo("TurretGearOne", new CANcoder(14), Degrees.of(128.056641), configOne);
         CANcoderConfiguration configTwo = new CANcoderConfiguration();
         configTwo.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-        CanCoderIo canCoderTwo = new CanCoderIo("TurretGearTwo", new CANcoder(15), Degrees.of(-17.929688), configTwo);
+        CanCoderIo canCoderTwo = new CanCoderIo("TurretGearTwo", new CANcoder(15), Degrees.of(129.023438), configTwo);
 
         return new ChineseRemainderAngle("CrtAngleSensor", 21, 19, 200, canCoderOne, canCoderTwo, Degrees.of(-180),
                 Degrees.of(180));
@@ -186,6 +186,8 @@ public class Shooter2026 extends LoggableSubsystem {
         this.spinFlywheel = spinFlywheel;
         if (spinFlywheel) {
             flywheelState = DirectionalThreeState.FOWARD;
+        } else {
+            flywheelState = DirectionalThreeState.NEUTRAL;
         }
     }
 
@@ -193,6 +195,8 @@ public class Shooter2026 extends LoggableSubsystem {
         this.isShooting = shouldShoot;
         if (isShooting) {
             feedwheelState = DirectionalThreeState.FOWARD;
+        } else {
+            feedwheelState = DirectionalThreeState.NEUTRAL;
         }
     }
 
@@ -470,6 +474,14 @@ public class Shooter2026 extends LoggableSubsystem {
 
     public void neutralAll(){
         flywheelState = DirectionalThreeState.NEUTRAL;
+        feedwheelState = DirectionalThreeState.NEUTRAL;
+    }
+
+    public void reverseFeedwheel(){
+        feedwheelState = DirectionalThreeState.REVERSE;
+    }
+
+    public void neutralFeedwheel(){
         feedwheelState = DirectionalThreeState.NEUTRAL;
     }
 
