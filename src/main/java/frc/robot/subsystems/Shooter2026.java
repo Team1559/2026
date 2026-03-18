@@ -63,7 +63,6 @@ public class Shooter2026 extends LoggableSubsystem {
                                                                  // isFlywheelReady
     private Translation3d targetFieldSpace;
     private Translation2d barrierOffset;
-    private boolean spinFlywheel;
     private boolean isShooting;
     private double timestampFlywheelNotReady;
 
@@ -183,7 +182,6 @@ public class Shooter2026 extends LoggableSubsystem {
     }
 
     public void setSpinFlywheel(boolean spinFlywheel) {
-        this.spinFlywheel = spinFlywheel;
         if (spinFlywheel) {
             flywheelState = DirectionalThreeState.FOWARD;
         } else {

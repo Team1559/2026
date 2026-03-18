@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Degrees;
-
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -30,7 +28,6 @@ import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.commands.StopCommand;
-import frc.lib.leds.Leds;
 import frc.lib.swerve.SwerveDrive;
 import frc.lib.swerve.TeleopDriveCommand;
 import frc.robot.commands.ShootCommand;
@@ -51,7 +48,6 @@ public class Robot extends LoggedRobot {
     private final Shooter2026 shooter;
     private final Intake2026 intake;
     private final Indexer2026 indexer;
-    // private final Leds leds;
 
     private static final boolean IS_REPLAY = false;
     private int loopIterations = 0;
@@ -80,7 +76,7 @@ public class Robot extends LoggedRobot {
         shooter = new Shooter2026(drivetrain::getPosition, drivetrain::getCurrentSpeed);
         intake = new Intake2026();
         indexer = new Indexer2026();
-        // leds = new Leds(, );
+
         registerNamedCommands();
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData(autoChooser);
@@ -89,8 +85,6 @@ public class Robot extends LoggedRobot {
 
         PowerDistribution pdh = new PowerDistribution(1, ModuleType.kRev);
         pdh.setSwitchableChannel(true);
-        
-        // leds.setAllianceColor();
     }
 
     public void clearCommandBindings() {

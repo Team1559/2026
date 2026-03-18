@@ -1,13 +1,8 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
-
-import java.text.Normalizer.Form;
-
-import javax.lang.model.util.ElementScanner14;
 
 import org.littletonrobotics.junction.Logger;
 

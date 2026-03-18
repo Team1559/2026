@@ -16,9 +16,6 @@ public class Indexer2026 extends VoltageSubsystem {
     private static final Voltage FORWARDS_VOLTAGE = Volts.of(6);
     private static final Voltage REVERSE_VOLTAGE = Volts.of(-6);
 
-    private boolean spinForShooter = false;
-    private boolean spinForIntake = false;
-
     public Indexer2026() {
         super("Indexer", new SparkFlexIo("IndexerMotor", new SparkFlex(MOTOR_ID, MotorType.kBrushless), makeConfig()));
     }
