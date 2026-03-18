@@ -110,7 +110,7 @@ public class Shooter2026 extends LoggableSubsystem {
         this.turretAngleSensor = turretAngleSensor;
         initialTurretOffset = turret.getAngle().minus(turretAngleSensor.getAngle());
         this.addChildren(turret, flywheel, flapper, feedWheel, turretAngleSensor);
-        useAbsoluteAngle();
+        zeroTurret();
     }
 
     public Shooter2026(Supplier<Pose2d> robotPositionSupplier, Supplier<ChassisSpeeds> robotSpeedSupplier) {
@@ -168,10 +168,10 @@ public class Shooter2026 extends LoggableSubsystem {
     private static AngularPositionSensor makeCrtAngleSensor() {
         CANcoderConfiguration configOne = new CANcoderConfiguration();
         configOne.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-        CanCoderIo canCoderOne = new CanCoderIo("TurretGearOne", new CANcoder(14), Degrees.of(128.056641), configOne);
+        CanCoderIo canCoderOne = new CanCoderIo("TurretGearOne", new CANcoder(14), Degrees.of(125.332031), configOne);
         CANcoderConfiguration configTwo = new CANcoderConfiguration();
         configTwo.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-        CanCoderIo canCoderTwo = new CanCoderIo("TurretGearTwo", new CANcoder(15), Degrees.of(129.023438), configTwo);
+        CanCoderIo canCoderTwo = new CanCoderIo("TurretGearTwo", new CANcoder(15), Degrees.of(-4.746094), configTwo);
 
         return new ChineseRemainderAngle("CrtAngleSensor", 21, 19, 200, canCoderOne, canCoderTwo, Degrees.of(-180),
                 Degrees.of(180));
@@ -204,6 +204,10 @@ public class Shooter2026 extends LoggableSubsystem {
         Angle crtAngle = turretAngleSensor.getAngle();
         turret.setPercievedAngle(crtAngle);
         Logger.recordOutput(getOutputLogPath("CrtAngle"), crtAngle);
+    }
+
+    public void zeroTurret(){
+        turret.setPercievedAngle(Degrees.of(0));
     }
 
     public AngularVelocity getTargetFlywheelVelocity() {

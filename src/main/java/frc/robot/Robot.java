@@ -129,6 +129,7 @@ public class Robot extends LoggedRobot {
         pilotController.rightBumper().whileTrue(new WiggleIntakeCommand(intake));
 
         pilotController.a().onTrue(new InstantCommand(shooter::useAbsoluteAngle));
+        pilotController.b().onTrue(new InstantCommand(shooter::zeroTurret));
 
         // Copilot gets uh oh buttons
         coPilotController.leftTrigger().whileTrue(new StartEndCommand(intake::runReverse, intake::neutralOutput, intake));
@@ -138,11 +139,10 @@ public class Robot extends LoggedRobot {
     }
 
     public void setTestBindings() {
-        pilotController.rightTrigger().whileTrue(new ShootCommand(shooter, shooter::targetLocation));
+    
+        
         pilotController.leftTrigger()
                 .whileTrue(new StartEndCommand(intake::runForwards, intake::neutralOutput, intake));
-        
-        pilotController.leftTrigger().onTrue(new InstantCommand(intake::moveElbowDown));
     }
 
     public void setUniversalBindings() {
@@ -171,6 +171,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void autonomousInit() {
+        shooter.zeroTurret();
         setUniversalBindings();
         CommandScheduler.getInstance().schedule(autoChooser.getSelected());
     }
