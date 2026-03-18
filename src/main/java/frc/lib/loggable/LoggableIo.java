@@ -26,7 +26,7 @@ public abstract class LoggableIo<T extends LoggableInputs> implements LoggableCo
         if (!Logger.hasReplaySource()) {
             updateInputs(inputs);
         }
-        Logger.processInputs(logPath + "/Inputs", inputs);
+        Logger.processInputs(logPath, inputs);
     }
 
     @Override
@@ -40,7 +40,8 @@ public abstract class LoggableIo<T extends LoggableInputs> implements LoggableCo
     }
 
     protected final String getOutputLogPath(String suffix) {
-        return logPath + "/Outputs/" + suffix;
+        // Use logPath.toString() to throw an error if logpath is null
+        return logPath.toString() + "/" + suffix;
     }
 
     protected void updateInputs(T inputs) {

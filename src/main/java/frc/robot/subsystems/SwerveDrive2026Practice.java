@@ -1,5 +1,9 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
+
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.CANBus;
@@ -14,6 +18,10 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.AngularAcceleration;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.LinearAcceleration;
+import edu.wpi.first.units.measure.LinearVelocity;
 import frc.lib.swerve.GyroIo;
 import frc.lib.swerve.Pigeon2Io;
 import frc.lib.swerve.SdsSwerveModuleIo;
@@ -27,19 +35,23 @@ public class SwerveDrive2026Practice extends SwerveDrive {
     private static final double MASS = Units.lbsToKilograms(50); //TODO: Change the mass
     private static final double RADIUS = Units.inchesToMeters(27 / 2.0); // Give or take
     private static final double MOI = MASS * RADIUS * RADIUS;
-    private static final double SWERVE_MAX_LINEAR_VELOCITY = 5;
-    private static final double SWERVE_MAX_LINEAR_ACCEL = 5 / 1.6667;
-    private static final double SWERVE_MAX_ANGULAR_VELOCITY = 12;
+    
+    private static final LinearVelocity SWERVE_MAX_LINEAR_VELOCITY = MetersPerSecond.of(5);
+    private static final LinearAcceleration SWERVE_MAX_LINEAR_ACCEL = SWERVE_MAX_LINEAR_VELOCITY.div(Seconds.of(1));
+    private static final AngularVelocity SWERVE_MAX_ANGULAR_VELOCITY = RotationsPerSecond.of(2);
+    private static final AngularAcceleration SWERVE_MAX_ANGULAR_ACCEL = SWERVE_MAX_ANGULAR_VELOCITY.div(Seconds.of(.5));
+    
     private static final double KRAKEN_MAX_FREE_VELOCITY = 6000.0;
     private static final double BATTERY_VOLTAGE = 12.0;
     private static final double SECONDS_PER_MINUTE = 60.0;
-    private static final double DRIVE_MOTOR_CURRENT = 80.0;
+    private static final double DRIVE_MOTOR_STATOR_CURRENT = 60.0;
+    private static final double DRIVE_MOTOR_SUPPLY_CURRENT = 40.0;
+    
 
-    private static final double SWERVE_MAX_ANGULAR_ACCEL = SWERVE_MAX_ANGULAR_VELOCITY / 0.5;
     public static final SwerveConstraints SWERVE_CONSTRAINTS = new SwerveConstraints(SWERVE_MAX_ANGULAR_VELOCITY,
             SWERVE_MAX_ANGULAR_ACCEL, SWERVE_MAX_LINEAR_VELOCITY, SWERVE_MAX_LINEAR_ACCEL);
     public static final SwerveConstraints SLOW_SWERVE_CONSTRAINTS = new SwerveConstraints(
-            SWERVE_MAX_ANGULAR_VELOCITY / 6, SWERVE_MAX_ANGULAR_ACCEL, SWERVE_MAX_LINEAR_VELOCITY / 6,
+            SWERVE_MAX_ANGULAR_VELOCITY.div(6), SWERVE_MAX_ANGULAR_ACCEL, SWERVE_MAX_LINEAR_VELOCITY.div(6),
             SWERVE_MAX_LINEAR_ACCEL);
 
     public SwerveDrive2026Practice() {
@@ -51,8 +63,8 @@ public class SwerveDrive2026Practice extends SwerveDrive {
             locations[i] = modules[i].getLocation();
         }
         RobotConfig config = new RobotConfig(MASS, MOI,
-                new ModuleConfig(SdsSwerveModuleIo.WHEEL_RADIUS, SWERVE_MAX_LINEAR_VELOCITY, 1.0,
-                        DCMotor.getKrakenX60(1).withReduction(Math.abs(SdsSwerveModuleIo.ModuleType.MK4i_L3.driveRatio)), DRIVE_MOTOR_CURRENT,
+                new ModuleConfig(SdsSwerveModuleIo.WHEEL_RADIUS, SWERVE_MAX_LINEAR_VELOCITY.in(MetersPerSecond), 1.0,
+                        DCMotor.getKrakenX60(1).withReduction(Math.abs(SdsSwerveModuleIo.ModuleType.MK4i_L3.driveRatio)), DRIVE_MOTOR_STATOR_CURRENT,
                         1),
                 locations);
         configureAuto(config);
@@ -77,7 +89,7 @@ public class SwerveDrive2026Practice extends SwerveDrive {
 
         return new SdsSwerveModuleIo(name, locationOffset, ModuleType.MK4i_L3, steerMotor, steerMotorPid,
                 driveMotor,
-                driveMotorPid, DRIVE_MOTOR_CURRENT,
+                driveMotorPid, DRIVE_MOTOR_STATOR_CURRENT, DRIVE_MOTOR_SUPPLY_CURRENT,
                 canCoder, canCoderOffset);
     }
 

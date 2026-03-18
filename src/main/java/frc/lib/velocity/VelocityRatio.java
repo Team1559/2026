@@ -16,13 +16,8 @@ public class VelocityRatio extends LoggableIntermediate implements AngularVeloci
     }
 
     @Override
-    public void setTargetVelocity(AngularVelocity targetVelocity) {
-        child.setTargetVelocity(targetVelocity.times(reductionRatio));
-    }
-
-    @Override
-    public void stop() {
-        child.stop();
+    public void setVelocity(AngularVelocity setpoint) {
+        child.setVelocity(setpoint.times(reductionRatio));
     }
 
     @Override
@@ -38,5 +33,10 @@ public class VelocityRatio extends LoggableIntermediate implements AngularVeloci
     @Override
     public AngularVelocity getCurrentVelocity() {
         return child.getCurrentVelocity().div(reductionRatio);
+    }
+
+    @Override
+    public void neutralOutput() {
+        child.neutralOutput();
     }
 }

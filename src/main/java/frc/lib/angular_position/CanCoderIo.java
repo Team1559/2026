@@ -2,6 +2,7 @@ package frc.lib.angular_position;
 import static edu.wpi.first.units.Units.Rotations;
 
 import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 import com.ctre.phoenix6.StatusSignal;
@@ -15,7 +16,7 @@ public class CanCoderIo extends LoggableIo<CanCoderIo.CanCoderIoInputs> implemen
 
     @AutoLog
     public static abstract class CanCoderIoInputs implements LoggableInputs {
-        public Angle currentAngle = Rotations.of(0);
+        public Angle rawAngle = Rotations.of(0);
     }
 
     private final CANcoder canCoder;
@@ -32,12 +33,13 @@ public class CanCoderIo extends LoggableIo<CanCoderIo.CanCoderIoInputs> implemen
 
     @Override
     public Angle getAngle() {
-        return getInputs().currentAngle;
+        return getInputs().rawAngle.minus(offset);
     }
 
     @Override
     protected void updateInputs(CanCoderIoInputs inputs) {
         angle.refresh();
-        inputs.currentAngle = angle.getValue().minus(offset);
+        inputs.rawAngle = angle.getValue();
+        Logger.recordOutput(getOutputLogPath("CurrentAngle"), getAngle());
     }
 }

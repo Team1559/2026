@@ -19,7 +19,7 @@ import frc.lib.vision.VisionComponent.PoseObservation;
 import frc.lib.vision.VisionComponent.PoseObservationType;
 
 public class Vision extends LoggableSubsystem {
-    private static final double linearStdDevBaseline = 0.2;
+    private static final double linearStdDevBaseline = 0.4;
     private static final double angularStdDevBaseline = 0.2;
     private static final double linearStdDevMegatag2Factor = 1;
     private static final double angularStdDevMegatag2Factor = Double.POSITIVE_INFINITY;

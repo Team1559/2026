@@ -8,6 +8,7 @@ import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -73,7 +74,7 @@ public class SdsSwerveModuleIo extends SwerveModuleIo {
     public SdsSwerveModuleIo(String name, Translation2d location, ModuleType moduleType, TalonFX steerMotor,
             Slot0Configs steerMotorPid,
             TalonFX driveMotor,
-            Slot0Configs driveMotorPid, double driveCurrentLimit, CANcoder cancoder,
+            Slot0Configs driveMotorPid, double driveStatorCurrentLimit, double driveSupplyCurrentLimit, CANcoder cancoder,
             Rotation2d cancoderOffset) {
         super(name, location);
         this.steerMotor = steerMotor;
@@ -97,7 +98,7 @@ public class SdsSwerveModuleIo extends SwerveModuleIo {
                 .withNeutralMode(NeutralModeValue.Brake)
                 .withInverted(moduleType.driveDirection));
         driveMotor.getConfigurator().apply(driveMotorPid);
-        driveMotor.getConfigurator().apply(new CurrentLimitsConfigs().withStatorCurrentLimit(driveCurrentLimit));
+        driveMotor.getConfigurator().apply(new CurrentLimitsConfigs().withStatorCurrentLimit(driveStatorCurrentLimit).withSupplyCurrentLimit(driveSupplyCurrentLimit));
         driveMotor.setPosition(0);
 
         cancoder.getConfigurator().apply(new CANcoderConfiguration());
@@ -146,5 +147,10 @@ public class SdsSwerveModuleIo extends SwerveModuleIo {
         inputs.driveMotorCurrent = driveMotorCurrent.getValueAsDouble();
         inputs.steerMotorTemp = steerMotorTemperature.getValueAsDouble();
         inputs.driveMotorTemp = driveMotorTemperature.getValueAsDouble();
+    }
+    @Override
+    public void neutralOutput() {
+        driveMotor.setControl(new NeutralOut());
+        steerMotor.setControl(new NeutralOut());
     }
 }

@@ -12,7 +12,7 @@ public abstract class LoggableIntermediate implements LoggableComponent {
         this.name = name;
     }
 
-    protected void addChildren(String folder, LoggableComponent... children) {
+    protected final void addChildren(String folder, LoggableComponent... children) {
         for (LoggableComponent child : children) {
             if(child == null) {
                 continue;
@@ -21,7 +21,7 @@ public abstract class LoggableIntermediate implements LoggableComponent {
         }
     }
 
-    protected void addChildren(LoggableComponent... children) {
+    protected final void addChildren(LoggableComponent... children) {
         addChildren("", children);
     }
 
@@ -49,6 +49,6 @@ public abstract class LoggableIntermediate implements LoggableComponent {
     }
 
     protected final String getOutputLogPath(String suffix) {
-        return logPath + "/Outputs/" + suffix;
+        return logPath.toString() + "/" + suffix;
     }
 }

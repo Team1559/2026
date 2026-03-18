@@ -1,53 +1,66 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
 
 import org.littletonrobotics.junction.Logger;
 
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 
-import frc.lib.loggable.LoggableComponent;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Voltage;
+import frc.lib.angular_position.AngularPositionSensor;
+import frc.lib.angular_position.CanCoderIo;
 import frc.lib.velocity.SparkFlexIo;
-import frc.lib.velocity.VelocityRatio;
-import frc.lib.velocity.VelocitySubsystem;
 import frc.lib.voltage.VoltageComponent;
+import frc.lib.voltage.VoltageSubsystem;
 
-public class Intake2026 extends VelocitySubsystem {
+public class Intake2026 extends VoltageSubsystem {
     private static final int INTAKE_MOTOR_ID = 22;
     private static final int ELBOW_MOTOR_ID = 21;
-    private static final double FORWARDS_VELOCITY_RPM = 300;
-    private static final double REVERSE_VELOCITY_RPM = -150;
+    private static final int ELBOW_ENCODER_ID = 16; // TODO: find ID value
+    private static final Voltage FORWARD_VOLTAGE = Volts.of(6);
+    private static final Voltage REVERSE_VOLTAGE = Volts.of(-5);
+    private static final Voltage ELBOW_UP_VOLTAGE = Volts.of(3);
+    private static final Voltage ELBOW_DOWN_VOLTAGE = Volts.of(-1);
+    private static final Voltage HOLD_ELBOW_UP = Volts.of(0.5);
+    private static final Voltage HOLD_ELBOW_DOWN = Volts.of(-0.2);
+    private static final Angle ELBOW_OFFSET = Rotations.of(0.757813);
+    private static final Angle UP_ANGLE = Degrees.of(86);
+    private static final Angle DOWN_ANGLE = Degrees.of(30);
 
     private final VoltageComponent elbowMotor;
+    private final AngularPositionSensor elbowEncoder;
+
+    private ElbowState elbowState = ElbowState.NEUTRAL;
+    private IntakeState intakeState = IntakeState.NEUTRAL;
     
-    // private final BooleanComponent lowerLimitSwitch;
-    // private final BooleanComponent upperLimitSwitch;
-
-
-    // private final int LOWER_LIMIT_SWITCH_CHANNEL = 0; //TODO add channels
-    // private final int UPPER_LIMIT_SWITCH_CHANNEL = 0;
-
     public Intake2026() {
-        super("Intake", new VelocityRatio("GearRatio", 3,
-                new SparkFlexIo("IntakeMotor", new SparkFlex(INTAKE_MOTOR_ID, MotorType.kBrushless), makeIntakeConfig())));
+        super("Intake",
+                new SparkFlexIo("IntakeMotor", new SparkFlex(INTAKE_MOTOR_ID, MotorType.kBrushless),
+                        makeIntakeConfig()));
 
-        elbowMotor = new SparkFlexIo("ElbowMotor", new SparkFlex(ELBOW_MOTOR_ID, MotorType.kBrushless), makeElbowConfig());
+        elbowMotor = new SparkFlexIo("ElbowMotor", new SparkFlex(ELBOW_MOTOR_ID, MotorType.kBrushless),
+                makeElbowConfig());
 
-        addChildren(elbowMotor);
-        // lowerLimitSwitch = new LimitSwitchIo("LowerLimitSwitch", new DigitalInput(LOWER_LIMIT_SWITCH_CHANNEL));
-        // upperLimitSwitch = new LimitSwitchIo("UpperLimitSwitch", new DigitalInput(UPPER_LIMIT_SWITCH_CHANNEL));
+        elbowEncoder = new CanCoderIo("ElbowEncoder", new CANcoder(ELBOW_ENCODER_ID), ELBOW_OFFSET,
+                makeEncoderConfig());
+
+        addChildren(elbowMotor, elbowEncoder);
     }
 
     private static SparkFlexConfig makeIntakeConfig() {
         SparkFlexConfig config = new SparkFlexConfig();
         config.idleMode(IdleMode.kBrake);
-        config.inverted(true);
+        config.inverted(false);
         config.smartCurrentLimit(80);
-        config.closedLoop.pid(0, 0, 0); //TODO: Set these later
-        config.closedLoop.feedForward.kV(0.00055);
         return config;
     }
 
@@ -58,55 +71,107 @@ public class Intake2026 extends VelocitySubsystem {
         return config;
     }
 
+    private static CANcoderConfiguration makeEncoderConfig() {
+        CANcoderConfiguration config = new CANcoderConfiguration();
+        config.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
+        config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
+        return config;
+    }
+
     public void moveElbowUp() {
-        elbowMotor.setVoltage(Volts.of(6));
+        elbowState = ElbowState.UP;
     }
 
     public void moveElbowDown() {
-        elbowMotor.setVoltage(Volts.of(-6));
+        elbowState = ElbowState.DOWN;
     }
 
-    public void stopElbow() {
-        elbowMotor.setVoltage(Volts.of(0));
+    public void elbowNeutral() {
+        elbowState = ElbowState.NEUTRAL;
     }
-
 
     public void runForwards() {
-        run(FORWARDS_VELOCITY_RPM);
-        Logger.recordOutput(getOutputLogPath("TargetVelocity"), FORWARDS_VELOCITY_RPM);
+        intakeState = IntakeState.FOWARDS;
     }
 
     public void runReverse() {
-        run(REVERSE_VELOCITY_RPM);
-        Logger.recordOutput(getOutputLogPath("TargetVelocity"), REVERSE_VELOCITY_RPM);
+        intakeState = IntakeState.BACKWARDS;
     }
 
     @Override
-    public void stop() {
-        super.stop();
-        Logger.recordOutput(getOutputLogPath("TargetVelocity"), 0.0);
+    public void neutralOutput() {
+        intakeState = IntakeState.NEUTRAL;
     }
 
     @Override
     public void periodic() {
         super.periodic();
-        // lowerLimitSwitch.periodic();
-        // upperLimitSwitch.periodic();
+        Logger.recordOutput(getOutputLogPath("ElbowUp"), isAtUpperLimit());
+        Logger.recordOutput(getOutputLogPath("ElbowDown"), isAtLowerLimit());
+        Logger.recordOutput(getOutputLogPath("ElbowState"), elbowState);
+
+        switch (elbowState) {
+            case NEUTRAL:
+                elbowMotor.neutralOutput();
+                break;
+            case UP:
+                if (isAtUpperLimit()) {
+                    elbowMotor.setVoltage(HOLD_ELBOW_UP);
+                } else {
+                    elbowMotor.setVoltage(ELBOW_UP_VOLTAGE);
+                }
+                break;
+            case DOWN:
+                if (isAtLowerLimit()) {
+                    elbowMotor.setVoltage(HOLD_ELBOW_DOWN);
+                } else {
+                    elbowMotor.setVoltage(ELBOW_DOWN_VOLTAGE);
+                }
+                break;
+        }
+
+        switch (intakeState) {
+            case NEUTRAL:
+                super.neutralOutput();
+                break;
+            case FOWARDS:
+                if (isAtLowerLimit()) {
+                    setVoltage(FORWARD_VOLTAGE);
+                } else {
+                    super.neutralOutput();
+                }
+                break;
+            case BACKWARDS:
+                if (isAtLowerLimit()) {
+                    setVoltage(REVERSE_VOLTAGE);
+                } else {
+                    super.neutralOutput();
+                }
+                break;
+        }
     }
 
-    // public boolean isAtUpperLimit() {
-    //     return upperLimitSwitch.getAsBoolean();
-    // }
+    public boolean isAtUpperLimit() {
+        return elbowEncoder.getAngle().gte(UP_ANGLE);
+    }
 
-    // public boolean isAtLowerLimit() {
-    //     return lowerLimitSwitch.getAsBoolean();
-    // }
+    public boolean isAtLowerLimit() {
+        return elbowEncoder.getAngle().lte(DOWN_ANGLE);
+    }
 
-    // public Command downCommand() {
-    //     return new FunctionalCommand(() -> moveElbowDown(), () -> {}, (x) -> stopElbow(), () -> isAtLowerLimit(), this);
-    // }
+    public boolean isIntaking(){
+        return intakeState == IntakeState.FOWARDS;
+    }
 
-    // public Command upCommand() {
-    //     return new FunctionalCommand(() -> moveElbowUp(), () -> {}, (x) -> stopElbow(), () -> isAtUpperLimit(), this);
-    // }
+    private enum ElbowState {
+        UP,
+        DOWN,
+        NEUTRAL
+    }
+
+    private enum IntakeState{
+        FOWARDS,
+        BACKWARDS,
+        NEUTRAL,
+    }
 }

@@ -44,7 +44,7 @@ public class SparkFlexIo extends LoggableIo<SparkFlexIo.SparkFlexIoInputs> imple
         motorController = motor.getClosedLoopController();
         encoder = motor.getEncoder();
     }
-
+    
     @Override
     protected void updateInputs(SparkFlexIoInputs inputs) {
         inputs.currentVelocity = RPM.of(encoder.getVelocity());
@@ -54,15 +54,10 @@ public class SparkFlexIo extends LoggableIo<SparkFlexIo.SparkFlexIoInputs> imple
     }
 
     @Override
-    public void setTargetVelocity(AngularVelocity targetVelocity) {
-        Logger.recordOutput(getOutputLogPath("TargetVelocity"), targetVelocity);
-        motorController.setSetpoint(targetVelocity.in(Units.RPM), ControlType.kVelocity);
-    }
-
-    @Override
-    public void stop() {
-        motor.stopMotor();
-        Logger.recordOutput(getOutputLogPath("TargetVelocity"), RPM.zero());
+    public void setVelocity(AngularVelocity setpoint) {
+        Logger.recordOutput(getOutputLogPath("VelocitySetpoint"), setpoint);
+        motorController.setSetpoint(setpoint.in(Units.RPM), ControlType.kVelocity);
+        Logger.recordOutput(getOutputLogPath("Active"), true);
     }
 
     @Override
@@ -81,9 +76,10 @@ public class SparkFlexIo extends LoggableIo<SparkFlexIo.SparkFlexIoInputs> imple
     }
 
     @Override
-    public void setTargetAngle(Angle angle) {
-        Logger.recordOutput(getOutputLogPath("TargetAngle"), angle);
-        motorController.setSetpoint(angle.in(Units.Rotations), ControlType.kPosition);
+    public void setAngle(Angle setpoint) {
+        Logger.recordOutput(getOutputLogPath("AngleSetpoint"), setpoint);
+        motorController.setSetpoint(setpoint.in(Units.Rotations), ControlType.kPosition);
+        Logger.recordOutput(getOutputLogPath("Active"), true);
     }
 
     @Override
@@ -100,5 +96,12 @@ public class SparkFlexIo extends LoggableIo<SparkFlexIo.SparkFlexIoInputs> imple
     public void setVoltage(Voltage voltage) {
         motor.setVoltage(voltage);
         Logger.recordOutput(getOutputLogPath("Voltage"), voltage.in(Volts));
+        Logger.recordOutput(getOutputLogPath("Active"), true);
+    }
+
+    @Override
+    public void neutralOutput() {
+        motor.stopMotor();
+        Logger.recordOutput(getOutputLogPath("Active"), false);
     }
 }

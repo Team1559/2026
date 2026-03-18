@@ -14,7 +14,7 @@ public abstract class LoggableSubsystem extends SubsystemBase {
         this.name = name;
     }
 
-    protected void addChildren(String folder, LoggableComponent... children) {
+    protected final void addChildren(String folder, LoggableComponent... children) {
         for (LoggableComponent child : children) {
             if(child == null) {
                 continue;
@@ -28,12 +28,12 @@ public abstract class LoggableSubsystem extends SubsystemBase {
         }
     }
 
-    protected void addChildren(LoggableComponent... children) {
+    protected final void addChildren(LoggableComponent... children) {
         addChildren("", children);
     }
 
     protected String getOutputLogPath(String suffix) {
-        return getName() + "/Outputs/" + suffix;
+        return getName() + "/" + suffix;
     }
 
     @Override

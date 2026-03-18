@@ -78,4 +78,9 @@ public class SwerveModuleIo extends LoggableIo<SwerveModuleIo.SwerveInputs> impl
     public double getDriveMotorCurrent() {
         return getInputs().driveMotorCurrent;
     }
+
+    @Override
+    public void neutralOutput() {
+        //Explcitly here for the purpose of doing nothing, for logging purposes.
+    }
 }
