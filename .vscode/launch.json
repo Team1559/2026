@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "GenerateLogger",
+            "request": "launch",
+            "mainClass": "frc.lib.GenerateLogger",
+            "projectName": "2026-Rebuilt"
+        },
+        {
+            "type": "java",
             "name": "ChineseRemainderAngle",
             "request": "launch",
             "mainClass": "frc.lib.angular_position.ChineseRemainderAngle",
