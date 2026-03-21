@@ -120,7 +120,7 @@ public class Shooter2026 extends LoggableSubsystem {
 
     private static SparkFlexIo makeFlywheel() {
         SparkFlexConfig config = new SparkFlexConfig();
-        config.closedLoop.pid(0.0005, 0, 0.05);
+        config.closedLoop.pid(0.0006, 0, 0.05);
         config.closedLoop.feedForward.kV(0.000151); // Volts per rpm (0.000153)
         config.inverted(false);
         config.idleMode(IdleMode.kCoast);
@@ -398,15 +398,9 @@ public class Shooter2026 extends LoggableSubsystem {
 
             Angle turretError = turret.getAngle().minus(turretAngle.getMeasure());
             Logger.recordOutput(getOutputLogPath("TurretOK"),
-                    turretAngle.getDegrees() > -90 && turretAngle.getDegrees() < 150 && turretError.abs(Degrees) < 5); // True
-                                                                                                                       // if
-                                                                                                                       // turret
-                                                                                                                       // is
-                                                                                                                       // in
-                                                                                                                       // range
-                                                                                                                       // of
-                                                                                                                       // target,
-                                                                                                                       // RIT
+
+                    // True if turret is in range of target, RIT
+                    turretAngle.getDegrees() > -90 && turretAngle.getDegrees() < 150 && turretError.abs(Degrees) < 5);
             Logger.recordOutput(getOutputLogPath("TurretError"), turretError);
         }
 
@@ -422,7 +416,7 @@ public class Shooter2026 extends LoggableSubsystem {
         }
 
         if (feedwheelState == DirectionalThreeState.FOWARD) {
-            feedWheel.setVelocity(RPM.of(1500));
+            feedWheel.setVelocity(RPM.of(targetFlywheelVelocity.in(RPM) * 0.95));
         } else if (feedwheelState == DirectionalThreeState.REVERSE) {
             feedWheel.setVelocity(RPM.of(-1000));
         } else {
