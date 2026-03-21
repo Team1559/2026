@@ -416,7 +416,7 @@ public class Shooter2026 extends LoggableSubsystem {
         }
 
         if (feedwheelState == DirectionalThreeState.FOWARD) {
-            feedWheel.setVelocity(RPM.of(targetFlywheelVelocity.in(RPM) * 0.95));
+            feedWheel.setVelocity(RPM.of(targetFlywheelVelocity.in(RPM) * 0.90));
         } else if (feedwheelState == DirectionalThreeState.REVERSE) {
             feedWheel.setVelocity(RPM.of(-1000));
         } else {
