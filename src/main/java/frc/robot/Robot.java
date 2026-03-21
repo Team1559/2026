@@ -133,15 +133,16 @@ public class Robot extends LoggedRobot {
     }
 
     public void setTestBindings() {
-    
-        
+        pilotController.a().whileTrue(new ShootCommand(shooter, shooter::getTestTargetLocation));
+        pilotController.b().onTrue(new InstantCommand(shooter::zeroTurret));
+
         // pilotController.leftTrigger()
                 // .whileTrue(new StartEndCommand(intake::runForwards, intake::neutralOutput, intake));
     }
 
     public void setUniversalBindings() {
-        // Trigger indexerTrigger = new Trigger(shooter::isShooting).or(intake::isIntaking);
-        // indexerTrigger.whileTrue(new StartEndCommand(indexer::runForwards, indexer::neutralOutput, indexer));
+        Trigger indexerTrigger = new Trigger(shooter::isShooting); //.or(intake::isIntaking);
+        indexerTrigger.whileTrue(new StartEndCommand(indexer::runForwards, indexer::neutralOutput, indexer));
     }
 
     @Override

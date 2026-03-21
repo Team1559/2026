@@ -465,6 +465,12 @@ public class Shooter2026 extends LoggableSubsystem {
         return target;
     }
 
+    public Translation3d getTestTargetLocation(){
+        Translation3d target = new Translation3d(10, 0, 0);
+        return target;
+    }
+
+
     public static Translation3d flip(Translation3d t) {
         Translation2d flipped2d = FlippingUtil.flipFieldPosition(t.toTranslation2d());
         return new Translation3d(flipped2d.getX(), flipped2d.getY(), t.getZ());
