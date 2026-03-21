@@ -69,7 +69,6 @@ public class Shooter2026 extends LoggableSubsystem {
     private DirectionalThreeState feedwheelState = DirectionalThreeState.NEUTRAL;
     private DirectionalThreeState flywheelState = DirectionalThreeState.NEUTRAL;
 
-
     private static final Rotation2d flapperAngle = Rotation2d.fromDegrees(59);
 
     private final AngularPositionComponent turret;
@@ -131,8 +130,10 @@ public class Shooter2026 extends LoggableSubsystem {
 
     private static SparkFlexIo makeFeedwheel() {
         SparkFlexConfig config = new SparkFlexConfig(); // TODO: Configure
-        config.closedLoop.pid(0, 0, 0);
-        config.closedLoop.feedForward.kV(0.00016); // Volts per rpm
+
+        config.closedLoop.pid(0.00025, 0, 0.025); // p alone was good at 0.0002
+
+        config.closedLoop.feedForward.kV(0.000165); // Volts per rpm
         config.idleMode(IdleMode.kBrake);
         config.voltageCompensation(12.0);
         return new SparkFlexIo("Feedwheel", new SparkFlex(16, MotorType.kBrushless), config);
@@ -204,7 +205,7 @@ public class Shooter2026 extends LoggableSubsystem {
         Logger.recordOutput(getOutputLogPath("CrtAngle"), crtAngle);
     }
 
-    public void zeroTurret(){
+    public void zeroTurret() {
         turret.setPercievedAngle(Degrees.of(0));
     }
 
@@ -383,7 +384,8 @@ public class Shooter2026 extends LoggableSubsystem {
             projectileVelocity = calculateProjectileSpeedFixedAngle(targetTurretSpace, flapperAngle);
             Logger.recordOutput(getOutputLogPath("ProjectileVelocitySetpoint"), projectileVelocity);
 
-            if (flywheelState == DirectionalThreeState.FOWARD && Double.isFinite(projectileVelocity.in(MetersPerSecond))) {
+            if (flywheelState == DirectionalThreeState.FOWARD
+                    && Double.isFinite(projectileVelocity.in(MetersPerSecond))) {
                 targetFlywheelVelocity = calculateFlywheelVelocity(projectileVelocity);
                 Logger.recordOutput(getOutputLogPath("TargetFlywheelVelocity"), targetFlywheelVelocity);
                 flywheel.setVelocity(targetFlywheelVelocity);
@@ -395,7 +397,16 @@ public class Shooter2026 extends LoggableSubsystem {
             }
 
             Angle turretError = turret.getAngle().minus(turretAngle.getMeasure());
-            Logger.recordOutput(getOutputLogPath("TurretOK"), turretAngle.getDegrees() > -90 && turretAngle.getDegrees() < 150 && turretError.abs(Degrees) < 5); //True if turret is in range of target, RIT
+            Logger.recordOutput(getOutputLogPath("TurretOK"),
+                    turretAngle.getDegrees() > -90 && turretAngle.getDegrees() < 150 && turretError.abs(Degrees) < 5); // True
+                                                                                                                       // if
+                                                                                                                       // turret
+                                                                                                                       // is
+                                                                                                                       // in
+                                                                                                                       // range
+                                                                                                                       // of
+                                                                                                                       // target,
+                                                                                                                       // RIT
             Logger.recordOutput(getOutputLogPath("TurretError"), turretError);
         }
 
@@ -465,35 +476,34 @@ public class Shooter2026 extends LoggableSubsystem {
         return target;
     }
 
-    public Translation3d getTestTargetLocation(){
-        Translation3d target = new Translation3d(10, 0, 0);
+    public Translation3d getTestTargetLocation() {
+        Translation3d target = new Translation3d(-5, 0, 0);
         return target;
     }
-
 
     public static Translation3d flip(Translation3d t) {
         Translation2d flipped2d = FlippingUtil.flipFieldPosition(t.toTranslation2d());
         return new Translation3d(flipped2d.getX(), flipped2d.getY(), t.getZ());
     }
 
-    public boolean isShooting(){
+    public boolean isShooting() {
         return isShooting;
     }
 
-    public void neutralAll(){
+    public void neutralAll() {
         flywheelState = DirectionalThreeState.NEUTRAL;
         feedwheelState = DirectionalThreeState.NEUTRAL;
     }
 
-    public void reverseFeedwheel(){
+    public void reverseFeedwheel() {
         feedwheelState = DirectionalThreeState.REVERSE;
     }
 
-    public void neutralFeedwheel(){
+    public void neutralFeedwheel() {
         feedwheelState = DirectionalThreeState.NEUTRAL;
     }
 
-    public void reverseAll(){
+    public void reverseAll() {
         flywheelState = DirectionalThreeState.REVERSE;
         feedwheelState = DirectionalThreeState.REVERSE;
     }
