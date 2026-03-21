@@ -13,7 +13,7 @@ import frc.lib.voltage.VoltageSubsystem;
 
 public class Indexer2026 extends VoltageSubsystem {
     private static final int MOTOR_ID = 26;
-    private static final Voltage FORWARDS_VOLTAGE = Volts.of(6);
+    private static final Voltage FORWARDS_VOLTAGE = Volts.of(12);
     private static final Voltage REVERSE_VOLTAGE = Volts.of(-6);
 
     public Indexer2026() {
