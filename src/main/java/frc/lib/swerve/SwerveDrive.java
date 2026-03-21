@@ -207,7 +207,6 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer, Ne
                 .debug("TargetVelocity", getCurrentSpeed());
 
         field.setRobotPose(getPosition());
-
     }
 
     public static class SwerveConstraints {

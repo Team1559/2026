@@ -117,7 +117,7 @@ public class Vision extends LoggableSubsystem {
             robotPosesAccepted.add(observation.observation.pose());
         }
 
-        logger().debug("HasVisionRead", robotHasPose)
+        logger().dashboard("HasVisionRead", robotHasPose)
                 .debug("TagPoses", tagPoses.toArray(Pose3d[]::new))
                 .debug("RobotPosesAccepted", robotPosesAccepted.toArray(Pose3d[]::new))
                 .debug("RobotPosesRejected", robotPosesRejected.toArray(Pose3d[]::new))

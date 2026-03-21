@@ -201,7 +201,7 @@ public class Shooter2026 extends LoggableSubsystem {
     public void useAbsoluteAngle() {
         Angle crtAngle = turretAngleSensor.getAngle();
         turret.setPercievedAngle(crtAngle);
-        logger().debug("CrtAngle", crtAngle);
+        logger().dashboard("CrtAngle", crtAngle);
     }
 
     public void zeroTurret(){
@@ -395,7 +395,7 @@ public class Shooter2026 extends LoggableSubsystem {
             }
 
             Angle turretError = turret.getAngle().minus(turretAngle.getMeasure());
-            logger().debug("TurretOK", turretAngle.getDegrees() > -90 && turretAngle.getDegrees() < 150 && turretError.abs(Degrees) < 5) //True if turret is in range of target, RIT
+            logger().dashboard("TurretOK", turretAngle.getDegrees() > -90 && turretAngle.getDegrees() < 150 && turretError.abs(Degrees) < 5) //True if turret is in range of target, RIT
                     .debug("TurretError", turretError);
         }
 
@@ -407,7 +407,7 @@ public class Shooter2026 extends LoggableSubsystem {
                 .debug("TurretAngle", turret.getAngle())
                 .debug("IsFlywheelReady?", isFlywheelReady());
         if (DriverStation.isTest() || DriverStation.isDisabled()) {
-            logger().debug("CrtAngle", turretAngleSensor.getAngle());
+            logger().dashboard("CrtAngle", turretAngleSensor.getAngle());
         }
 
         if (feedwheelState == DirectionalThreeState.FOWARD) {

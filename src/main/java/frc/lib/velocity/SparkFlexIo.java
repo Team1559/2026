@@ -57,7 +57,7 @@ public class SparkFlexIo extends LoggableIo<SparkFlexIo.SparkFlexIoInputs>
     @Override
     public void setVelocity(AngularVelocity setpoint) {
         logger().debug("VelocitySetpoint", setpoint)
-                .debug("Active", true);
+                .dashboard("Active", true);
         motorController.setSetpoint(setpoint.in(Units.RPM), ControlType.kVelocity);
 
     }
@@ -80,7 +80,7 @@ public class SparkFlexIo extends LoggableIo<SparkFlexIo.SparkFlexIoInputs>
     @Override
     public void setAngle(Angle setpoint) {
         logger().debug("AngleSetpoint", setpoint)
-                .debug("Active", true);
+                .dashboard("Active", true);
         motorController.setSetpoint(setpoint.in(Units.Rotations), ControlType.kPosition);
     }
 
@@ -98,12 +98,12 @@ public class SparkFlexIo extends LoggableIo<SparkFlexIo.SparkFlexIoInputs>
     public void setVoltage(Voltage voltage) {
         motor.setVoltage(voltage);
         logger().debug("Voltage", voltage.in(Volts))
-                .debug("Active", true);
+                .dashboard("Active", true);
     }
 
     @Override
     public void neutralOutput() {
         motor.stopMotor();
-        logger().debug("Active", false);
+        logger().dashboard("Active", false);
     }
 }
