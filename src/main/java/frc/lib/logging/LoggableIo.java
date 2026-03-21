@@ -1,10 +1,10 @@
-package frc.lib.loggable;
+package frc.lib.logging;
 
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 public abstract class LoggableIo<T extends LoggableInputs> implements LoggableComponent {
-    private String logPath;// /path/to/logged/io
+    private CustomLogger logger;    // /path/to/logged/io
     private final T inputs;
     private final String name;
 
@@ -26,22 +26,21 @@ public abstract class LoggableIo<T extends LoggableInputs> implements LoggableCo
         if (!Logger.hasReplaySource()) {
             updateInputs(inputs);
         }
-        Logger.processInputs(logPath, inputs);
+        logger.processInputs(inputs);
     }
 
     @Override
     public final void setLogPath(String logPath) {
-        if (this.logPath != null) {
+        if (this.logger != null) {
             throw new IllegalStateException("Cannot init the io twice");
         }
 
-        this.logPath = logPath + "/" + name;
+        logger = new CustomLogger(logPath + "/" + name);
         logInputs();
     }
 
-    protected final String getOutputLogPath(String suffix) {
-        // Use logPath.toString() to throw an error if logpath is null
-        return logPath.toString() + "/" + suffix;
+    protected CustomLogger logger() {
+        return logger;
     }
 
     protected void updateInputs(T inputs) {

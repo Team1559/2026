@@ -77,7 +77,7 @@ dependencies {
     def akitJson = new groovy.json.JsonSlurper().parseText(new File(projectDir.getAbsolutePath() + "/vendordeps/AdvantageKit.json").text)
     annotationProcessor "org.littletonrobotics.akit:akit-autolog:$akitJson.version"
 
-    implementation "com.palantir.javapoet:javapoet:0.12.0"
+    annotationProcessor project(":generator")
 }
 
 test {
@@ -116,4 +116,4 @@ task(replayWatch, type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-task(generateLogger, type: JavaExec)
+

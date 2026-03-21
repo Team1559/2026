@@ -3,7 +3,7 @@ package frc.lib.vision;
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
-import frc.lib.loggable.LoggableIo;
+import frc.lib.logging.LoggableIo;
 
 public class VisionCameraIo extends LoggableIo<VisionCameraIo.VisionInputs> implements VisionComponent {
     @AutoLog

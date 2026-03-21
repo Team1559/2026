@@ -4,7 +4,7 @@ import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 import edu.wpi.first.wpilibj.DigitalInput;
-import frc.lib.loggable.LoggableIo;
+import frc.lib.logging.LoggableIo;
 
 public class LimitSwitchIo extends LoggableIo<LimitSwitchIo.LimitSwitchIoInputs> implements BooleanComponent {
 

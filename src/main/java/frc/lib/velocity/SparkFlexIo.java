@@ -21,10 +21,11 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
 import frc.lib.angular_position.AngularPositionComponent;
-import frc.lib.loggable.LoggableIo;
+import frc.lib.logging.LoggableIo;
 import frc.lib.voltage.VoltageComponent;
 
-public class SparkFlexIo extends LoggableIo<SparkFlexIo.SparkFlexIoInputs> implements AngularVelocityComponent, AngularPositionComponent, VoltageComponent {
+public class SparkFlexIo extends LoggableIo<SparkFlexIo.SparkFlexIoInputs>
+        implements AngularVelocityComponent, AngularPositionComponent, VoltageComponent {
     @AutoLog
     public static abstract class SparkFlexIoInputs implements LoggableInputs {
         public double motorCurrent;
@@ -44,7 +45,7 @@ public class SparkFlexIo extends LoggableIo<SparkFlexIo.SparkFlexIoInputs> imple
         motorController = motor.getClosedLoopController();
         encoder = motor.getEncoder();
     }
-    
+
     @Override
     protected void updateInputs(SparkFlexIoInputs inputs) {
         inputs.currentVelocity = RPM.of(encoder.getVelocity());
@@ -55,9 +56,10 @@ public class SparkFlexIo extends LoggableIo<SparkFlexIo.SparkFlexIoInputs> imple
 
     @Override
     public void setVelocity(AngularVelocity setpoint) {
-        Logger.recordOutput(getOutputLogPath("VelocitySetpoint"), setpoint);
+        logger().debug("VelocitySetpoint", setpoint)
+                .debug("Active", true);
         motorController.setSetpoint(setpoint.in(Units.RPM), ControlType.kVelocity);
-        Logger.recordOutput(getOutputLogPath("Active"), true);
+
     }
 
     @Override
@@ -77,9 +79,9 @@ public class SparkFlexIo extends LoggableIo<SparkFlexIo.SparkFlexIoInputs> imple
 
     @Override
     public void setAngle(Angle setpoint) {
-        Logger.recordOutput(getOutputLogPath("AngleSetpoint"), setpoint);
+        logger().debug("AngleSetpoint", setpoint)
+                .debug("Active", true);
         motorController.setSetpoint(setpoint.in(Units.Rotations), ControlType.kPosition);
-        Logger.recordOutput(getOutputLogPath("Active"), true);
     }
 
     @Override
@@ -95,13 +97,13 @@ public class SparkFlexIo extends LoggableIo<SparkFlexIo.SparkFlexIoInputs> imple
     @Override
     public void setVoltage(Voltage voltage) {
         motor.setVoltage(voltage);
-        Logger.recordOutput(getOutputLogPath("Voltage"), voltage.in(Volts));
-        Logger.recordOutput(getOutputLogPath("Active"), true);
+        logger().debug("Voltage", voltage.in(Volts))
+                .debug("Active", true);
     }
 
     @Override
     public void neutralOutput() {
         motor.stopMotor();
-        Logger.recordOutput(getOutputLogPath("Active"), false);
+        logger().debug("Active", false);
     }
 }

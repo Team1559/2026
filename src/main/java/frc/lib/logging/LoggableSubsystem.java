@@ -1,4 +1,4 @@
-package frc.lib.loggable;
+package frc.lib.logging;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -8,10 +8,12 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public abstract class LoggableSubsystem extends SubsystemBase {
     private final Set<LoggableComponent> children = new LinkedHashSet<>();
     private final String name;
+    private final CustomLogger logger;
 
     protected LoggableSubsystem(String name) {
         super(name);
         this.name = name;
+        logger = new CustomLogger(name);
     }
 
     protected final void addChildren(String folder, LoggableComponent... children) {
@@ -32,8 +34,8 @@ public abstract class LoggableSubsystem extends SubsystemBase {
         addChildren("", children);
     }
 
-    protected String getOutputLogPath(String suffix) {
-        return getName() + "/" + suffix;
+    protected CustomLogger logger() {
+        return logger;
     }
 
     @Override

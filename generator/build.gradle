@@ -1,0 +1,30 @@
+plugins {
+    id "java"
+    id("edu.wpi.first.wpilib.repositories.WPILibRepositoriesPlugin") version "2025.0"
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        url = "https://frcmaven.wpi.edu/artifactory/littletonrobotics-mvn-release/"
+    }
+}
+
+wpilibRepositories.addAllReleaseRepositories(project)
+
+def wpilibVersion = "+"
+
+dependencies {
+    implementation "com.palantir.javapoet:javapoet:0.12.0"
+    implementation "org.littletonrobotics.akit:akit-java:+"
+
+    runtimeOnly("edu.wpi.first.ntcore:ntcore-java:$wpilibVersion")
+    runtimeOnly("edu.wpi.first.wpiutil:wpiutil-java:$wpilibVersion")
+    runtimeOnly("edu.wpi.first.wpiunits:wpiunits-java:$wpilibVersion")
+    runtimeOnly("us.hebi.quickbuf:quickbuf-runtime:1.3.3")   
+}

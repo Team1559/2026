@@ -11,10 +11,11 @@ import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.VecBuilder;
-import frc.lib.loggable.LoggableSubsystem;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
+import frc.lib.logging.CustomLogger;
+import frc.lib.logging.LoggableSubsystem;
 import frc.lib.vision.VisionComponent.PoseObservation;
 import frc.lib.vision.VisionComponent.PoseObservationType;
 
@@ -64,7 +65,8 @@ public class Vision extends LoggableSubsystem {
                 }
 
                 if (observation.tagCount() == 1 && observation.ambiguity() > maxAmbiguity) {
-                    rejectedObservations.add(new RejectedObservation(observation, RejectionReason.ONE_TAG_HIGH_AMBIGUITY));
+                    rejectedObservations
+                            .add(new RejectedObservation(observation, RejectionReason.ONE_TAG_HIGH_AMBIGUITY));
                     continue;
                 }
 
@@ -115,15 +117,14 @@ public class Vision extends LoggableSubsystem {
             robotPosesAccepted.add(observation.observation.pose());
         }
 
-        Logger.recordOutput(getOutputLogPath("HasVisionRead"), robotHasPose);
-        Logger.recordOutput(getOutputLogPath("TagPoses"), tagPoses.toArray(Pose3d[]::new));
-        Logger.recordOutput(getOutputLogPath("RobotPosesAccepted"), robotPosesAccepted.toArray(Pose3d[]::new));
-        Logger.recordOutput(getOutputLogPath("RobotPosesRejected"), robotPosesRejected.toArray(Pose3d[]::new));
-
-        Logger.recordOutput(getOutputLogPath("RejectedObservations"),
-                rejectedObservations.toArray(RejectedObservation[]::new));
-        Logger.recordOutput(getOutputLogPath("AcceptedObservations"),
-                acceptedObservations.toArray(AcceptedObservation[]::new));
+        logger().debug("HasVisionRead", robotHasPose)
+                .debug("TagPoses", tagPoses.toArray(Pose3d[]::new))
+                .debug("RobotPosesAccepted", robotPosesAccepted.toArray(Pose3d[]::new))
+                .debug("RobotPosesRejected", robotPosesRejected.toArray(Pose3d[]::new))
+                .debug("RejectedObservations",
+                rejectedObservations.toArray(RejectedObservation[]::new))
+                .debug("AcceptedObservations",
+                        acceptedObservations.toArray(AcceptedObservation[]::new));
 
     }
 

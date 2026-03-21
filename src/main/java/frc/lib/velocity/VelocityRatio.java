@@ -1,7 +1,7 @@
 package frc.lib.velocity;
 
 import edu.wpi.first.units.measure.AngularVelocity;
-import frc.lib.loggable.LoggableIntermediate;
+import frc.lib.logging.LoggableIntermediate;
 
 public class VelocityRatio extends LoggableIntermediate implements AngularVelocityComponent {
     private final double reductionRatio;

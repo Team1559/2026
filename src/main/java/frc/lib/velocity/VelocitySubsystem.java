@@ -2,7 +2,7 @@ package frc.lib.velocity;
 
 import edu.wpi.first.units.measure.AngularVelocity;
 import frc.lib.NeutralOutput;
-import frc.lib.loggable.LoggableSubsystem;
+import frc.lib.logging.LoggableSubsystem;
 
 public class VelocitySubsystem extends LoggableSubsystem implements NeutralOutput {
     private final AngularVelocityComponent[] children;

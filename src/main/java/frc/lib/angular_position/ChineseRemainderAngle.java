@@ -5,7 +5,7 @@ import static edu.wpi.first.units.Units.Rotations;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
-import frc.lib.loggable.LoggableIntermediate;
+import frc.lib.logging.LoggableIntermediate;
 
 //Rest in peace chinese ba​by 2/21/2026
 public class ChineseRemainderAngle extends LoggableIntermediate implements AngularPositionSensor {

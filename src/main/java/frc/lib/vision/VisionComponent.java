@@ -1,7 +1,7 @@
 package frc.lib.vision;
 
 import edu.wpi.first.math.geometry.Pose3d;
-import frc.lib.loggable.LoggableComponent;
+import frc.lib.logging.LoggableComponent;
 
 public interface VisionComponent extends LoggableComponent {
     int[] getTagIds();

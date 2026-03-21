@@ -7,7 +7,7 @@ import org.littletonrobotics.junction.inputs.LoggableInputs;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Timer;
-import frc.lib.loggable.LoggableIo;
+import frc.lib.logging.LoggableIo;
 
 public class SwerveModuleIo extends LoggableIo<SwerveModuleIo.SwerveInputs> implements SwerveModule {
     @AutoLog
@@ -30,13 +30,13 @@ public class SwerveModuleIo extends LoggableIo<SwerveModuleIo.SwerveInputs> impl
 
     @Override
     public void setSpeed(double speed) {
-        Logger.recordOutput(getOutputLogPath("Speed"), speed);
+        logger().debug("Speed", speed);
     }
 
     @Override
     public void setAngle(Rotation2d angle) {
-        Logger.recordOutput(getOutputLogPath("Angle"), angle);
-        Logger.recordOutput(getOutputLogPath("Timestamp"), Timer.getTimestamp());
+        logger().debug("Angle", angle)
+                .debug("Timestamp", Timer.getTimestamp());
     }
 
     @Override

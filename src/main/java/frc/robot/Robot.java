@@ -37,6 +37,8 @@ import frc.robot.subsystems.Intake2026;
 import frc.robot.subsystems.Shooter2026;
 import frc.robot.subsystems.SwerveDrive2026Competition;
 import frc.robot.subsystems.Vision2026;
+import frc.lib.logging.BaseLogger;
+import frc.lib.logging.CustomLogger;
 
 public class Robot extends LoggedRobot {
 
@@ -67,8 +69,11 @@ public class Robot extends LoggedRobot {
             Logger.addDataReceiver(new NT4Publisher());
         }
 
+        BaseLogger.setDebugMode(true);
         Logger.start();
-        Logger.recordOutput("hi/test", ":)"); // Leave as easter egg
+        //TODO: FIX THIS PLS SORRY KYLE
+        //Logger.recordOutput("hi/test", ":)"); // Leave as easter egg
+
         pilotController = new CommandXboxController(0);
         coPilotController = new CommandXboxController(1);
         drivetrain = new SwerveDrive2026Competition();
@@ -191,5 +196,4 @@ public class Robot extends LoggedRobot {
         setUniversalBindings();
         setTestBindings();
     }
-
 }
