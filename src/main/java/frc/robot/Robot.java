@@ -75,6 +75,7 @@ public class Robot extends LoggedRobot {
                 GitVersion.DIRTY != 0 ? "Uncommited Changes" : "All Changes Commited");
         Logger.recordMetadata("Project Name", GitVersion.MAVEN_NAME);
         Logger.recordMetadata("Build Date", GitVersion.BUILD_DATE);
+        Logger.recordMetadata("Easter Egg", ":)"); // Leave as easter egg (hi/test)
 
         Logger.start();
 
