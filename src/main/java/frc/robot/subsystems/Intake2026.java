@@ -106,9 +106,9 @@ public class Intake2026 extends VoltageSubsystem {
     @Override
     public void periodic() {
         super.periodic();
-        Logger.recordOutput(getOutputLogPath("ElbowUp"), isAtUpperLimit());
-        Logger.recordOutput(getOutputLogPath("ElbowDown"), isAtLowerLimit());
-        Logger.recordOutput(getOutputLogPath("ElbowState"), elbowState);
+        logger().debug("ElbowUp", isAtUpperLimit())
+                .debug("ElbowDown", isAtLowerLimit())
+                .debug("ElbowState", elbowState);
 
         switch (elbowState) {
             case NEUTRAL:

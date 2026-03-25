@@ -10,7 +10,7 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 
 import edu.wpi.first.units.measure.Angle;
-import frc.lib.loggable.LoggableIo;
+import frc.lib.logging.LoggableIo;
 
 public class CanCoderIo extends LoggableIo<CanCoderIo.CanCoderIoInputs> implements AngularPositionSensor{
 
@@ -40,6 +40,6 @@ public class CanCoderIo extends LoggableIo<CanCoderIo.CanCoderIoInputs> implemen
     protected void updateInputs(CanCoderIoInputs inputs) {
         angle.refresh();
         inputs.rawAngle = angle.getValue();
-        Logger.recordOutput(getOutputLogPath("CurrentAngle"), getAngle());
+        logger().debug("CurrentAngle", getAngle());
     }
 }

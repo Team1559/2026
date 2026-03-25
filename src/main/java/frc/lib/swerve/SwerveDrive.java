@@ -27,7 +27,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.NeutralOutput;
-import frc.lib.loggable.LoggableSubsystem;
+import frc.lib.logging.LoggableSubsystem;
 import frc.lib.vision.VisionConsumer;
 
 public class SwerveDrive extends LoggableSubsystem implements VisionConsumer, NeutralOutput {
@@ -167,8 +167,8 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer, Ne
         targetRotationalVelocity = Rotation2d.fromRadians(currentRotationalVelocity.getRadians() + (targetRotationalAcceleration.getRadians() * ROBOT_PERIOD));
         //Use this math instead of WPIs built - in .plus() method, because the .plus() method clamps the output from -pi to pi radians.
 
-        Logger.recordOutput(getOutputLogPath("TargetLinearVelocity"), targetLinearVelocity);
-        Logger.recordOutput(getOutputLogPath("TargetRotationalVelocity"), targetRotationalVelocity);
+        logger().debug("TargetLinearVelocity", targetLinearVelocity)
+                .debug("TargetRotationalVelocity", targetRotationalVelocity);
 
         ChassisSpeeds accelLimitedSpeeds = new ChassisSpeeds(targetLinearVelocity.getX(), targetLinearVelocity.getY(),
                 targetRotationalVelocity.getRadians());
@@ -202,12 +202,11 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer, Ne
     }
 
     private void log() {
-        Logger.recordOutput(getOutputLogPath("EstimatedPosition"), getPosition());
-        Logger.recordOutput(getOutputLogPath("Heading"), gyro.getInputs().yaw);
-        Logger.recordOutput(getOutputLogPath("TargetVelocity"), getCurrentSpeed());
+        logger().debug("EstimatedPosition", getPosition())
+                .debug("Heading", gyro.getInputs().yaw)
+                .debug("TargetVelocity", getCurrentSpeed());
 
         field.setRobotPose(getPosition());
-
     }
 
     public static class SwerveConstraints {

@@ -185,3 +185,6 @@ compile_commands.json
 
 # Eclipse generated file for annotation processors
 .factorypath
+
+generator/build
+src/main/java/frc/robot/GitVersion.java

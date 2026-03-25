@@ -67,13 +67,24 @@ public class Robot extends LoggedRobot {
             Logger.addDataReceiver(new NT4Publisher());
         }
 
+        // BaseLogger.overrideDebugMode(false);
+
+        Logger.recordMetadata("Git Branch", GitVersion.GIT_BRANCH);
+        Logger.recordMetadata("Git Commit Hash", GitVersion.GIT_SHA);
+        Logger.recordMetadata("Uncommited Changes",
+                GitVersion.DIRTY != 0 ? "Uncommited Changes" : "All Changes Commited");
+        Logger.recordMetadata("Project Name", GitVersion.MAVEN_NAME);
+        Logger.recordMetadata("Build Date", GitVersion.BUILD_DATE);
+        Logger.recordMetadata("Easter Egg", ":)"); // Leave as easter egg (hi/test)
+
         Logger.start();
-        Logger.recordOutput("hi/test", ":)"); // Leave as easter egg
+
         pilotController = new CommandXboxController(0);
         coPilotController = new CommandXboxController(1);
         drivetrain = new SwerveDrive2026Competition();
         vision = new Vision2026(drivetrain);
-        shooter = new Shooter2026(drivetrain::getPosition, drivetrain::getCurrentSpeed);
+        shooter = new Shooter2026(drivetrain::getPosition,
+                drivetrain::getCurrentSpeed);
         intake = new Intake2026();
         indexer = new Indexer2026();
 
@@ -96,7 +107,8 @@ public class Robot extends LoggedRobot {
         NamedCommands.registerCommand("Wiggle", new WiggleIntakeCommand(intake));
         NamedCommands.registerCommand("IntakeUp", new InstantCommand(intake::moveElbowUp));
         NamedCommands.registerCommand("IntakeDown", new InstantCommand(intake::moveElbowDown));
-        NamedCommands.registerCommand("Shoot", new ShootCommand(shooter, Shooter2026::ourHubLocation));
+        NamedCommands.registerCommand("Shoot", new ShootCommand(shooter,
+                Shooter2026::ourHubLocation));
         NamedCommands.registerCommand("RunIntakeForwards", new InstantCommand(intake::runForwards));
         NamedCommands.registerCommand("StopIntake", new InstantCommand(intake::neutralOutput));
         NamedCommands.registerCommand("Intake", new StartEndCommand(intake::runForwards, intake::neutralOutput));
@@ -113,35 +125,40 @@ public class Robot extends LoggedRobot {
                         SwerveDrive2026Competition.SLOW_SWERVE_CONSTRAINTS, drivetrain, () -> false));
 
         pilotController.leftTrigger()
-                .whileTrue(new StartEndCommand(intake::runForwards, intake::neutralOutput, intake));
-        
+                .whileTrue(new StartEndCommand(intake::runForwards, intake::neutralOutput,
+                        intake));
+
         pilotController.leftTrigger().onTrue(new InstantCommand(intake::moveElbowDown));
 
-        pilotController.rightStick().onTrue(new InstantCommand(intake::moveElbowUp, intake));
+        pilotController.rightStick().onTrue(new InstantCommand(intake::moveElbowUp,
+                intake));
 
-        pilotController.rightTrigger().whileTrue(new ShootCommand(shooter, shooter::targetLocation));
+        pilotController.rightTrigger().whileTrue(new ShootCommand(shooter,
+                shooter::targetLocation));
         pilotController.rightBumper().whileTrue(new WiggleIntakeCommand(intake));
 
         pilotController.a().onTrue(new InstantCommand(shooter::useAbsoluteAngle));
         pilotController.b().onTrue(new InstantCommand(shooter::zeroTurret));
 
         // Copilot gets uh oh buttons
-        coPilotController.leftTrigger().whileTrue(new StartEndCommand(intake::runReverse, intake::neutralOutput, intake));
+        coPilotController.leftTrigger()
+                .whileTrue(new StartEndCommand(intake::runReverse, intake::neutralOutput, intake));
         coPilotController.leftBumper().onTrue(new InstantCommand(intake::elbowNeutral));
-        
-        coPilotController.rightTrigger().whileTrue(new StartEndCommand(shooter::reverseAll, shooter::neutralAll, shooter));
+
+        coPilotController.rightTrigger()
+                .whileTrue(new StartEndCommand(shooter::reverseAll, shooter::neutralAll, shooter));
     }
 
     public void setTestBindings() {
-    
-        
         pilotController.leftTrigger()
-                .whileTrue(new StartEndCommand(intake::runForwards, intake::neutralOutput, intake));
+                .whileTrue(new StartEndCommand(intake::runForwards, intake::neutralOutput,
+                        intake));
     }
 
     public void setUniversalBindings() {
         Trigger indexerTrigger = new Trigger(shooter::isShooting).or(intake::isIntaking);
-        indexerTrigger.whileTrue(new StartEndCommand(indexer::runForwards, indexer::neutralOutput, indexer));
+        indexerTrigger.whileTrue(new StartEndCommand(indexer::runForwards,
+                indexer::neutralOutput, indexer));
     }
 
     @Override
@@ -191,5 +208,4 @@ public class Robot extends LoggedRobot {
         setUniversalBindings();
         setTestBindings();
     }
-
 }

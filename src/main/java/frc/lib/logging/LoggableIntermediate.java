@@ -1,4 +1,4 @@
-package frc.lib.loggable;
+package frc.lib.logging;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -6,7 +6,7 @@ import java.util.Map;
 public abstract class LoggableIntermediate implements LoggableComponent {
     private final Map<LoggableComponent, String> children = new LinkedHashMap<>();
     private final String name;
-    private String logPath;
+    private CustomLogger logger;
 
     protected LoggableIntermediate(String name) {
         this.name = name;
@@ -27,16 +27,16 @@ public abstract class LoggableIntermediate implements LoggableComponent {
 
     @Override
     public final void setLogPath(String parentLogPath) {
-        if (logPath != null) {
+        if (logger != null) {
             throw new IllegalStateException("Cannot set log path more than once");
         }
-        this.logPath = parentLogPath + "/" + name;
+        logger = new CustomLogger(parentLogPath + "/" + name);
         for (LoggableComponent child : children.keySet()) {
             String folder = children.get(child);
             if (folder.isEmpty()) {
-                child.setLogPath(logPath);
+                child.setLogPath(parentLogPath + "/" + name);
             } else {
-                child.setLogPath(logPath + "/" + folder);
+                child.setLogPath(parentLogPath + "/" + name + "/" + folder);
             }
         }
     }
@@ -48,7 +48,7 @@ public abstract class LoggableIntermediate implements LoggableComponent {
         }
     }
 
-    protected final String getOutputLogPath(String suffix) {
-        return logPath.toString() + "/" + suffix;
+    protected CustomLogger logger() {
+        return logger;
     }
 }

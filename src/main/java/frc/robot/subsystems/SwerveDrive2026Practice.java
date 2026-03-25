@@ -73,7 +73,7 @@ public class SwerveDrive2026Practice extends SwerveDrive {
     @Override
     public void periodic() {
         super.periodic();
-        Logger.recordOutput(getOutputLogPath("CAN Utilization"), CANIVORE_BUS.getStatus().BusUtilization);
+        logger().debug("CAN Utilization", CANIVORE_BUS.getStatus().BusUtilization);
     }
 
     private static SwerveModuleIo createSwerveModule(String name, int steerMotorId, int driveMotorId,

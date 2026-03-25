@@ -4,7 +4,7 @@ import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
-import frc.lib.loggable.LoggableIo;
+import frc.lib.logging.LoggableIo;
 
 public class ElevatorIo extends LoggableIo<ElevatorIo.ElevatorInputs> implements ElevatorComponent {
     @AutoLog
@@ -23,7 +23,7 @@ public class ElevatorIo extends LoggableIo<ElevatorIo.ElevatorInputs> implements
 
     @Override
     public void setTargetPosition(double pos) {
-        Logger.recordOutput(getOutputLogPath("TargetPosition"), pos);
+        logger().debug("TargetPosition", pos);
     }
 
     @Override
@@ -34,7 +34,7 @@ public class ElevatorIo extends LoggableIo<ElevatorIo.ElevatorInputs> implements
 
     @Override
     public void goHome() {
-        Logger.recordOutput(getOutputLogPath("TargetPosition"), 0D);
+        logger().debug("TargetPosition", 0D);
     }
 
     @Override

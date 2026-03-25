@@ -4,7 +4,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.lib.NeutralOutput;
-import frc.lib.loggable.LoggableComponent;
+import frc.lib.logging.LoggableComponent;
 
 public interface SwerveModule extends LoggableComponent, NeutralOutput {
 

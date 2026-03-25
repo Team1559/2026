@@ -4,7 +4,7 @@ import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import frc.lib.loggable.LoggableIo;
+import frc.lib.logging.LoggableIo;
 
 public class GyroIo extends LoggableIo<GyroIo.GyroInputs> {
     @AutoLog

@@ -5,7 +5,7 @@ import static edu.wpi.first.units.Units.Radians;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
-import frc.lib.loggable.LoggableIntermediate;
+import frc.lib.logging.LoggableIntermediate;
 
 public class LimitedAngularPositionIntermediate extends LoggableIntermediate implements AngularPositionComponent {
 

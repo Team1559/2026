@@ -6,7 +6,7 @@ import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.units.measure.Voltage;
 import frc.lib.NeutralOutput;
-import frc.lib.loggable.LoggableSubsystem;
+import frc.lib.logging.LoggableSubsystem;
 
 public class VoltageSubsystem extends LoggableSubsystem implements NeutralOutput {
     private final VoltageComponent[] children;
@@ -20,7 +20,7 @@ public class VoltageSubsystem extends LoggableSubsystem implements NeutralOutput
 
     public void setVoltage(Voltage setpoint) {
         this.setpoint = setpoint;
-        Logger.recordOutput(getOutputLogPath("VoltageSetpoint"), setpoint);
+        logger().debug("VoltageSetpoint", setpoint);
     }
 
     @Override
@@ -38,6 +38,6 @@ public class VoltageSubsystem extends LoggableSubsystem implements NeutralOutput
     @Override
     public void neutralOutput() {
         setpoint = Volts.zero();
-        Logger.recordOutput(getOutputLogPath("VoltageSetpoint"), setpoint);
+        logger().debug("VoltageSetpoint", setpoint);
     }
 }

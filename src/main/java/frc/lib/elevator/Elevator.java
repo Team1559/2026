@@ -1,6 +1,6 @@
 package frc.lib.elevator;
 
-import frc.lib.loggable.LoggableSubsystem;
+import frc.lib.logging.LoggableSubsystem;
 
 public class Elevator extends LoggableSubsystem {
     private final ElevatorComponent child;

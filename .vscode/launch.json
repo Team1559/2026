@@ -5,13 +5,6 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "java",
-            "name": "ChineseRemainderAngle",
-            "request": "launch",
-            "mainClass": "frc.lib.angular_position.ChineseRemainderAngle",
-            "projectName": "2026-Rebuilt"
-        },
-        {
             "type": "wpilib",
             "name": "WPILib Desktop Debug",
             "request": "launch",
