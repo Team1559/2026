@@ -1,6 +1,7 @@
 plugins {
     id "java"
     id "edu.wpi.first.GradleRIO" version "2026.2.1"
+    id "com.peterabeles.gversion" version "1.10.3"
 }
 
 java {
@@ -116,4 +117,10 @@ task(replayWatch, type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-
+project.compileJava.dependsOn(createVersionFile)
+gversion{
+    srcDir  = "src/main/java/"
+    classPackage = "frc.robot"
+    className = "GitVersion"
+    timeZone = "America/New_York"
+}

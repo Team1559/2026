@@ -14,7 +14,7 @@ public sealed class BaseLogger permits CustomLogger {
         this.logPath = logPath;
     }
 
-    public static void setDebugMode(boolean debugMode) {
+    public static void overrideDebugMode(boolean debugMode) {
         debugOverride = debugMode;
     }
 

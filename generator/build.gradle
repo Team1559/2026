@@ -17,14 +17,15 @@ repositories {
 
 wpilibRepositories.addAllReleaseRepositories(project)
 
-def wpilibVersion = "+"
+def wpilibVersion = "2026.2.2"
 
 dependencies {
     implementation "com.palantir.javapoet:javapoet:0.12.0"
-    implementation "org.littletonrobotics.akit:akit-java:+"
+    implementation "org.littletonrobotics.akit:akit-java:26.0.2"
 
     runtimeOnly("edu.wpi.first.ntcore:ntcore-java:$wpilibVersion")
     runtimeOnly("edu.wpi.first.wpiutil:wpiutil-java:$wpilibVersion")
     runtimeOnly("edu.wpi.first.wpiunits:wpiunits-java:$wpilibVersion")
+    runtimeOnly("edu.wpi.first.wpilibj:wpilibj-java:$wpilibVersion")
     runtimeOnly("us.hebi.quickbuf:quickbuf-runtime:1.3.3")   
 }
