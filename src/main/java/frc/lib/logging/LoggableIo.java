@@ -4,7 +4,7 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 public abstract class LoggableIo<T extends LoggableInputs> implements LoggableComponent {
-    private CustomLogger logger;    // /path/to/logged/io
+    private CustomLogger logger;    
     private final T inputs;
     private final String name;
 

@@ -417,6 +417,8 @@ public class Shooter2026 extends LoggableSubsystem {
         } else {
             feedWheel.neutralOutput();
         }
+        
+        logger().dashboard("IsShooting", feedwheelState == DirectionalThreeState.FOWARD);
     }
 
     public void setTurretAngle(Angle setAngle) {
