@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Inches;
+
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -16,6 +18,8 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.revrobotics.util.StatusLogger;
 
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
@@ -27,9 +31,15 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.lib.angular_position.AngularPositionComponent;
+import frc.lib.angular_position.CanCoderReplayIo;
 import frc.lib.commands.StopCommand;
+import frc.lib.swerve.GyroIo;
 import frc.lib.swerve.SwerveDrive;
+import frc.lib.swerve.SwerveModuleIo;
 import frc.lib.swerve.TeleopDriveCommand;
+import frc.lib.velocity.SparkFlexReplayIo;
+import frc.lib.vision.VisionCameraIo;
 import frc.robot.commands.ShootCommand;
 import frc.robot.commands.WiggleIntakeCommand;
 import frc.robot.subsystems.Indexer2026;
@@ -49,7 +59,8 @@ public class Robot extends LoggedRobot {
     private final Intake2026 intake;
     private final Indexer2026 indexer;
 
-    private static final boolean IS_REPLAY = false;
+    private static final boolean IS_REPLAY = true;
+
     private int loopIterations = 0;
 
     @SuppressWarnings("resource") // pdh must stay open for connection
@@ -62,13 +73,25 @@ public class Robot extends LoggedRobot {
             String logPath = LogFileUtil.findReplayLog();
             Logger.setReplaySource(new WPILOGReader(logPath));
             Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_replay")));
+            // drivetrain = new SwerveDrive("DriveTrain", new GyroIo("Gyro"), new SwerveModuleIo("FrontLeft", null), new SwerveModuleIo("FrontRight", null), new SwerveModuleIo("BackLeft", null), new SwerveModuleIo("BackRight", null));
+            // vision = new Vision2026(drivetrain, new VisionCameraIo("FrontStraight"), new VisionCameraIo("FrontLeft"), new VisionCameraIo("BackLeft"));
+            // intake = new Intake2026();
+
         } else {
+            
+            
             Logger.addDataReceiver(new WPILOGWriter());
             Logger.addDataReceiver(new NT4Publisher());
         }
 
+        drivetrain = new SwerveDrive2026Competition();
+        vision = new Vision2026(drivetrain);
+        shooter = new Shooter2026(drivetrain::getPosition, drivetrain::getCurrentSpeed, IS_REPLAY);
+        intake = new Intake2026();
+        indexer = new Indexer2026();
+        
         // BaseLogger.overrideDebugMode(false);
-
+        
         Logger.recordMetadata("Git Branch", GitVersion.GIT_BRANCH);
         Logger.recordMetadata("Git Commit Hash", GitVersion.GIT_SHA);
         Logger.recordMetadata("Uncommited Changes",
@@ -81,12 +104,6 @@ public class Robot extends LoggedRobot {
 
         pilotController = new CommandXboxController(0);
         coPilotController = new CommandXboxController(1);
-        drivetrain = new SwerveDrive2026Competition();
-        vision = new Vision2026(drivetrain);
-        shooter = new Shooter2026(drivetrain::getPosition,
-                drivetrain::getCurrentSpeed);
-        intake = new Intake2026();
-        indexer = new Indexer2026();
 
         registerNamedCommands();
         autoChooser = AutoBuilder.buildAutoChooser();

@@ -56,6 +56,8 @@ public class Intake2026 extends VoltageSubsystem {
         addChildren(elbowMotor, elbowEncoder);
     }
 
+    
+
     private static SparkFlexConfig makeIntakeConfig() {
         SparkFlexConfig config = new SparkFlexConfig();
         config.idleMode(IdleMode.kBrake);

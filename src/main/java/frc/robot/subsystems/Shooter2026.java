@@ -13,8 +13,6 @@ import static edu.wpi.first.units.Units.Seconds;
 
 import java.util.function.Supplier;
 
-import org.littletonrobotics.junction.Logger;
-
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
@@ -54,6 +52,7 @@ import frc.lib.angular_position.LimitedAngularPositionIntermediate;
 import frc.lib.logging.LoggableSubsystem;
 import frc.lib.velocity.AngularVelocityComponent;
 import frc.lib.velocity.SparkFlexIo;
+import frc.lib.velocity.SparkFlexReplayIo;
 
 public class Shooter2026 extends LoggableSubsystem {
     private final Supplier<Pose2d> robotPositionSupplier;
@@ -68,7 +67,6 @@ public class Shooter2026 extends LoggableSubsystem {
 
     private DirectionalThreeState feedwheelState = DirectionalThreeState.NEUTRAL;
     private DirectionalThreeState flywheelState = DirectionalThreeState.NEUTRAL;
-
 
     private static final Rotation2d flapperAngle = Rotation2d.fromDegrees(59);
 
@@ -112,45 +110,61 @@ public class Shooter2026 extends LoggableSubsystem {
         zeroTurret();
     }
 
-    public Shooter2026(Supplier<Pose2d> robotPositionSupplier, Supplier<ChassisSpeeds> robotSpeedSupplier) {
+    public Shooter2026(Supplier<Pose2d> robotPositionSupplier, Supplier<ChassisSpeeds> robotSpeedSupplier,
+            boolean isReplay) {
         this(robotPositionSupplier, robotSpeedSupplier,
                 new Pose3d(Inches.of(5.5), Inches.of(5.5), Inches.of(28), Rotation3d.kZero),
-                makeTurret(), null, makeFlywheel(), makeFeedwheel(),
+                makeTurret(isReplay), null, makeFlywheel(isReplay), makeFeedwheel(isReplay),
                 makeCrtAngleSensor());
     }
 
-    private static SparkFlexIo makeFlywheel() {
-        SparkFlexConfig config = new SparkFlexConfig();
-        config.closedLoop.pid(0.0005, 0, 0.05);
-        config.closedLoop.feedForward.kV(0.000151); // Volts per rpm (0.000153)
-        config.inverted(false);
-        config.idleMode(IdleMode.kCoast);
-        config.voltageCompensation(12.0);
-        return new SparkFlexIo("Flywheel", new SparkFlex(17, MotorType.kBrushless), config);
+    private static AngularVelocityComponent makeFlywheel(boolean isReplay) {
+        if (isReplay){
+            return new SparkFlexReplayIo("Flywheel");
+        } else {
+            SparkFlexConfig config = new SparkFlexConfig();
+            config.closedLoop.pid(0.0005, 0, 0.05);
+            config.closedLoop.feedForward.kV(0.000151); // Volts per rpm (0.000153)
+            config.inverted(false);
+            config.idleMode(IdleMode.kCoast);
+            config.voltageCompensation(12.0);
+            return new SparkFlexIo("Flywheel", new SparkFlex(17, MotorType.kBrushless), config);
+        }
     }
 
-    private static SparkFlexIo makeFeedwheel() {
-        SparkFlexConfig config = new SparkFlexConfig(); // TODO: Configure
-        config.closedLoop.pid(0, 0, 0);
-        config.closedLoop.feedForward.kV(0.00016); // Volts per rpm
-        config.idleMode(IdleMode.kBrake);
-        config.voltageCompensation(12.0);
-        return new SparkFlexIo("Feedwheel", new SparkFlex(16, MotorType.kBrushless), config);
+    private static AngularVelocityComponent makeFeedwheel(boolean isReplay) {
+        AngularVelocityComponent sparkFlex;
+        if (isReplay){
+            sparkFlex = new SparkFlexReplayIo("FeedWheelMotor");
+        } else {
+            SparkFlexConfig config = new SparkFlexConfig(); // TODO: Configure
+            config.closedLoop.pid(0, 0, 0);
+            config.closedLoop.feedForward.kV(0.00016); // Volts per rpm
+            config.idleMode(IdleMode.kBrake);
+            config.voltageCompensation(12.0);
+            sparkFlex = new SparkFlexIo("Feedwheel", new SparkFlex(16, MotorType.kBrushless), config);
+        }
+        return sparkFlex;
     }
 
-    private static AngularPositionComponent makeTurret() {
-        SparkFlexConfig config = new SparkFlexConfig(); // TODO: Configure
-        config.closedLoop.maxOutput(.15);
-        config.closedLoop.minOutput(-.15);
-        config.closedLoop.pid(.8, 0.0005, 0); // (0.1, 0.0008, 0.01);
-        config.closedLoop.iZone(0.2);
-        config.closedLoop.allowedClosedLoopError(Degrees.of(.24 * 10).in(Rotations), ClosedLoopSlot.kSlot0);
-        config.voltageCompensation(12.0);
-        config.inverted(true);
-        config.idleMode(IdleMode.kBrake);
+    private static AngularPositionComponent makeTurret(boolean isReplay) {
+        SparkFlexReplayIo sparkFlex;
+        if (isReplay) {
+            sparkFlex = new SparkFlexReplayIo("TurretMotor");
+        } else {
+            SparkFlexConfig config = new SparkFlexConfig(); // TODO: Configure
+            config.closedLoop.maxOutput(.15);
+            config.closedLoop.minOutput(-.15);
+            config.closedLoop.pid(.8, 0.0005, 0); // (0.1, 0.0008, 0.01);
+            config.closedLoop.iZone(0.2);
+            config.closedLoop.allowedClosedLoopError(Degrees.of(.24 * 10).in(Rotations), ClosedLoopSlot.kSlot0);
+            config.voltageCompensation(12.0);
+            config.inverted(true);
+            config.idleMode(IdleMode.kBrake);
+            sparkFlex = new SparkFlexIo("TurretMotor", new SparkFlex(19, MotorType.kBrushless), config);
+        }
         return new LimitedAngularPositionIntermediate("Turret", Degrees.of(-90), Degrees.of(150),
-                new AngularPositionRatio("GearRatio", 10d,
-                        new SparkFlexIo("TurretMotor", new SparkFlex(19, MotorType.kBrushless), config)));
+                new AngularPositionRatio("GearRatio", 10d, sparkFlex));
     }
 
     public Angle getAngle() {
@@ -204,7 +218,7 @@ public class Shooter2026 extends LoggableSubsystem {
         logger().dashboard("CrtAngle", crtAngle);
     }
 
-    public void zeroTurret(){
+    public void zeroTurret() {
         turret.setPercievedAngle(Degrees.of(0));
     }
 
@@ -372,7 +386,7 @@ public class Shooter2026 extends LoggableSubsystem {
             Translation3d virtualTarget = calculateVirtualTarget(initialGuess, target, targetSpeed, flapperAngle);
             logger().debug("VirtualTarget", virtualTarget)
                     .debug("VirtualTargetFieldSpace",
-                    shooterSpaceToFieldSpace(virtualTarget, robotPosition, turretOffset));
+                            shooterSpaceToFieldSpace(virtualTarget, robotPosition, turretOffset));
 
             turretAngle = calculateTargetTurretAngle(virtualTarget);
             logger().debug("TurretAngleSetpoint", turretAngle);
@@ -383,7 +397,8 @@ public class Shooter2026 extends LoggableSubsystem {
             projectileVelocity = calculateProjectileSpeedFixedAngle(targetTurretSpace, flapperAngle);
             logger().debug("ProjectileVelocitySetpoint", projectileVelocity);
 
-            if (flywheelState == DirectionalThreeState.FOWARD && Double.isFinite(projectileVelocity.in(MetersPerSecond))) {
+            if (flywheelState == DirectionalThreeState.FOWARD
+                    && Double.isFinite(projectileVelocity.in(MetersPerSecond))) {
                 targetFlywheelVelocity = calculateFlywheelVelocity(projectileVelocity);
                 logger().debug("TargetFlywheelVelocity", targetFlywheelVelocity);
                 flywheel.setVelocity(targetFlywheelVelocity);
@@ -395,7 +410,16 @@ public class Shooter2026 extends LoggableSubsystem {
             }
 
             Angle turretError = turret.getAngle().minus(turretAngle.getMeasure());
-            logger().dashboard("TurretOK", turretAngle.getDegrees() > -90 && turretAngle.getDegrees() < 150 && turretError.abs(Degrees) < 5) //True if turret is in range of target, RIT
+            logger().dashboard("TurretOK",
+                    turretAngle.getDegrees() > -90 && turretAngle.getDegrees() < 150 && turretError.abs(Degrees) < 5) // True
+                                                                                                                      // if
+                                                                                                                      // turret
+                                                                                                                      // is
+                                                                                                                      // in
+                                                                                                                      // range
+                                                                                                                      // of
+                                                                                                                      // target,
+                                                                                                                      // RIT
                     .debug("TurretError", turretError);
         }
 
@@ -417,7 +441,7 @@ public class Shooter2026 extends LoggableSubsystem {
         } else {
             feedWheel.neutralOutput();
         }
-        
+
         logger().dashboard("IsShooting", feedwheelState == DirectionalThreeState.FOWARD);
     }
 
@@ -472,24 +496,24 @@ public class Shooter2026 extends LoggableSubsystem {
         return new Translation3d(flipped2d.getX(), flipped2d.getY(), t.getZ());
     }
 
-    public boolean isShooting(){
+    public boolean isShooting() {
         return isShooting;
     }
 
-    public void neutralAll(){
+    public void neutralAll() {
         flywheelState = DirectionalThreeState.NEUTRAL;
         feedwheelState = DirectionalThreeState.NEUTRAL;
     }
 
-    public void reverseFeedwheel(){
+    public void reverseFeedwheel() {
         feedwheelState = DirectionalThreeState.REVERSE;
     }
 
-    public void neutralFeedwheel(){
+    public void neutralFeedwheel() {
         feedwheelState = DirectionalThreeState.NEUTRAL;
     }
 
-    public void reverseAll(){
+    public void reverseAll() {
         flywheelState = DirectionalThreeState.REVERSE;
         feedwheelState = DirectionalThreeState.REVERSE;
     }
