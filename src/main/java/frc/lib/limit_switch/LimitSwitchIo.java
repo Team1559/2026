@@ -1,28 +1,14 @@
 package frc.lib.limit_switch;
 
-import org.littletonrobotics.junction.AutoLog;
-import org.littletonrobotics.junction.inputs.LoggableInputs;
-
 import edu.wpi.first.wpilibj.DigitalInput;
-import frc.lib.logging.LoggableIo;
 
-public class LimitSwitchIo extends LoggableIo<LimitSwitchIo.LimitSwitchIoInputs> implements BooleanComponent {
-
-    @AutoLog
-    public static abstract class LimitSwitchIoInputs implements LoggableInputs{
-        boolean atLimit = false;
-    }
+public class LimitSwitchIo extends LimitSwitchReplayIo {
 
     private final DigitalInput limitSwitch;
 
     public LimitSwitchIo(String name, DigitalInput limitSwitch){
-        super(name, new LimitSwitchIoInputsAutoLogged());
+        super(name);
         this.limitSwitch = limitSwitch;
-    }
-
-    @Override
-    public boolean getAsBoolean() {
-        return getInputs().atLimit;
     }
 
     @Override
