@@ -1,7 +1,6 @@
 package frc.lib.swerve;
 
 import org.littletonrobotics.junction.AutoLog;
-import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -9,7 +8,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Timer;
 import frc.lib.logging.LoggableIo;
 
-public class SwerveModuleIo extends LoggableIo<SwerveModuleIo.SwerveInputs> implements SwerveModule {
+public class SdsSwerveModuleIoBase extends LoggableIo<SdsSwerveModuleIoBase.SwerveInputs> implements SwerveModule {
     @AutoLog
     public static abstract class SwerveInputs implements LoggableInputs {
         public double speed;
@@ -23,8 +22,8 @@ public class SwerveModuleIo extends LoggableIo<SwerveModuleIo.SwerveInputs> impl
 
     private final Translation2d location;
 
-    public SwerveModuleIo(String name, Translation2d location) {
-        super(name, new SwerveInputsAutoLogged());
+    public SdsSwerveModuleIoBase(Translation2d location) {
+        super(new SwerveInputsAutoLogged());
         this.location = location;
     }
 

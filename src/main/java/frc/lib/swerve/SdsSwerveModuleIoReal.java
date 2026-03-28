@@ -25,7 +25,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import frc.lib.CanRefreshRate;
 
-public class SdsSwerveModuleIo extends SwerveModuleIo {
+public class SdsSwerveModuleIoReal extends SdsSwerveModuleIoBase {
 
     public enum ModuleType {
         MK4_L1(50d / 14 * 19 / 25 * 45 / 15, InvertedValue.Clockwise_Positive, InvertedValue.CounterClockwise_Positive),
@@ -71,12 +71,12 @@ public class SdsSwerveModuleIo extends SwerveModuleIo {
     private final StatusSignal<Current> steerMotorCurrent;
     private final StatusSignal<Current> driveMotorCurrent;
 
-    public SdsSwerveModuleIo(String name, Translation2d location, ModuleType moduleType, TalonFX steerMotor,
+    public SdsSwerveModuleIoReal(Translation2d location, ModuleType moduleType, TalonFX steerMotor,
             Slot0Configs steerMotorPid,
             TalonFX driveMotor,
             Slot0Configs driveMotorPid, double driveStatorCurrentLimit, double driveSupplyCurrentLimit, CANcoder cancoder,
             Rotation2d cancoderOffset) {
-        super(name, location);
+        super(location);
         this.steerMotor = steerMotor;
         this.driveMotor = driveMotor;
         this.cancoder = cancoder;

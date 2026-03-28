@@ -1,12 +1,12 @@
 package frc.lib.logging;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public abstract class LoggableSubsystem extends SubsystemBase {
-    private final Set<LoggableComponent> children = new LinkedHashSet<>();
+    private final LoggableDaycare children = new LoggableDaycare();
     private final String name;
     private final CustomLogger logger;
 
@@ -16,27 +16,32 @@ public abstract class LoggableSubsystem extends SubsystemBase {
         logger = new CustomLogger(name);
     }
 
-    protected final void addChildren(String folder, LoggableComponent... children) {
-        for (LoggableComponent child : children) {
-            if(child == null) {
-                continue;
-            }
-            if (folder.isEmpty()) {
-                child.setLogPath(getName());
-            } else {
-                child.setLogPath(getName() + "/" + folder);
-            }
-            this.children.add(child);
+    protected final void addChildren(String folder, Map<String, ? extends LoggableComponent> children) {
+        for (Entry<String, ? extends LoggableComponent> entry : children.entrySet()) {
+            LoggableComponent child = entry.getValue();
+            String childName = entry.getKey();
+
+            String key = this.children.addChild(folder, childName, child);
+            child.setLogPath(getName() + "/" + key);
         }
     }
 
-    protected final void addChildren(LoggableComponent... children) {
-        addChildren("", children);
+    protected final void addChild(String folder, String name, LoggableComponent child) {
+        this.addChildren(folder, Map.of(name, child));
     }
 
-    protected CustomLogger logger() {
+    protected final void addChildren(Map<String, ? extends LoggableComponent> children) {
+        this.addChildren("", children);
+    }
+
+    protected final void addChild(String name, LoggableComponent child) {
+        this.addChildren("", Map.of(name, child));
+    }
+
+    protected final CustomLogger logger() {
         return logger;
     }
+
 
     @Override
     public String getName() {

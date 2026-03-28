@@ -18,15 +18,14 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.TimestampedDoubleArray;
 import edu.wpi.first.wpilibj.RobotController;
 
-public class LimelightCameraIo extends VisionCameraIo {
+public class LimelightCameraIoReal extends LimelightCameraIoBase {
     private final Supplier<Rotation2d> yaw;
     private final DoubleArrayPublisher orientationPublisher;
     private final DoubleSubscriber latencySubscriber;
     private final DoubleArraySubscriber megatag1Subscriber;
     private final DoubleArraySubscriber megatag2Subscriber;
 
-    public LimelightCameraIo(String ioName, String hostName, Supplier<Rotation2d> yaw) {
-        super(ioName);
+    public LimelightCameraIoReal(String hostName, Supplier<Rotation2d> yaw) {
         this.yaw = yaw;
         NetworkTable table = NetworkTableInstance.getDefault().getTable(hostName);
         orientationPublisher = table.getDoubleArrayTopic("robot_orientation_set").publish();

@@ -1,6 +1,6 @@
 package frc.lib.swerve;
 
-import org.littletonrobotics.junction.Logger;
+import java.util.Map;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
@@ -34,7 +34,7 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer, Ne
     private final SwerveModule[] modules;
     private final SwerveDriveKinematics kinematics;
     private final SwerveDrivePoseEstimator estimator;
-    private final GyroIo gyro;
+    private final Gyro gyro;
 
     private final Field2d field;
 
@@ -43,26 +43,26 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer, Ne
 
     private ChassisSpeeds targetSpeed = new ChassisSpeeds();
 
-    private final double ROBOT_PERIOD = 0.02;
+    private static final double ROBOT_PERIOD = 0.02;
 
-    public SwerveDrive(String name, GyroIo gyro, SwerveModule... modules) {
+    public SwerveDrive(String name, Gyro gyro, Map<String, SwerveModule> modules) {
         super(name);
         this.gyro = gyro;
-        this.modules = modules;
 
         addChildren("Modules", modules);
-        addChildren("Gyro", gyro);
+        this.modules = modules.values().toArray(SwerveModule[]::new);
+        addChild("Gyro", gyro);
 
-        Translation2d[] locations = new Translation2d[modules.length];
-        SwerveModulePosition[] positions = new SwerveModulePosition[modules.length];
+        Translation2d[] locations = new Translation2d[this.modules.length];
+        SwerveModulePosition[] positions = new SwerveModulePosition[this.modules.length];
 
         for (int i = 0; i < locations.length; i++) {
-            locations[i] = modules[i].getLocation();
-            positions[i] = new SwerveModulePosition(modules[i].getDistance(), modules[i].getAngle());
+            locations[i] = this.modules[i].getLocation();
+            positions[i] = new SwerveModulePosition(this.modules[i].getDistance(), this.modules[i].getAngle());
         }
 
         this.kinematics = new SwerveDriveKinematics(locations);
-        this.estimator = new SwerveDrivePoseEstimator(kinematics, gyro.getInputs().yaw, positions,
+        this.estimator = new SwerveDrivePoseEstimator(kinematics, gyro.getYaw(), positions,
                 DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
                         ? new Pose2d(new Translation2d(), Rotation2d.fromDegrees(180))
                         : new Pose2d()); // Changed the initial rotation
@@ -71,7 +71,7 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer, Ne
         SmartDashboard.putData("Field", field);
     }
 
-    public void configureAuto(RobotConfig robotConfig) {
+    public final void configureAuto(RobotConfig robotConfig) {
         AutoBuilder.configure(this::getPosition, this::resetPose, this::getCurrentSpeed, this::driveRobotOriented,
                 new PPHolonomicDriveController(new PIDConstants(5), new PIDConstants(10)), robotConfig,
                 () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red, this);
@@ -93,7 +93,7 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer, Ne
         return estimator.getEstimatedPosition();
     }
 
-    protected SwerveModule[] getModules() {
+    protected final SwerveModule[] getModules() {
         return modules.clone();
     }
 
@@ -132,9 +132,10 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer, Ne
     }
 
     private void updateOdometry() {
-        estimator.update(gyro.getInputs().yaw, getModulePositions());
+        estimator.update(gyro.getYaw(), getModulePositions());
     }
-
+    
+    @SuppressWarnings("java:S1244") // We must check if numbers are -0
     private void drive() {
         ChassisSpeeds currentChassisSpeeds = getCurrentSpeed();
 
@@ -154,9 +155,13 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer, Ne
         Rotation2d currentRotationalVelocity = Rotation2d.fromRadians(currentChassisSpeeds.omegaRadiansPerSecond);
 
         Rotation2d targetRotationalVelocity = Rotation2d.fromRadians(targetSpeed.omegaRadiansPerSecond);
-        Rotation2d targetRotationalAcceleration = (Rotation2d.fromRadians(targetRotationalVelocity.getRadians() - currentRotationalVelocity.getRadians())) //TODO: debug when chasis is done
-        //Use this math instead of WPIs built - in .plus() method, because the .plus() method clamps the output from -pi to pi radians.
+        Rotation2d targetRotationalAcceleration = (Rotation2d
+                .fromRadians(targetRotationalVelocity.getRadians() - currentRotationalVelocity.getRadians()))
                 .div(ROBOT_PERIOD);
+                // TODO: ^ debug when chasis is done
+
+                // Use this math instead of WPIs built - in .plus() method, because the .plus()
+                // method clamps the output from -pi to pi radians.
         if (targetRotationalAcceleration.getRadians() > maxRotationalAcceleration.getRadians()) {
             if (targetRotationalAcceleration.getRadians() > 0) {
                 targetRotationalAcceleration = maxRotationalAcceleration;
@@ -164,14 +169,17 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer, Ne
                 targetRotationalAcceleration = maxRotationalAcceleration.times(-1);
             }
         }
-        targetRotationalVelocity = Rotation2d.fromRadians(currentRotationalVelocity.getRadians() + (targetRotationalAcceleration.getRadians() * ROBOT_PERIOD));
-        //Use this math instead of WPIs built - in .plus() method, because the .plus() method clamps the output from -pi to pi radians.
+        targetRotationalVelocity = Rotation2d.fromRadians(
+                currentRotationalVelocity.getRadians() + (targetRotationalAcceleration.getRadians() * ROBOT_PERIOD));
+        // Use this math instead of WPIs built - in .plus() method, because the .plus()
+        // method clamps the output from -pi to pi radians.
 
         logger().debug("TargetLinearVelocity", targetLinearVelocity)
                 .debug("TargetRotationalVelocity", targetRotationalVelocity);
 
         ChassisSpeeds accelLimitedSpeeds = new ChassisSpeeds(targetLinearVelocity.getX(), targetLinearVelocity.getY(),
                 targetRotationalVelocity.getRadians());
+
         if (accelLimitedSpeeds.vxMetersPerSecond == -0) {
             accelLimitedSpeeds.vxMetersPerSecond = 0;
         }
@@ -184,7 +192,7 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer, Ne
 
         SwerveModuleState[] states = kinematics.toSwerveModuleStates(accelLimitedSpeeds);
         double minCos = 1;
-        for(int i = 0; i < modules.length; i ++) {
+        for (int i = 0; i < modules.length; i++) {
             double cos = Math.cos((modules[i].getAngle().minus(states[i].angle)).getRadians());
             minCos = Math.min(minCos, Math.abs(cos));
         }
@@ -203,7 +211,7 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer, Ne
 
     private void log() {
         logger().debug("EstimatedPosition", getPosition())
-                .debug("Heading", gyro.getInputs().yaw)
+                .debug("Heading", gyro.getYaw())
                 .debug("TargetVelocity", getCurrentSpeed());
 
         field.setRobotPose(getPosition());
@@ -244,7 +252,7 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer, Ne
 
     @Override
     public void neutralOutput() {
-        for(SwerveModule module : modules) {
+        for (SwerveModule module : modules) {
             module.neutralOutput();
         }
     }

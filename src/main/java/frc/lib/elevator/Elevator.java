@@ -10,7 +10,7 @@ public class Elevator extends LoggableSubsystem {
         super(name);
         this.child = child;
         targetPosition = 0.0;
-        addChildren(child);
+        addChild(name, child);
     }
 
     public void setTargetPosition(double pos) {

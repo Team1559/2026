@@ -6,7 +6,7 @@ import org.littletonrobotics.junction.inputs.LoggableInputs;
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.lib.logging.LoggableIo;
 
-public class GyroIo extends LoggableIo<GyroIo.GyroInputs> {
+public class Pigeon2IoBase extends LoggableIo<Pigeon2IoBase.GyroInputs> implements Gyro {
     @AutoLog
     public static abstract class GyroInputs implements LoggableInputs {
         public Rotation2d yaw = Rotation2d.kZero;
@@ -14,7 +14,22 @@ public class GyroIo extends LoggableIo<GyroIo.GyroInputs> {
         public Rotation2d roll = Rotation2d.kZero;
     }
 
-    public GyroIo(String name) {
-        super(name, new GyroInputsAutoLogged());
+    public Pigeon2IoBase() {
+        super(new GyroInputsAutoLogged());
+    }
+
+    @Override
+    public Rotation2d getPitch() {
+        return getInputs().pitch;
+    }
+
+    @Override
+    public Rotation2d getRoll() {
+        return getInputs().roll;
+    }
+
+    @Override
+    public Rotation2d getYaw() {
+        return getInputs().yaw;
     }
 }

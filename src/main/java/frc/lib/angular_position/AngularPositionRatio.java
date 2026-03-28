@@ -7,11 +7,10 @@ public class AngularPositionRatio extends LoggableIntermediate implements Angula
     private final double reductionRatio;
     private final AngularPositionComponent child;
 
-    public AngularPositionRatio(String name, double reductionRatio, AngularPositionComponent child) {
-        super(name);
+    public AngularPositionRatio(double reductionRatio, AngularPositionComponent child) {
         this.reductionRatio = reductionRatio;
         this.child = child;
-        this.addChildren(child);
+        this.setChild(child);
     }
 
     @Override

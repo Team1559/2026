@@ -2,7 +2,7 @@ package frc.lib.voltage;
 
 import static edu.wpi.first.units.Units.Volts;
 
-import org.littletonrobotics.junction.Logger;
+import java.util.Map;
 
 import edu.wpi.first.units.measure.Voltage;
 import frc.lib.NeutralOutput;
@@ -12,9 +12,9 @@ public class VoltageSubsystem extends LoggableSubsystem implements NeutralOutput
     private final VoltageComponent[] children;
     private Voltage setpoint = Volts.zero();
 
-    public VoltageSubsystem(String name, VoltageComponent... children) {
+    public VoltageSubsystem(String name, Map<String, VoltageComponent> children) {
         super(name);
-        this.children = children;
+        this.children = children.values().toArray(VoltageComponent[]::new);
         addChildren(children);
     }
 

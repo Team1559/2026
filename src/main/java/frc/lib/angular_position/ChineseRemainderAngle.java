@@ -1,6 +1,5 @@
 package frc.lib.angular_position;
 
-import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Rotations;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -24,10 +23,8 @@ public class ChineseRemainderAngle extends LoggableIntermediate implements Angul
      * gearOne causes consistent, small errors
      * gearTwo causes inconsistent, large errors
      */
-    public ChineseRemainderAngle(String name, int gearOneTeeth, int gearTwoTeeth, int largeGearTeeth,
+    public ChineseRemainderAngle(int gearOneTeeth, int gearTwoTeeth, int largeGearTeeth,
             AngularPositionSensor childOne, AngularPositionSensor childTwo, Angle minAngle, Angle maxAngle) {
-
-        super(name);
 
         this.childOne = childOne;
         this.childTwo = childTwo;
@@ -39,7 +36,8 @@ public class ChineseRemainderAngle extends LoggableIntermediate implements Angul
         this.minAngle = minAngle;
         this.maxAngle = maxAngle;
 
-        this.addChildren(childOne, childTwo);
+        this.addChild("GearOne", childOne);
+        this.addChild("GearTwo", childTwo);
     }
 
     @Override

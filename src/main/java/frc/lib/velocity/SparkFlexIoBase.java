@@ -12,7 +12,7 @@ import frc.lib.logging.LoggableIo;
 import frc.lib.voltage.VoltageComponent;
 import static edu.wpi.first.units.Units.Volts;
 
-public class SparkFlexReplayIo extends LoggableIo<SparkFlexReplayIo.SparkFlexIoInputs>
+public class SparkFlexIoBase extends LoggableIo<SparkFlexIoBase.SparkFlexIoInputs>
         implements AngularVelocityComponent, AngularPositionComponent, VoltageComponent {
     @AutoLog
     public static abstract class SparkFlexIoInputs implements LoggableInputs {
@@ -22,8 +22,8 @@ public class SparkFlexReplayIo extends LoggableIo<SparkFlexReplayIo.SparkFlexIoI
         public Angle position = Angle.ofRelativeUnits(0, Units.Rotations);
     }
 
-    public SparkFlexReplayIo(String name) {
-        super(name, new SparkFlexIoInputsAutoLogged());
+    public SparkFlexIoBase() {
+        super(new SparkFlexIoInputsAutoLogged());
     }
 
     @Override

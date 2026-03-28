@@ -5,7 +5,7 @@ import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 import frc.lib.logging.LoggableIo;
 
-public class VisionCameraIo extends LoggableIo<VisionCameraIo.VisionInputs> implements VisionComponent {
+public class LimelightCameraIoBase extends LoggableIo<LimelightCameraIoBase.VisionInputs> implements VisionComponent {
     @AutoLog
     public static abstract class VisionInputs implements LoggableInputs {
         public boolean isConnected = false;
@@ -13,8 +13,8 @@ public class VisionCameraIo extends LoggableIo<VisionCameraIo.VisionInputs> impl
         public PoseObservation[] poseObservations = new PoseObservation[0];
     }
 
-    public VisionCameraIo(String name) {
-        super(name, new VisionInputsAutoLogged());
+    public LimelightCameraIoBase() {
+        super(new VisionInputsAutoLogged());
     }
 
     @Override

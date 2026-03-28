@@ -4,6 +4,8 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
 
+import java.util.Map;
+
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
@@ -16,9 +18,12 @@ import com.revrobotics.spark.config.SparkFlexConfig;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Voltage;
+import frc.lib.angular_position.AngularPositionSensorOffset;
 import frc.lib.angular_position.AngularPositionSensor;
-import frc.lib.angular_position.CanCoderIo;
-import frc.lib.velocity.SparkFlexIo;
+import frc.lib.angular_position.CanCoderIoBase;
+import frc.lib.angular_position.CanCoderIoReal;
+import frc.lib.velocity.SparkFlexIoBase;
+import frc.lib.velocity.SparkFlexIoReal;
 import frc.lib.voltage.VoltageComponent;
 import frc.lib.voltage.VoltageSubsystem;
 
@@ -41,43 +46,56 @@ public class Intake2026 extends VoltageSubsystem {
 
     private ElbowState elbowState = ElbowState.NEUTRAL;
     private IntakeState intakeState = IntakeState.NEUTRAL;
-    
+
     public Intake2026() {
-        super("Intake",
-                new SparkFlexIo("IntakeMotor", new SparkFlex(INTAKE_MOTOR_ID, MotorType.kBrushless),
-                        makeIntakeConfig()));
+        super("Intake", Map.of("IntakeMotor", makeIntakeMotor()));
 
-        elbowMotor = new SparkFlexIo("ElbowMotor", new SparkFlex(ELBOW_MOTOR_ID, MotorType.kBrushless),
-                makeElbowConfig());
+        elbowMotor = makeElbowMotor();
 
-        elbowEncoder = new CanCoderIo("ElbowEncoder", new CANcoder(ELBOW_ENCODER_ID), ELBOW_OFFSET,
-                makeEncoderConfig());
+        elbowEncoder = makeElbowEncoder();
 
-        addChildren(elbowMotor, elbowEncoder);
+        addChild("ElbowMotor", elbowMotor);
+        addChild("ElbowEncoder", elbowEncoder);
     }
 
-    
-
-    private static SparkFlexConfig makeIntakeConfig() {
-        SparkFlexConfig config = new SparkFlexConfig();
-        config.idleMode(IdleMode.kBrake);
-        config.inverted(false);
-        config.smartCurrentLimit(80);
-        return config;
+    private static VoltageComponent makeIntakeMotor() {
+        VoltageComponent sparkFlex;
+        if (Logger.hasReplaySource()) {
+            sparkFlex = new SparkFlexIoBase();
+        } else {
+            SparkFlexConfig config = new SparkFlexConfig();
+            config.idleMode(IdleMode.kBrake);
+            config.inverted(false);
+            config.smartCurrentLimit(80);
+            sparkFlex = new SparkFlexIoReal(new SparkFlex(INTAKE_MOTOR_ID, MotorType.kBrushless), config);
+        }
+        return sparkFlex;
     }
 
-    private static SparkFlexConfig makeElbowConfig() {
-        SparkFlexConfig config = new SparkFlexConfig();
-        config.idleMode(IdleMode.kBrake);
-        config.smartCurrentLimit(80);
-        return config;
+    private static AngularPositionSensor makeElbowEncoder() {
+        AngularPositionSensor encoder;
+        if (Logger.hasReplaySource()) {
+            encoder = new CanCoderIoBase();
+        } else {
+            CANcoderConfiguration config = new CANcoderConfiguration();
+            config.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
+            config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
+            encoder = new CanCoderIoReal(new CANcoder(ELBOW_ENCODER_ID), config);
+        }
+        return new AngularPositionSensorOffset(ELBOW_OFFSET, encoder);
     }
 
-    private static CANcoderConfiguration makeEncoderConfig() {
-        CANcoderConfiguration config = new CANcoderConfiguration();
-        config.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-        config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
-        return config;
+    private static VoltageComponent makeElbowMotor() {
+        VoltageComponent sparkFlex;
+        if (Logger.hasReplaySource()) {
+            sparkFlex = new SparkFlexIoBase();
+        } else {
+            SparkFlexConfig config = new SparkFlexConfig();
+            config.idleMode(IdleMode.kBrake);
+            config.smartCurrentLimit(80);
+            sparkFlex = new SparkFlexIoReal(new SparkFlex(ELBOW_MOTOR_ID, MotorType.kBrushless), config);
+        }
+        return sparkFlex;
     }
 
     public void moveElbowUp() {
@@ -161,7 +179,7 @@ public class Intake2026 extends VoltageSubsystem {
         return elbowEncoder.getAngle().lte(DOWN_ANGLE);
     }
 
-    public boolean isIntaking(){
+    public boolean isIntaking() {
         return intakeState == IntakeState.FOWARDS;
     }
 
@@ -171,7 +189,7 @@ public class Intake2026 extends VoltageSubsystem {
         NEUTRAL
     }
 
-    private enum IntakeState{
+    private enum IntakeState {
         FOWARDS,
         BACKWARDS,
         NEUTRAL,

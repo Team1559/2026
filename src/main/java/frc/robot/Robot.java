@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Inches;
-
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -18,8 +16,6 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.revrobotics.util.StatusLogger;
 
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
@@ -31,15 +27,9 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.lib.angular_position.AngularPositionComponent;
-import frc.lib.angular_position.CanCoderReplayIo;
 import frc.lib.commands.StopCommand;
-import frc.lib.swerve.GyroIo;
 import frc.lib.swerve.SwerveDrive;
-import frc.lib.swerve.SwerveModuleIo;
 import frc.lib.swerve.TeleopDriveCommand;
-import frc.lib.velocity.SparkFlexReplayIo;
-import frc.lib.vision.VisionCameraIo;
 import frc.robot.commands.ShootCommand;
 import frc.robot.commands.WiggleIntakeCommand;
 import frc.robot.subsystems.Indexer2026;
@@ -54,14 +44,14 @@ public class Robot extends LoggedRobot {
     private final CommandXboxController pilotController;
     private final CommandXboxController coPilotController;
     private final SwerveDrive drivetrain;
+
+    @SuppressWarnings("unused") // To avoid garbage collection of our vision
     private final Vision2026 vision;
     private final Shooter2026 shooter;
     private final Intake2026 intake;
     private final Indexer2026 indexer;
 
     private static final boolean IS_REPLAY = true;
-
-    private int loopIterations = 0;
 
     @SuppressWarnings("resource") // pdh must stay open for connection
     public Robot() {
@@ -73,34 +63,28 @@ public class Robot extends LoggedRobot {
             String logPath = LogFileUtil.findReplayLog();
             Logger.setReplaySource(new WPILOGReader(logPath));
             Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_replay")));
-            // drivetrain = new SwerveDrive("DriveTrain", new GyroIo("Gyro"), new SwerveModuleIo("FrontLeft", null), new SwerveModuleIo("FrontRight", null), new SwerveModuleIo("BackLeft", null), new SwerveModuleIo("BackRight", null));
-            // vision = new Vision2026(drivetrain, new VisionCameraIo("FrontStraight"), new VisionCameraIo("FrontLeft"), new VisionCameraIo("BackLeft"));
-            // intake = new Intake2026();
-
         } else {
-            
-            
             Logger.addDataReceiver(new WPILOGWriter());
             Logger.addDataReceiver(new NT4Publisher());
         }
 
-        drivetrain = new SwerveDrive2026Competition();
-        vision = new Vision2026(drivetrain);
-        shooter = new Shooter2026(drivetrain::getPosition, drivetrain::getCurrentSpeed, IS_REPLAY);
-        intake = new Intake2026();
-        indexer = new Indexer2026();
-        
-        // BaseLogger.overrideDebugMode(false);
+        //BaseLogger.overrideDebugMode(false)
         
         Logger.recordMetadata("Git Branch", GitVersion.GIT_BRANCH);
         Logger.recordMetadata("Git Commit Hash", GitVersion.GIT_SHA);
         Logger.recordMetadata("Uncommited Changes",
-                GitVersion.DIRTY != 0 ? "Uncommited Changes" : "All Changes Commited");
+        GitVersion.DIRTY != 0 ? "Uncommited Changes" : "All Changes Commited");
         Logger.recordMetadata("Project Name", GitVersion.MAVEN_NAME);
         Logger.recordMetadata("Build Date", GitVersion.BUILD_DATE);
         Logger.recordMetadata("Easter Egg", ":)"); // Leave as easter egg (hi/test)
-
+        
         Logger.start();
+        
+        drivetrain = new SwerveDrive2026Competition();
+        vision = new Vision2026(drivetrain);
+        shooter = new Shooter2026(drivetrain::getPosition, drivetrain::getCurrentSpeed);
+        intake = new Intake2026();
+        indexer = new Indexer2026();
 
         pilotController = new CommandXboxController(0);
         coPilotController = new CommandXboxController(1);
@@ -115,11 +99,11 @@ public class Robot extends LoggedRobot {
         pdh.setSwitchableChannel(true);
     }
 
-    public void clearCommandBindings() {
+    private static void clearCommandBindings() {
         CommandScheduler.getInstance().getActiveButtonLoop().clear();
     }
 
-    public void registerNamedCommands() {
+    private void registerNamedCommands() {
         NamedCommands.registerCommand("DrivetrainStop", new StopCommand(drivetrain).withTimeout(1));
         NamedCommands.registerCommand("Wiggle", new WiggleIntakeCommand(intake));
         NamedCommands.registerCommand("IntakeUp", new InstantCommand(intake::moveElbowUp));
@@ -131,7 +115,7 @@ public class Robot extends LoggedRobot {
         NamedCommands.registerCommand("Intake", new StartEndCommand(intake::runForwards, intake::neutralOutput));
     }
 
-    public void setTeleopBindings() {
+    private void setTeleopBindings() {
         drivetrain.setDefaultCommand(new TeleopDriveCommand(() -> pilotController.getLeftY() * -1,
                 () -> pilotController.getLeftX() * -1, () -> pilotController.getRightX() * -1,
                 SwerveDrive2026Competition.SWERVE_CONSTRAINTS, drivetrain, () -> false));
@@ -166,30 +150,21 @@ public class Robot extends LoggedRobot {
                 .whileTrue(new StartEndCommand(shooter::reverseAll, shooter::neutralAll, shooter));
     }
 
-    public void setTestBindings() {
+    private void setTestBindings() {
         pilotController.leftTrigger()
                 .whileTrue(new StartEndCommand(intake::runForwards, intake::neutralOutput,
                         intake));
     }
 
-    public void setUniversalBindings() {
+    private void setUniversalBindings() {
         Trigger indexerTrigger = new Trigger(shooter::isShooting).or(intake::isIntaking);
         indexerTrigger.whileTrue(new StartEndCommand(indexer::runForwards,
                 indexer::neutralOutput, indexer));
     }
 
     @Override
-    public void robotInit() {
-    }
-
-    @Override
     public void robotPeriodic() {
-        if (loopIterations % 1 == 0) {
-            CommandScheduler.getInstance().run();
-        } else {
-            drivetrain.periodic();
-        }
-        loopIterations++;
+        CommandScheduler.getInstance().run();
     }
 
     @Override

@@ -7,7 +7,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
 import frc.lib.CanRefreshRate;
 
-public class Pigeon2Io extends GyroIo {
+public class Pigeon2IoReal extends Pigeon2IoBase {
 
     @SuppressWarnings("unused") // Needed to prevent garbage collection
     private final Pigeon2 gyro;
@@ -16,8 +16,7 @@ public class Pigeon2Io extends GyroIo {
     private final StatusSignal<Angle> pitch;
     private final StatusSignal<Angle> yaw;
 
-    public Pigeon2Io(String ioName, Pigeon2 gyro) {
-        super(ioName);
+    public Pigeon2IoReal(Pigeon2 gyro) {
         this.gyro = gyro;
         yaw = gyro.getYaw();
         pitch = gyro.getPitch();

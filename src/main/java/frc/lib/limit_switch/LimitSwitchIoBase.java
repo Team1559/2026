@@ -5,14 +5,14 @@ import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 import frc.lib.logging.LoggableIo;
 
-public class LimitSwitchReplayIo extends LoggableIo<LimitSwitchReplayIo.LimitSwitchIoInputs> implements BooleanComponent {
+public class LimitSwitchIoBase extends LoggableIo<LimitSwitchIoBase.LimitSwitchIoInputs> implements BooleanComponent {
     @AutoLog
     public static abstract class LimitSwitchIoInputs implements LoggableInputs {
         boolean atLimit = false;
     }
 
-    public LimitSwitchReplayIo(String name) {
-        super(name, new LimitSwitchIoInputsAutoLogged());
+    public LimitSwitchIoBase() {
+        super(new LimitSwitchIoInputsAutoLogged());
     }
 
     @Override

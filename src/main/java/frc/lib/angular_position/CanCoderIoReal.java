@@ -5,13 +5,13 @@ import com.ctre.phoenix6.hardware.CANcoder;
 
 import edu.wpi.first.units.measure.Angle;
 
-public class CanCoderIo extends CanCoderReplayIo{
+public class CanCoderIoReal extends CanCoderIoBase{
 
+    @SuppressWarnings("unused") // To avoid garbage collection of canCoder
     private final CANcoder canCoder;
     private final StatusSignal<Angle> angle;
 
-    public CanCoderIo(String name, CANcoder canCoder, Angle offset, CANcoderConfiguration config){
-        super(name, offset);
+    public CanCoderIoReal(CANcoder canCoder, CANcoderConfiguration config) {
         this.canCoder = canCoder;
         canCoder.getConfigurator().apply(config);
         angle = canCoder.getAbsolutePosition();
@@ -22,6 +22,5 @@ public class CanCoderIo extends CanCoderReplayIo{
     protected void updateInputs(CanCoderIoInputs inputs) {
         angle.refresh();
         inputs.rawAngle = angle.getValue();
-        logger().debug("CurrentAngle", getAngle());
     }
 }

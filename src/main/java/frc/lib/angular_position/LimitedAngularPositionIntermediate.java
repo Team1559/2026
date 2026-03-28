@@ -13,12 +13,11 @@ public class LimitedAngularPositionIntermediate extends LoggableIntermediate imp
     private final Angle maxAngle;
     private final AngularPositionComponent child;
 
-    public LimitedAngularPositionIntermediate(String name, Angle minAngle, Angle maxAngle, AngularPositionComponent child){
-        super(name);
+    public LimitedAngularPositionIntermediate(Angle minAngle, Angle maxAngle, AngularPositionComponent child){
         this.maxAngle = maxAngle;
         this.minAngle = minAngle;
         this.child = child;
-        this.addChildren(child);
+        this.setChild(child);
     }
 
     @Override

@@ -5,16 +5,14 @@ import static edu.wpi.first.units.Units.Meters;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-
-import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
-import frc.lib.logging.CustomLogger;
 import frc.lib.logging.LoggableSubsystem;
 import frc.lib.vision.VisionComponent.PoseObservation;
 import frc.lib.vision.VisionComponent.PoseObservationType;
@@ -30,12 +28,11 @@ public class Vision extends LoggableSubsystem {
     private final VisionConsumer visionConsumer;
     private final AprilTagFieldLayout aprilTagLayout;
 
-    public Vision(String name, VisionConsumer visionConsumer, AprilTagFieldLayout aprilTagLayout,
-            VisionComponent... cameras) {
+    public Vision(String name, VisionConsumer visionConsumer, AprilTagFieldLayout aprilTagLayout, Map<String, VisionComponent> cameras) {
         super(name);
         this.visionConsumer = visionConsumer;
         this.aprilTagLayout = aprilTagLayout;
-        this.cameras = cameras;
+        this.cameras = cameras.values().toArray(VisionComponent[]::new);
         addChildren("Cameras", cameras);
     }
 

@@ -16,14 +16,13 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
 
-public class SparkFlexIo extends SparkFlexReplayIo {
+public class SparkFlexIoReal extends SparkFlexIoBase {
 
     private final SparkFlex motor;
     private final SparkClosedLoopController motorController;
     private final RelativeEncoder encoder;
 
-    public SparkFlexIo(String name, SparkFlex motor, SparkFlexConfig motorConfig) {
-        super(name);
+    public SparkFlexIoReal(SparkFlex motor, SparkFlexConfig motorConfig) {
         this.motor = motor;
         motor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         motorController = motor.getClosedLoopController();

@@ -1,6 +1,7 @@
 package frc.lib.logging;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
@@ -24,7 +25,6 @@ import org.littletonrobotics.junction.Logger;
 import com.palantir.javapoet.ClassName;
 import com.palantir.javapoet.JavaFile;
 import com.palantir.javapoet.MethodSpec;
-import com.palantir.javapoet.ParameterSpec;
 import com.palantir.javapoet.TypeName;
 import com.palantir.javapoet.TypeSpec;
 import com.palantir.javapoet.TypeVariableName;
@@ -34,32 +34,37 @@ public class GenerateLoggerProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         Optional<? extends TypeElement> annotationOptional = annotations.stream()
-                .filter((te) -> te.getSimpleName().toString().equals("GenerateLogger"))
+                .filter(te -> "GenerateLogger".equals(te.getSimpleName().toString()))
                 .findFirst();
         if (!annotationOptional.isPresent()) {
             return false;
         }
 
         TypeElement annotation = annotationOptional.get();
-        roundEnv
-                .getElementsAnnotatedWith(annotation)
-                .forEach((element) -> buildClass((TypeElement)element));
+        for (Element e : roundEnv.getElementsAnnotatedWith(annotation)) {
+            try {
+                buildClass((TypeElement) e);
+            } catch (IOException e1) {
+                throw new UncheckedIOException(e1);
+            }
+        }
         return true;
     }
 
-    private void buildClass(TypeElement target) {
+    private void buildClass(TypeElement target) throws IOException {
         TypeSpec.Builder classBuilder = TypeSpec.classBuilder("CustomLogger")
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .superclass(target.asType());
 
-        for(ExecutableElement targetConstructor : ElementFilter.constructorsIn(target.getEnclosedElements())) {
+        for (ExecutableElement targetConstructor : ElementFilter.constructorsIn(target.getEnclosedElements())) {
             MethodSpec.Builder constructor = MethodSpec.constructorBuilder();
             constructor.addCode("super(");
             List<? extends VariableElement> parameters = targetConstructor.getParameters();
-            for(int i = 0; i < parameters.size(); i ++) {
-                constructor.addParameter(TypeName.get(parameters.get(i).asType()), parameters.get(i).getSimpleName().toString());
+            for (int i = 0; i < parameters.size(); i++) {
+                constructor.addParameter(TypeName.get(parameters.get(i).asType()),
+                        parameters.get(i).getSimpleName().toString());
                 constructor.addCode("$L", parameters.get(i).getSimpleName());
-                if(i < parameters.size() - 1) {
+                if (i < parameters.size() - 1) {
                     constructor.addCode(", ");
                 }
             }
@@ -101,12 +106,7 @@ public class GenerateLoggerProcessor extends AbstractProcessor {
         }
 
         JavaFile file = JavaFile.builder("frc.lib.logging", classBuilder.build()).build();
-        try {
-            file.writeTo(processingEnv.getFiler());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+        file.writeTo(processingEnv.getFiler());
     }
 
     @Override
@@ -125,7 +125,7 @@ public class GenerateLoggerProcessor extends AbstractProcessor {
 
         private final String methodName;
 
-        private LogMode(String methodName) {
+        LogMode(String methodName) {
             this.methodName = methodName;
         }
     }

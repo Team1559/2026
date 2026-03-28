@@ -1,54 +1,65 @@
 package frc.lib.logging;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public abstract class LoggableIntermediate implements LoggableComponent {
-    private final Map<LoggableComponent, String> children = new LinkedHashMap<>();
-    private final String name;
+    private final LoggableDaycare children = new LoggableDaycare();
     private CustomLogger logger;
 
-    protected LoggableIntermediate(String name) {
-        this.name = name;
-    }
+    protected LoggableIntermediate() {}
 
-    protected final void addChildren(String folder, LoggableComponent... children) {
-        for (LoggableComponent child : children) {
-            if(child == null) {
-                continue;
-            }
-            this.children.put(child, folder);
+    protected final void addChildren(String folder, Map<String, ? extends LoggableComponent> children) {
+        for (Entry<String, ? extends LoggableComponent> entry : children.entrySet()) {
+            LoggableComponent child = entry.getValue();
+            String childName = entry.getKey();
+
+            this.children.addChild(folder, childName, child);
         }
     }
 
-    protected final void addChildren(LoggableComponent... children) {
-        addChildren("", children);
+    protected final void addChild(String folder, String name, LoggableComponent child) {
+        this.addChildren(folder, Map.of(name, child));
+    }
+
+    protected final void addChildren(Map<String, ? extends LoggableComponent> children) {
+        this.addChildren("", children);
+    }
+
+    protected final void addChild(String name, LoggableComponent child) {
+        this.addChildren("", Map.of(name, child));
+    }
+
+    //loggle
+    protected final void setChild(LoggableComponent child) {
+        children.setChild(child);
     }
 
     @Override
-    public final void setLogPath(String parentLogPath) {
+    public final void setLogPath(String logPath) {
         if (logger != null) {
             throw new IllegalStateException("Cannot set log path more than once");
         }
-        logger = new CustomLogger(parentLogPath + "/" + name);
-        for (LoggableComponent child : children.keySet()) {
-            String folder = children.get(child);
-            if (folder.isEmpty()) {
-                child.setLogPath(parentLogPath + "/" + name);
+        logger = new CustomLogger(logPath);
+        for (Entry<String, LoggableComponent> entry : children.getChildren().entrySet()) {
+            LoggableComponent child = entry.getValue();
+            String childPath = entry.getKey();
+            if (childPath.isEmpty()) {
+                child.setLogPath(logPath);
             } else {
-                child.setLogPath(parentLogPath + "/" + name + "/" + folder);
+                child.setLogPath(logPath + "/" + childPath);
             }
         }
     }
 
     @Override
     public void periodic() {
-        for (LoggableComponent child : children.keySet()) {
+        for (LoggableComponent child : children) {
             child.periodic();
         }
     }
 
-    protected CustomLogger logger() {
+    protected final CustomLogger logger() {
         return logger;
     }
 }

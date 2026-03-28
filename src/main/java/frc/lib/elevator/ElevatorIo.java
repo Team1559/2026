@@ -1,7 +1,6 @@
 package frc.lib.elevator;
 
 import org.littletonrobotics.junction.AutoLog;
-import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 import frc.lib.logging.LoggableIo;
@@ -17,8 +16,8 @@ public class ElevatorIo extends LoggableIo<ElevatorIo.ElevatorInputs> implements
         public double heightError;
     }
 
-    public ElevatorIo(String name) {
-        super(name, new ElevatorInputsAutoLogged());
+    public ElevatorIo() {
+        super(new ElevatorInputsAutoLogged());
     }
 
     @Override

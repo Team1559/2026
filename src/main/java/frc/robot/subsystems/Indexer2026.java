@@ -2,13 +2,19 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Volts;
 
+import java.util.Map;
+
+import org.littletonrobotics.junction.Logger;
+
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 
 import edu.wpi.first.units.measure.Voltage;
-import frc.lib.velocity.SparkFlexIo;
+import frc.lib.velocity.SparkFlexIoBase;
+import frc.lib.velocity.SparkFlexIoReal;
+import frc.lib.voltage.VoltageComponent;
 import frc.lib.voltage.VoltageSubsystem;
 
 public class Indexer2026 extends VoltageSubsystem {
@@ -17,15 +23,21 @@ public class Indexer2026 extends VoltageSubsystem {
     private static final Voltage REVERSE_VOLTAGE = Volts.of(-6);
 
     public Indexer2026() {
-        super("Indexer", new SparkFlexIo("IndexerMotor", new SparkFlex(MOTOR_ID, MotorType.kBrushless), makeConfig()));
+        super("Indexer", Map.of("IndexerMotor", makeIndexerMotor()));
     }
 
-    private static SparkFlexConfig makeConfig() {
-        SparkFlexConfig config = new SparkFlexConfig();
-        config.idleMode(IdleMode.kBrake);
-        config.inverted(false);
-        config.smartCurrentLimit(80);
-        return config;
+    private static VoltageComponent makeIndexerMotor() {
+        VoltageComponent sparkFlex;
+        if (Logger.hasReplaySource()) {
+            sparkFlex = new SparkFlexIoBase();
+        } else {
+            SparkFlexConfig config = new SparkFlexConfig();
+            config.idleMode(IdleMode.kBrake);
+            config.inverted(false);
+            config.smartCurrentLimit(80);
+            sparkFlex = new SparkFlexIoReal(new SparkFlex(MOTOR_ID, MotorType.kBrushless), config);
+        }
+        return sparkFlex;
     }
 
     public void runForwards() {
@@ -35,10 +47,4 @@ public class Indexer2026 extends VoltageSubsystem {
     public void runReverse() {
         setVoltage(REVERSE_VOLTAGE);
     }
-
-    @Override
-    public void neutralOutput() {
-        super.neutralOutput();
-    }
-
 }

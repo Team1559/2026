@@ -2,12 +2,11 @@ package frc.lib.limit_switch;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 
-public class LimitSwitchIo extends LimitSwitchReplayIo {
+public class LimitSwitchIoReal extends LimitSwitchIoBase {
 
     private final DigitalInput limitSwitch;
 
-    public LimitSwitchIo(String name, DigitalInput limitSwitch){
-        super(name);
+    public LimitSwitchIoReal(DigitalInput limitSwitch){
         this.limitSwitch = limitSwitch;
     }
 
