@@ -1,9 +1,9 @@
 package frc.lib.logging;
 
+import edu.wpi.first.wpilibj.DriverStation;
+
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
-
-import edu.wpi.first.wpilibj.DriverStation;
 
 @GenerateLogger
 public sealed class BaseLogger permits CustomLogger {

@@ -13,18 +13,6 @@ import static edu.wpi.first.units.Units.Seconds;
 
 import java.util.function.Supplier;
 
-import org.littletonrobotics.junction.Logger;
-
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.hardware.CANcoder;
-import com.ctre.phoenix6.signals.SensorDirectionValue;
-import com.pathplanner.lib.util.FlippingUtil;
-import com.revrobotics.spark.ClosedLoopSlot;
-import com.revrobotics.spark.SparkFlex;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.revrobotics.spark.config.SparkFlexConfig;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -44,19 +32,34 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import frc.lib.ForwardReverseNeutral;
-import frc.lib.angular_position.AngularPositionComponent;
-import frc.lib.angular_position.AngularPositionRatio;
-import frc.lib.angular_position.AngularPositionSensor;
-import frc.lib.angular_position.AngularPositionSensorOffset;
-import frc.lib.angular_position.CanCoderIoBase;
-import frc.lib.angular_position.CanCoderIoReal;
-import frc.lib.angular_position.ChineseRemainderAngle;
-import frc.lib.angular_position.LimitedAngularPositionIntermediate;
+
+import org.littletonrobotics.junction.Logger;
+
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
+
+import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.SparkFlex;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkFlexConfig;
+
+import com.pathplanner.lib.util.FlippingUtil;
+
+import frc.lib.component.AngleComponent;
+import frc.lib.component.AngleSensor;
+import frc.lib.component.AngularVelocityComponent;
+import frc.lib.intermediate.AngleLimiter;
+import frc.lib.intermediate.AngleRatio;
+import frc.lib.intermediate.AngleSensorOffsetter;
+import frc.lib.intermediate.ChineseRemainderAngle;
+import frc.lib.io.CanCoderIoBase;
+import frc.lib.io.CanCoderIoReal;
+import frc.lib.io.SparkFlexIoBase;
+import frc.lib.io.SparkFlexIoReal;
 import frc.lib.logging.LoggableSubsystem;
-import frc.lib.velocity.AngularVelocityComponent;
-import frc.lib.velocity.SparkFlexIoReal;
-import frc.lib.velocity.SparkFlexIoBase;
+import frc.lib.util.ForwardReverseNeutral;
 
 public class Shooter2026 extends LoggableSubsystem {
     private final Supplier<Pose2d> robotPositionSupplier;
@@ -73,8 +76,8 @@ public class Shooter2026 extends LoggableSubsystem {
 
     private static final Rotation2d flapperAngle = Rotation2d.fromDegrees(59);
 
-    private final AngularPositionComponent turret;
-    private final AngularPositionSensor turretAngleSensor;
+    private final AngleComponent turret;
+    private final AngleSensor turretAngleSensor;
     private final AngularVelocityComponent flywheel;
     private final AngularVelocityComponent feedWheel;
 
@@ -93,9 +96,9 @@ public class Shooter2026 extends LoggableSubsystem {
     private static final AngularVelocity tolerance = RPM.of(20);
 
     public Shooter2026(Supplier<Pose2d> robotPositionSupplier, Supplier<ChassisSpeeds> robotSpeedSupplier,
-            Pose3d turretOffset, AngularPositionComponent turret,
+            Pose3d turretOffset, AngleComponent turret,
             AngularVelocityComponent flywheel, AngularVelocityComponent feedWheel,
-            AngularPositionSensor turretAngleSensor) {
+            AngleSensor turretAngleSensor) {
         super("Shooter");
         this.robotPositionSupplier = robotPositionSupplier;
         this.robotSpeedSupplier = robotSpeedSupplier;
@@ -147,7 +150,7 @@ public class Shooter2026 extends LoggableSubsystem {
         return sparkFlex;
     }
 
-    private static AngularPositionComponent makeTurret() {
+    private static AngleComponent makeTurret() {
         SparkFlexIoBase sparkFlex;
         if (Logger.hasReplaySource()) {
             sparkFlex = new SparkFlexIoBase();
@@ -163,15 +166,15 @@ public class Shooter2026 extends LoggableSubsystem {
             config.idleMode(IdleMode.kBrake);
             sparkFlex = new SparkFlexIoReal(new SparkFlex(19, MotorType.kBrushless), config);
         }
-        return new LimitedAngularPositionIntermediate(Degrees.of(-90), Degrees.of(150),
-                new AngularPositionRatio(10d, sparkFlex));
+        return new AngleLimiter(Degrees.of(-90), Degrees.of(150),
+                new AngleRatio(10d, sparkFlex));
     }
 
     public Angle getAngle() {
         return turret.getAngle();
     }
 
-    private static AngularPositionSensor makeCrtAngleSensor() {
+    private static AngleSensor makeCrtAngleSensor() {
 
         CanCoderIoBase canCoderOne;
         CanCoderIoBase canCoderTwo;
@@ -188,8 +191,8 @@ public class Shooter2026 extends LoggableSubsystem {
         }
 
         return new ChineseRemainderAngle(21, 19, 200,
-                new AngularPositionSensorOffset(Degrees.of(125.332021), canCoderOne),
-                new AngularPositionSensorOffset(Degrees.of(-4.746094), canCoderTwo),
+                new AngleSensorOffsetter(Degrees.of(125.332021), canCoderOne),
+                new AngleSensorOffsetter(Degrees.of(-4.746094), canCoderTwo),
                 Degrees.of(-180), Degrees.of(180));
     }
 

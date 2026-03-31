@@ -6,16 +6,6 @@ import static edu.wpi.first.units.Units.Seconds;
 
 import java.util.Map;
 
-import org.littletonrobotics.junction.Logger;
-
-import com.ctre.phoenix6.CANBus;
-import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.hardware.CANcoder;
-import com.ctre.phoenix6.hardware.Pigeon2;
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.pathplanner.lib.config.ModuleConfig;
-import com.pathplanner.lib.config.RobotConfig;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -24,13 +14,25 @@ import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
-import frc.lib.swerve.Pigeon2IoBase;
-import frc.lib.swerve.Pigeon2IoReal;
-import frc.lib.swerve.SdsSwerveModuleIoReal;
-import frc.lib.swerve.SdsSwerveModuleIoReal.ModuleType;
-import frc.lib.swerve.SwerveDrive;
-import frc.lib.swerve.SwerveModule;
-import frc.lib.swerve.SdsSwerveModuleIoBase;
+
+import org.littletonrobotics.junction.Logger;
+
+import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.hardware.Pigeon2;
+import com.ctre.phoenix6.hardware.TalonFX;
+
+import com.pathplanner.lib.config.ModuleConfig;
+import com.pathplanner.lib.config.RobotConfig;
+
+import frc.lib.component.SwerveModule;
+import frc.lib.io.Pigeon2IoBase;
+import frc.lib.io.Pigeon2IoReal;
+import frc.lib.io.SdsSwerveModuleIoBase;
+import frc.lib.io.SdsSwerveModuleIoReal;
+import frc.lib.io.SdsSwerveModuleIoReal.ModuleType;
+import frc.lib.subsystem.SwerveDrive;
 
 public class SwerveDrive2026Practice extends SwerveDrive {
     private static final CANBus CANIVORE_BUS = new CANBus("1559_Canivore");

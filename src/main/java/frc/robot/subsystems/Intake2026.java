@@ -4,27 +4,29 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
 
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Voltage;
+
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.Voltage;
-import frc.lib.angular_position.AngularPositionSensorOffset;
-import frc.lib.ForwardReverseNeutral;
-import frc.lib.angular_position.AngularPositionSensor;
-import frc.lib.angular_position.CanCoderIoBase;
-import frc.lib.angular_position.CanCoderIoReal;
+import frc.lib.component.AngleSensor;
+import frc.lib.component.VoltageComponent;
+import frc.lib.intermediate.AngleSensorOffsetter;
+import frc.lib.io.CanCoderIoBase;
+import frc.lib.io.CanCoderIoReal;
+import frc.lib.io.SparkFlexIoBase;
+import frc.lib.io.SparkFlexIoReal;
 import frc.lib.logging.LoggableSubsystem;
-import frc.lib.velocity.SparkFlexIoBase;
-import frc.lib.velocity.SparkFlexIoReal;
-import frc.lib.voltage.VoltageComponent;
+import frc.lib.util.ForwardReverseNeutral;
 
 public class Intake2026 extends LoggableSubsystem {
     private static final int INTAKE_MOTOR_ID = 22;
@@ -42,7 +44,7 @@ public class Intake2026 extends LoggableSubsystem {
 
     private final VoltageComponent intakeMotor;
     private final VoltageComponent elbowMotor;
-    private final AngularPositionSensor elbowEncoder;
+    private final AngleSensor elbowEncoder;
     
     private ElbowState elbowState = ElbowState.NEUTRAL;
     private ForwardReverseNeutral intakeState = ForwardReverseNeutral.NEUTRAL;
@@ -73,8 +75,8 @@ public class Intake2026 extends LoggableSubsystem {
         return sparkFlex;
     }
 
-    private static AngularPositionSensor makeElbowEncoder() {
-        AngularPositionSensor encoder;
+    private static AngleSensor makeElbowEncoder() {
+        AngleSensor encoder;
         if (Logger.hasReplaySource()) {
             encoder = new CanCoderIoBase();
         } else {
@@ -83,7 +85,7 @@ public class Intake2026 extends LoggableSubsystem {
             config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
             encoder = new CanCoderIoReal(new CANcoder(ELBOW_ENCODER_ID), config);
         }
-        return new AngularPositionSensorOffset(ELBOW_OFFSET, encoder);
+        return new AngleSensorOffsetter(ELBOW_OFFSET, encoder);
     }
 
     private static VoltageComponent makeElbowMotor() {

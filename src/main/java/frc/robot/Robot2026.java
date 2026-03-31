@@ -4,19 +4,20 @@
 
 package frc.robot;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.auto.NamedCommands;
-
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+
 import frc.lib.Robot;
-import frc.lib.commands.StopCommand;
-import frc.lib.swerve.SwerveDrive;
-import frc.lib.swerve.TeleopDriveCommand;
+import frc.lib.command.TeleopDriveCommand;
+import frc.lib.subsystem.SwerveDrive;
+
 import frc.robot.commands.ShootCommand;
 import frc.robot.commands.WiggleIntakeCommand;
 import frc.robot.subsystems.Indexer2026;
@@ -55,7 +56,6 @@ public class Robot2026 extends Robot {
     }
 
     private void registerNamedCommands() {
-        NamedCommands.registerCommand("DrivetrainStop", new StopCommand(drivetrain).withTimeout(1));
         NamedCommands.registerCommand("Wiggle", new WiggleIntakeCommand(intake));
         NamedCommands.registerCommand("IntakeUp", new InstantCommand(intake::moveElbowUp));
         NamedCommands.registerCommand("IntakeDown", new InstantCommand(intake::moveElbowDown));

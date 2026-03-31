@@ -4,6 +4,8 @@ import static edu.wpi.first.units.Units.Volts;
 
 import java.util.function.BooleanSupplier;
 
+import edu.wpi.first.units.measure.Voltage;
+
 import org.littletonrobotics.junction.Logger;
 
 import com.revrobotics.spark.SparkFlex;
@@ -11,12 +13,11 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 
-import edu.wpi.first.units.measure.Voltage;
-import frc.lib.ForwardReverseNeutral;
+import frc.lib.component.VoltageComponent;
+import frc.lib.io.SparkFlexIoBase;
+import frc.lib.io.SparkFlexIoReal;
 import frc.lib.logging.LoggableSubsystem;
-import frc.lib.velocity.SparkFlexIoBase;
-import frc.lib.velocity.SparkFlexIoReal;
-import frc.lib.voltage.VoltageComponent;
+import frc.lib.util.ForwardReverseNeutral;
 
 public class Indexer2026 extends LoggableSubsystem {
     private static final int MOTOR_ID = 26;
