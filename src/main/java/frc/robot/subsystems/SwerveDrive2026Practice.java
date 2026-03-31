@@ -34,7 +34,7 @@ import frc.lib.swerve.SdsSwerveModuleIoBase;
 
 public class SwerveDrive2026Practice extends SwerveDrive {
     private static final CANBus CANIVORE_BUS = new CANBus("1559_Canivore");
-    private static final double MASS = Units.lbsToKilograms(50); // TODO: Change the mass
+    private static final double MASS = Units.lbsToKilograms(50);
     private static final double RADIUS = Units.inchesToMeters(27 / 2.0); // Give or take
     private static final double MOI = MASS * RADIUS * RADIUS;
 

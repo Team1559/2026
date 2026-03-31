@@ -137,7 +137,7 @@ public class Shooter2026 extends LoggableSubsystem {
         if (Logger.hasReplaySource()) {
             sparkFlex = new SparkFlexIoBase();
         } else {
-            SparkFlexConfig config = new SparkFlexConfig(); // TODO: Configure
+            SparkFlexConfig config = new SparkFlexConfig();
             config.closedLoop.pid(0, 0, 0);
             config.closedLoop.feedForward.kV(0.00016); // Volts per rpm
             config.idleMode(IdleMode.kBrake);
@@ -152,10 +152,10 @@ public class Shooter2026 extends LoggableSubsystem {
         if (Logger.hasReplaySource()) {
             sparkFlex = new SparkFlexIoBase();
         } else {
-            SparkFlexConfig config = new SparkFlexConfig(); // TODO: Configure
+            SparkFlexConfig config = new SparkFlexConfig();
             config.closedLoop.maxOutput(.15);
             config.closedLoop.minOutput(-.15);
-            config.closedLoop.pid(.8, 0.0005, 0); // (0.1, 0.0008, 0.01)
+            config.closedLoop.pid(.8, 0.0005, 0);
             config.closedLoop.iZone(0.2);
             config.closedLoop.allowedClosedLoopError(Degrees.of(.24 * 10).in(Rotations), ClosedLoopSlot.kSlot0);
             config.voltageCompensation(12.0);
@@ -176,8 +176,8 @@ public class Shooter2026 extends LoggableSubsystem {
         CanCoderIoBase canCoderOne;
         CanCoderIoBase canCoderTwo;
         if (Logger.hasReplaySource()) {
-            canCoderOne = new CanCoderIoBase(); // Offset: 125.332031
-            canCoderTwo = new CanCoderIoBase(); // Offset: -4.746094
+            canCoderOne = new CanCoderIoBase();
+            canCoderTwo = new CanCoderIoBase(); 
         } else {
             CANcoderConfiguration configOne = new CANcoderConfiguration();
             configOne.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;

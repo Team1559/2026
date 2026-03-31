@@ -62,8 +62,8 @@ public class Robot2026 extends Robot {
         NamedCommands.registerCommand("Shoot", new ShootCommand(shooter,
                 Shooter2026::ourHubLocation));
         NamedCommands.registerCommand("RunIntakeForwards", new InstantCommand(intake::runForwards));
-        NamedCommands.registerCommand("StopIntake", new InstantCommand(intake::neutralOutput));
-        NamedCommands.registerCommand("Intake", new StartEndCommand(intake::runForwards, intake::neutralOutput));
+        NamedCommands.registerCommand("StopIntake", new InstantCommand(intake::stop));
+        NamedCommands.registerCommand("Intake", new StartEndCommand(intake::runForwards, intake::stop));
     }
 
     @Override
@@ -78,8 +78,7 @@ public class Robot2026 extends Robot {
                         SwerveDrive2026Competition.SLOW_SWERVE_CONSTRAINTS, drivetrain, () -> false));
 
         pilotController.leftTrigger()
-                .whileTrue(new StartEndCommand(intake::runForwards, intake::neutralOutput,
-                        intake));
+                .whileTrue(new StartEndCommand(intake::runForwards, intake::stop, intake));
 
         pilotController.leftTrigger().onTrue(new InstantCommand(intake::moveElbowDown));
 
@@ -95,7 +94,7 @@ public class Robot2026 extends Robot {
 
         // Copilot gets uh oh buttons
         coPilotController.leftTrigger()
-                .whileTrue(new StartEndCommand(intake::runReverse, intake::neutralOutput, intake));
+                .whileTrue(new StartEndCommand(intake::runReverse, intake::stop, intake));
         coPilotController.leftBumper().onTrue(new InstantCommand(intake::elbowNeutral));
 
         coPilotController.rightTrigger()
@@ -105,14 +104,13 @@ public class Robot2026 extends Robot {
     @Override
     protected void setTestBindings() {
         pilotController.leftTrigger()
-                .whileTrue(new StartEndCommand(intake::runForwards, intake::neutralOutput,
-                        intake));
+                .whileTrue(new StartEndCommand(intake::runForwards, intake::stop, intake));
     }
 
     @Override
     public void disabledInit() {
         super.disabledInit();
-        intake.neutralOutput();
+        intake.stop();
         indexer.stop();
         shooter.setSpinFlywheel(false);
         shooter.setShooting(false);

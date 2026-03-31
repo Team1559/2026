@@ -35,6 +35,6 @@ public class WiggleIntakeCommand extends Command {
     @Override
     public void end(boolean interrupted) {
         intake.moveElbowDown();
-        intake.neutralOutput();
+        intake.stop();
     }
 }

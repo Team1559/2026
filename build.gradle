@@ -120,7 +120,7 @@ task(replayWatch, type: JavaExec) {
 project.compileJava.dependsOn(createVersionFile)
 gversion{
     srcDir  = "src/main/java/"
-    classPackage = "frc.robot"
+    classPackage = "frc"
     className = "GitVersion"
     timeZone = "America/New_York"
 }

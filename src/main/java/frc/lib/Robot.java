@@ -18,12 +18,14 @@ import com.revrobotics.util.StatusLogger;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.GitVersion;
+import frc.GitVersion;
 
 public abstract class Robot extends LoggedRobot {
     private static final String ENVIRONMENT_VARIABLE = "AKIT_LOG_PATH";
     private static final String ADVANTAGE_SCOPE_FILE_NAME = "akit-log-path.txt";
 
+    @SuppressWarnings({ "java:S1699", "unused" }) // setUseTiming is not meant to be overridden,
+                                                  // and auto generated constants causing dead code
     protected Robot() {
         super(0.02);
 

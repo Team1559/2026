@@ -4,8 +4,6 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
 
-import java.util.Map;
-
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
@@ -19,18 +17,19 @@ import com.revrobotics.spark.config.SparkFlexConfig;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Voltage;
 import frc.lib.angular_position.AngularPositionSensorOffset;
+import frc.lib.ForwardReverseNeutral;
 import frc.lib.angular_position.AngularPositionSensor;
 import frc.lib.angular_position.CanCoderIoBase;
 import frc.lib.angular_position.CanCoderIoReal;
+import frc.lib.logging.LoggableSubsystem;
 import frc.lib.velocity.SparkFlexIoBase;
 import frc.lib.velocity.SparkFlexIoReal;
 import frc.lib.voltage.VoltageComponent;
-import frc.lib.voltage.VoltageSubsystem;
 
-public class Intake2026 extends VoltageSubsystem {
+public class Intake2026 extends LoggableSubsystem {
     private static final int INTAKE_MOTOR_ID = 22;
     private static final int ELBOW_MOTOR_ID = 21;
-    private static final int ELBOW_ENCODER_ID = 16; // TODO: find ID value
+    private static final int ELBOW_ENCODER_ID = 16;
     private static final Voltage FORWARD_VOLTAGE = Volts.of(6);
     private static final Voltage REVERSE_VOLTAGE = Volts.of(-5);
     private static final Voltage ELBOW_UP_VOLTAGE = Volts.of(3);
@@ -41,19 +40,21 @@ public class Intake2026 extends VoltageSubsystem {
     private static final Angle UP_ANGLE = Degrees.of(86);
     private static final Angle DOWN_ANGLE = Degrees.of(30);
 
+    private final VoltageComponent intakeMotor;
     private final VoltageComponent elbowMotor;
     private final AngularPositionSensor elbowEncoder;
-
+    
     private ElbowState elbowState = ElbowState.NEUTRAL;
-    private IntakeState intakeState = IntakeState.NEUTRAL;
+    private ForwardReverseNeutral intakeState = ForwardReverseNeutral.NEUTRAL;
 
     public Intake2026() {
-        super("Intake", Map.of("IntakeMotor", makeIntakeMotor()));
+        super("Intake");
 
+        intakeMotor = makeIntakeMotor();
         elbowMotor = makeElbowMotor();
-
         elbowEncoder = makeElbowEncoder();
 
+        addChild("IntakeMotor", intakeMotor);
         addChild("ElbowMotor", elbowMotor);
         addChild("ElbowEncoder", elbowEncoder);
     }
@@ -111,16 +112,15 @@ public class Intake2026 extends VoltageSubsystem {
     }
 
     public void runForwards() {
-        intakeState = IntakeState.FOWARDS;
+        intakeState = ForwardReverseNeutral.FORWARD;
     }
 
     public void runReverse() {
-        intakeState = IntakeState.BACKWARDS;
+        intakeState = ForwardReverseNeutral.REVERSE;
     }
 
-    @Override
-    public void neutralOutput() {
-        intakeState = IntakeState.NEUTRAL;
+    public void stop() {
+        intakeState = ForwardReverseNeutral.NEUTRAL;
     }
 
     @Override
@@ -152,20 +152,20 @@ public class Intake2026 extends VoltageSubsystem {
 
         switch (intakeState) {
             case NEUTRAL:
-                super.neutralOutput();
+                intakeMotor.neutralOutput();
                 break;
-            case FOWARDS:
+            case FORWARD:
                 if (isAtLowerLimit()) {
-                    setVoltage(FORWARD_VOLTAGE);
+                    intakeMotor.setVoltage(FORWARD_VOLTAGE);
                 } else {
-                    super.neutralOutput();
+                    intakeMotor.neutralOutput();
                 }
                 break;
-            case BACKWARDS:
+            case REVERSE:
                 if (isAtLowerLimit()) {
-                    setVoltage(REVERSE_VOLTAGE);
+                    intakeMotor.setVoltage(REVERSE_VOLTAGE);
                 } else {
-                    super.neutralOutput();
+                    intakeMotor.neutralOutput();
                 }
                 break;
         }
@@ -180,18 +180,12 @@ public class Intake2026 extends VoltageSubsystem {
     }
 
     public boolean isIntaking() {
-        return intakeState == IntakeState.FOWARDS;
+        return intakeState == ForwardReverseNeutral.FORWARD;
     }
 
     private enum ElbowState {
         UP,
         DOWN,
         NEUTRAL
-    }
-
-    private enum IntakeState {
-        FOWARDS,
-        BACKWARDS,
-        NEUTRAL,
     }
 }

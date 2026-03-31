@@ -158,7 +158,6 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer, Ne
         Rotation2d targetRotationalAcceleration = (Rotation2d
                 .fromRadians(targetRotationalVelocity.getRadians() - currentRotationalVelocity.getRadians()))
                 .div(ROBOT_PERIOD);
-        // TODO: ^ debug when chasis is done
 
         // Use this math instead of WPIs built - in .plus() method, because the .plus()
         // method clamps the output from -pi to pi radians.

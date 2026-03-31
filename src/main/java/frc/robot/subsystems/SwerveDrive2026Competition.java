@@ -34,7 +34,7 @@ import frc.lib.swerve.SwerveModule;
 
 public class SwerveDrive2026Competition extends SwerveDrive {
     private static final CANBus CANIVORE_BUS = new CANBus("1559_Canivore");
-    private static final double MASS = Units.lbsToKilograms(50); // TODO: change the mass
+    private static final double MASS = Units.lbsToKilograms(104);
     private static final double RADIUS = Units.inchesToMeters(27 / 2.0); // Give or take
     private static final double MOI = MASS * RADIUS * RADIUS;
 
@@ -51,7 +51,7 @@ public class SwerveDrive2026Competition extends SwerveDrive {
     private static final double COEFFICENT_OF_FRICTION = 0.5;
 
     public static final SwerveConstraints SWERVE_CONSTRAINTS = new SwerveConstraints(SWERVE_MAX_ANGULAR_VELOCITY,
-            SWERVE_MAX_ANGULAR_ACCEL, SWERVE_MAX_LINEAR_VELOCITY, SWERVE_MAX_LINEAR_ACCEL); // TODO
+            SWERVE_MAX_ANGULAR_ACCEL, SWERVE_MAX_LINEAR_VELOCITY, SWERVE_MAX_LINEAR_ACCEL);
     public static final SwerveConstraints SLOW_SWERVE_CONSTRAINTS = new SwerveConstraints(
             SWERVE_MAX_ANGULAR_VELOCITY.div(6.0), SWERVE_MAX_ANGULAR_ACCEL, SWERVE_MAX_LINEAR_VELOCITY.div(6),
             SWERVE_MAX_LINEAR_ACCEL);
