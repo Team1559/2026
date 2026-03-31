@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.Volts;
 
 import java.util.Map;
+import java.util.function.BooleanSupplier;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -12,6 +13,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 
 import edu.wpi.first.units.measure.Voltage;
+import frc.lib.ForwardReverseNeutral;
 import frc.lib.velocity.SparkFlexIoBase;
 import frc.lib.velocity.SparkFlexIoReal;
 import frc.lib.voltage.VoltageComponent;
@@ -22,8 +24,13 @@ public class Indexer2026 extends VoltageSubsystem {
     private static final Voltage FORWARDS_VOLTAGE = Volts.of(6);
     private static final Voltage REVERSE_VOLTAGE = Volts.of(-6);
 
-    public Indexer2026() {
+    private ForwardReverseNeutral commandedState = ForwardReverseNeutral.FORWARD;
+
+    private final BooleanSupplier[] runConditions;
+
+    public Indexer2026(BooleanSupplier... runConditions) {
         super("Indexer", Map.of("IndexerMotor", makeIndexerMotor()));
+        this.runConditions = runConditions;
     }
 
     private static VoltageComponent makeIndexerMotor() {
@@ -41,10 +48,44 @@ public class Indexer2026 extends VoltageSubsystem {
     }
 
     public void runForwards() {
-        setVoltage(FORWARDS_VOLTAGE);
+        commandedState = ForwardReverseNeutral.FORWARD;
     }
 
     public void runReverse() {
-        setVoltage(REVERSE_VOLTAGE);
+        commandedState = ForwardReverseNeutral.REVERSE;
+    }
+
+    public void stop(){
+        commandedState = ForwardReverseNeutral.NEUTRAL;
+    }
+
+    @Override
+    public void neutralOutput() {
+        super.neutralOutput();
+        stop();
+    }
+
+    @Override
+    public void periodic() {
+        super.periodic();
+
+        if (commandedState == ForwardReverseNeutral.FORWARD) {
+            setVoltage(FORWARDS_VOLTAGE);
+        } else if (commandedState == ForwardReverseNeutral.REVERSE) {
+            setVoltage(REVERSE_VOLTAGE);
+        } else {
+            boolean run = false;
+        for (BooleanSupplier shouldRun : runConditions) {
+            if (shouldRun.getAsBoolean()) {
+                run = true;
+                break;
+            }
+        }
+        if (run) {
+            setVoltage(FORWARDS_VOLTAGE);
+        } else {
+            neutralOutput();
+        }
+        }
     }
 }

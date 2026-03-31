@@ -4,29 +4,16 @@
 
 package frc.robot;
 
-import org.littletonrobotics.junction.LogFileUtil;
-import org.littletonrobotics.junction.LoggedRobot;
-import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.NT4Publisher;
-import org.littletonrobotics.junction.wpilog.WPILOGReader;
-import org.littletonrobotics.junction.wpilog.WPILOGWriter;
-
-import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import com.revrobotics.util.StatusLogger;
 
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.PowerDistribution;
-import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.lib.Robot;
 import frc.lib.commands.StopCommand;
 import frc.lib.swerve.SwerveDrive;
 import frc.lib.swerve.TeleopDriveCommand;
@@ -38,7 +25,7 @@ import frc.robot.subsystems.Shooter2026;
 import frc.robot.subsystems.SwerveDrive2026Competition;
 import frc.robot.subsystems.Vision2026;
 
-public class Robot extends LoggedRobot {
+public class Robot2026 extends Robot {
 
     private final SendableChooser<Command> autoChooser;
     private final CommandXboxController pilotController;
@@ -51,40 +38,13 @@ public class Robot extends LoggedRobot {
     private final Intake2026 intake;
     private final Indexer2026 indexer;
 
-    private static final boolean IS_REPLAY = true;
-
-    @SuppressWarnings("resource") // pdh must stay open for connection
-    public Robot() {
-        super(0.02);
-        StatusLogger.disableAutoLogging();
-        SignalLogger.enableAutoLogging(false);
-        if (IS_REPLAY) {
-            setUseTiming(false);
-            String logPath = LogFileUtil.findReplayLog();
-            Logger.setReplaySource(new WPILOGReader(logPath));
-            Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_replay")));
-        } else {
-            Logger.addDataReceiver(new WPILOGWriter());
-            Logger.addDataReceiver(new NT4Publisher());
-        }
-
-        //BaseLogger.overrideDebugMode(false)
-
-        Logger.recordMetadata("Git Branch", GitVersion.GIT_BRANCH);
-        Logger.recordMetadata("Git Commit Hash", GitVersion.GIT_SHA);
-        Logger.recordMetadata("Uncommited Changes",
-                GitVersion.DIRTY != 0 ? "Uncommited Changes" : "All Changes Commited");
-        Logger.recordMetadata("Project Name", GitVersion.MAVEN_NAME);
-        Logger.recordMetadata("Build Date", GitVersion.BUILD_DATE);
-        Logger.recordMetadata("Easter Egg", ":)"); // Leave as easter egg (hi/test)
-
-        Logger.start();
-
+    public Robot2026() {
+        // BaseLogger.overrideDebugMode(false)
         drivetrain = new SwerveDrive2026Competition();
         vision = new Vision2026(drivetrain);
         shooter = new Shooter2026(drivetrain::getPosition, drivetrain::getCurrentSpeed);
         intake = new Intake2026();
-        indexer = new Indexer2026();
+        indexer = new Indexer2026(shooter::isShooting, intake::isIntaking);
 
         pilotController = new CommandXboxController(0);
         coPilotController = new CommandXboxController(1);
@@ -92,15 +52,6 @@ public class Robot extends LoggedRobot {
         registerNamedCommands();
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData(autoChooser);
-
-        DriverStation.silenceJoystickConnectionWarning(true);
-
-        PowerDistribution pdh = new PowerDistribution(1, ModuleType.kRev);
-        pdh.setSwitchableChannel(true);
-    }
-
-    private static void clearCommandBindings() {
-        CommandScheduler.getInstance().getActiveButtonLoop().clear();
     }
 
     private void registerNamedCommands() {
@@ -115,7 +66,8 @@ public class Robot extends LoggedRobot {
         NamedCommands.registerCommand("Intake", new StartEndCommand(intake::runForwards, intake::neutralOutput));
     }
 
-    private void setTeleopBindings() {
+    @Override
+    protected void setTeleopBindings() {
         drivetrain.setDefaultCommand(new TeleopDriveCommand(() -> pilotController.getLeftY() * -1,
                 () -> pilotController.getLeftX() * -1, () -> pilotController.getRightX() * -1,
                 SwerveDrive2026Competition.SWERVE_CONSTRAINTS, drivetrain, () -> false));
@@ -150,54 +102,30 @@ public class Robot extends LoggedRobot {
                 .whileTrue(new StartEndCommand(shooter::reverseAll, shooter::neutralAll, shooter));
     }
 
-    private void setTestBindings() {
+    @Override
+    protected void setTestBindings() {
         pilotController.leftTrigger()
                 .whileTrue(new StartEndCommand(intake::runForwards, intake::neutralOutput,
                         intake));
     }
 
-    private void setUniversalBindings() {
-        Trigger indexerTrigger = new Trigger(shooter::isShooting).or(intake::isIntaking);
-        indexerTrigger.whileTrue(new StartEndCommand(indexer::runForwards,
-                indexer::neutralOutput, indexer));
-    }
-
-    @Override
-    public void robotPeriodic() {
-        CommandScheduler.getInstance().run();
-    }
-
     @Override
     public void disabledInit() {
-        CommandScheduler.getInstance().cancelAll();
+        super.disabledInit();
+        intake.neutralOutput();
+        indexer.stop();
+        shooter.setSpinFlywheel(false);
+        shooter.setShooting(false);
     }
 
     @Override
     public void autonomousInit() {
+        super.autonomousInit();
         shooter.zeroTurret();
-        setUniversalBindings();
-        CommandScheduler.getInstance().schedule(autoChooser.getSelected());
     }
 
-    @Override
-    public void teleopInit() {
-        intake.neutralOutput();
-        indexer.neutralOutput();
-        shooter.setSpinFlywheel(false);
-        shooter.setShooting(false);
-        clearCommandBindings();
-        setUniversalBindings();
-        setTeleopBindings();
-    }
-
-    @Override
-    public void testInit() {
-        intake.neutralOutput();
-        indexer.neutralOutput();
-        shooter.setSpinFlywheel(false);
-        shooter.setShooting(false);
-        clearCommandBindings();
-        setUniversalBindings();
-        setTestBindings();
-    }
+	@Override
+	protected Command getAutoCommand() {
+        return autoChooser.getSelected();
+	}
 }

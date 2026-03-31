@@ -44,7 +44,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import frc.lib.DirectionalThreeState;
+import frc.lib.ForwardReverseNeutral;
 import frc.lib.angular_position.AngularPositionComponent;
 import frc.lib.angular_position.AngularPositionRatio;
 import frc.lib.angular_position.AngularPositionSensor;
@@ -68,8 +68,8 @@ public class Shooter2026 extends LoggableSubsystem {
     private boolean isShooting;
     private double timestampFlywheelNotReady;
 
-    private DirectionalThreeState feedwheelState = DirectionalThreeState.NEUTRAL;
-    private DirectionalThreeState flywheelState = DirectionalThreeState.NEUTRAL;
+    private ForwardReverseNeutral feedwheelState = ForwardReverseNeutral.NEUTRAL;
+    private ForwardReverseNeutral flywheelState = ForwardReverseNeutral.NEUTRAL;
 
     private static final Rotation2d flapperAngle = Rotation2d.fromDegrees(59);
 
@@ -199,18 +199,18 @@ public class Shooter2026 extends LoggableSubsystem {
 
     public void setSpinFlywheel(boolean spinFlywheel) {
         if (spinFlywheel) {
-            flywheelState = DirectionalThreeState.FOWARD;
+            flywheelState = ForwardReverseNeutral.FORWARD;
         } else {
-            flywheelState = DirectionalThreeState.NEUTRAL;
+            flywheelState = ForwardReverseNeutral.NEUTRAL;
         }
     }
 
     public void setShooting(boolean shouldShoot) {
         this.isShooting = shouldShoot;
         if (isShooting) {
-            feedwheelState = DirectionalThreeState.FOWARD;
+            feedwheelState = ForwardReverseNeutral.FORWARD;
         } else {
-            feedwheelState = DirectionalThreeState.NEUTRAL;
+            feedwheelState = ForwardReverseNeutral.NEUTRAL;
         }
     }
 
@@ -347,12 +347,12 @@ public class Shooter2026 extends LoggableSubsystem {
             projectileVelocity = calculateProjectileSpeedFixedAngle(targetTurretSpace, flapperAngle);
             logger().debug("ProjectileVelocitySetpoint", projectileVelocity);
 
-            if (flywheelState == DirectionalThreeState.FOWARD
+            if (flywheelState == ForwardReverseNeutral.FORWARD
                     && Double.isFinite(projectileVelocity.in(MetersPerSecond))) {
                 targetFlywheelVelocity = calculateFlywheelVelocity(projectileVelocity);
                 logger().debug("TargetFlywheelVelocity", targetFlywheelVelocity);
                 flywheel.setVelocity(targetFlywheelVelocity);
-            } else if (flywheelState == DirectionalThreeState.REVERSE) {
+            } else if (flywheelState == ForwardReverseNeutral.REVERSE) {
                 flywheel.setVelocity(RPM.of(-1000));
             } else {
                 logger().debug("TargetFlywheelVelocity", RPM.zero());
@@ -377,15 +377,15 @@ public class Shooter2026 extends LoggableSubsystem {
             logger().dashboard("CrtAngle", turretAngleSensor.getAngle());
         }
 
-        if (feedwheelState == DirectionalThreeState.FOWARD) {
+        if (feedwheelState == ForwardReverseNeutral.FORWARD) {
             feedWheel.setVelocity(RPM.of(1500));
-        } else if (feedwheelState == DirectionalThreeState.REVERSE) {
+        } else if (feedwheelState == ForwardReverseNeutral.REVERSE) {
             feedWheel.setVelocity(RPM.of(-1000));
         } else {
             feedWheel.neutralOutput();
         }
 
-        logger().dashboard("IsShooting", feedwheelState == DirectionalThreeState.FOWARD);
+        logger().dashboard("IsShooting", feedwheelState == ForwardReverseNeutral.FORWARD);
     }
 
     public void setTurretAngle(Angle setAngle) {
@@ -444,21 +444,21 @@ public class Shooter2026 extends LoggableSubsystem {
     }
 
     public void neutralAll() {
-        flywheelState = DirectionalThreeState.NEUTRAL;
-        feedwheelState = DirectionalThreeState.NEUTRAL;
+        flywheelState = ForwardReverseNeutral.NEUTRAL;
+        feedwheelState = ForwardReverseNeutral.NEUTRAL;
     }
 
     public void reverseFeedwheel() {
-        feedwheelState = DirectionalThreeState.REVERSE;
+        feedwheelState = ForwardReverseNeutral.REVERSE;
     }
 
     public void neutralFeedwheel() {
-        feedwheelState = DirectionalThreeState.NEUTRAL;
+        feedwheelState = ForwardReverseNeutral.NEUTRAL;
     }
 
     public void reverseAll() {
-        flywheelState = DirectionalThreeState.REVERSE;
-        feedwheelState = DirectionalThreeState.REVERSE;
+        flywheelState = ForwardReverseNeutral.REVERSE;
+        feedwheelState = ForwardReverseNeutral.REVERSE;
     }
 
 }

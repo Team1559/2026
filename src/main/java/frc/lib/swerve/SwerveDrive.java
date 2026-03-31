@@ -134,7 +134,7 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer, Ne
     private void updateOdometry() {
         estimator.update(gyro.getYaw(), getModulePositions());
     }
-    
+
     @SuppressWarnings("java:S1244") // We must check if numbers are -0
     private void drive() {
         ChassisSpeeds currentChassisSpeeds = getCurrentSpeed();
@@ -158,10 +158,10 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer, Ne
         Rotation2d targetRotationalAcceleration = (Rotation2d
                 .fromRadians(targetRotationalVelocity.getRadians() - currentRotationalVelocity.getRadians()))
                 .div(ROBOT_PERIOD);
-                // TODO: ^ debug when chasis is done
+        // TODO: ^ debug when chasis is done
 
-                // Use this math instead of WPIs built - in .plus() method, because the .plus()
-                // method clamps the output from -pi to pi radians.
+        // Use this math instead of WPIs built - in .plus() method, because the .plus()
+        // method clamps the output from -pi to pi radians.
         if (targetRotationalAcceleration.getRadians() > maxRotationalAcceleration.getRadians()) {
             if (targetRotationalAcceleration.getRadians() > 0) {
                 targetRotationalAcceleration = maxRotationalAcceleration;
@@ -174,11 +174,10 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer, Ne
         // Use this math instead of WPIs built - in .plus() method, because the .plus()
         // method clamps the output from -pi to pi radians.
 
-        logger().debug("TargetLinearVelocity", targetLinearVelocity)
-                .debug("TargetRotationalVelocity", targetRotationalVelocity);
-
         ChassisSpeeds accelLimitedSpeeds = new ChassisSpeeds(targetLinearVelocity.getX(), targetLinearVelocity.getY(),
                 targetRotationalVelocity.getRadians());
+
+        logger().debug("TargetVelocity", accelLimitedSpeeds);
 
         if (accelLimitedSpeeds.vxMetersPerSecond == -0) {
             accelLimitedSpeeds.vxMetersPerSecond = 0;
@@ -212,7 +211,7 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer, Ne
     private void log() {
         logger().debug("EstimatedPosition", getPosition())
                 .debug("Heading", gyro.getYaw())
-                .debug("TargetVelocity", getCurrentSpeed());
+                .debug("CurrentVelocity", getCurrentSpeed());
 
         field.setRobotPose(getPosition());
     }

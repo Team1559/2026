@@ -1,8 +1,8 @@
 package frc.lib;
 
-public enum DirectionalThreeState {
+public enum ForwardReverseNeutral {
     // We use these bad boys in like five places
-    FOWARD,
+    FORWARD,
     REVERSE,
     NEUTRAL
 }
