@@ -69,17 +69,17 @@ public class Robot extends LoggedRobot {
         }
 
         //BaseLogger.overrideDebugMode(false)
-        
+
         Logger.recordMetadata("Git Branch", GitVersion.GIT_BRANCH);
         Logger.recordMetadata("Git Commit Hash", GitVersion.GIT_SHA);
         Logger.recordMetadata("Uncommited Changes",
-        GitVersion.DIRTY != 0 ? "Uncommited Changes" : "All Changes Commited");
+                GitVersion.DIRTY != 0 ? "Uncommited Changes" : "All Changes Commited");
         Logger.recordMetadata("Project Name", GitVersion.MAVEN_NAME);
         Logger.recordMetadata("Build Date", GitVersion.BUILD_DATE);
         Logger.recordMetadata("Easter Egg", ":)"); // Leave as easter egg (hi/test)
-        
+
         Logger.start();
-        
+
         drivetrain = new SwerveDrive2026Competition();
         vision = new Vision2026(drivetrain);
         shooter = new Shooter2026(drivetrain::getPosition, drivetrain::getCurrentSpeed);

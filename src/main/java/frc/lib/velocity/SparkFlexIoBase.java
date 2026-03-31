@@ -1,5 +1,8 @@
 package frc.lib.velocity;
 
+import static edu.wpi.first.units.Units.RPM;
+import static edu.wpi.first.units.Units.Volts;
+
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
@@ -10,7 +13,6 @@ import edu.wpi.first.units.measure.Voltage;
 import frc.lib.angular_position.AngularPositionComponent;
 import frc.lib.logging.LoggableIo;
 import frc.lib.voltage.VoltageComponent;
-import static edu.wpi.first.units.Units.Volts;
 
 public class SparkFlexIoBase extends LoggableIo<SparkFlexIoBase.SparkFlexIoInputs>
         implements AngularVelocityComponent, AngularPositionComponent, VoltageComponent {
@@ -18,7 +20,7 @@ public class SparkFlexIoBase extends LoggableIo<SparkFlexIoBase.SparkFlexIoInput
     public static abstract class SparkFlexIoInputs implements LoggableInputs {
         public double motorCurrent;
         public double motorTemp;
-        public AngularVelocity currentVelocity;
+        public AngularVelocity currentVelocity = RPM.zero();
         public Angle position = Angle.ofRelativeUnits(0, Units.Rotations);
     }
 
