@@ -8,7 +8,7 @@ import frc.lib.logging.LoggableIo;
 public class LimitSwitchIoBase extends LoggableIo<LimitSwitchIoBase.LimitSwitchIoInputs> implements BooleanComponent {
     @AutoLog
     public static abstract class LimitSwitchIoInputs implements LoggableInputs {
-        boolean atLimit = false;
+        public boolean atLimit = false;
     }
 
     public LimitSwitchIoBase() {

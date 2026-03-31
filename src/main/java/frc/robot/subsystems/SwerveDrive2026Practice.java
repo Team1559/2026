@@ -67,7 +67,7 @@ public class SwerveDrive2026Practice extends SwerveDrive {
                 new ModuleConfig(SdsSwerveModuleIoReal.WHEEL_RADIUS, SWERVE_MAX_LINEAR_VELOCITY.in(MetersPerSecond),
                         1.0,
                         DCMotor.getKrakenX60(1)
-                                .withReduction(Math.abs(SdsSwerveModuleIoReal.ModuleType.MK4i_L3.driveRatio)),
+                                .withReduction(Math.abs(SdsSwerveModuleIoReal.ModuleType.MK4I_L3.driveRatio)),
                         DRIVE_MOTOR_STATOR_CURRENT,
                         1),
                 locations);
@@ -95,7 +95,7 @@ public class SwerveDrive2026Practice extends SwerveDrive {
         Slot0Configs driveMotorPid = new Slot0Configs()
                 .withKV(BATTERY_VOLTAGE / (KRAKEN_MAX_FREE_VELOCITY / SECONDS_PER_MINUTE));
 
-        return new SdsSwerveModuleIoReal(locationOffset, ModuleType.MK4i_L3, steerMotor, steerMotorPid,
+        return new SdsSwerveModuleIoReal(locationOffset, ModuleType.MK4I_L3, steerMotor, steerMotorPid,
                 driveMotor,
                 driveMotorPid, DRIVE_MOTOR_STATOR_CURRENT, DRIVE_MOTOR_SUPPLY_CURRENT,
                 canCoder, canCoderOffset);

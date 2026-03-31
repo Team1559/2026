@@ -77,7 +77,8 @@ public class LimelightCameraIoReal extends LimelightCameraIoBase {
         inputs.tagIds = new int[tagIds.size()];
         int i = 0;
         for (int id : tagIds) {
-            inputs.tagIds[i++] = id;
+            inputs.tagIds[i] = id;
+            i++;
         }
     }
 
@@ -93,7 +94,7 @@ public class LimelightCameraIoReal extends LimelightCameraIoBase {
                         Units.degreesToRadians(rawLLArray[5])));
     }
 
-    private PoseObservation getPoseObservation(TimestampedDoubleArray rawSample, PoseObservationType type) {
+    private static PoseObservation getPoseObservation(TimestampedDoubleArray rawSample, PoseObservationType type) {
         if (rawSample.value.length == 0) {
             return null;
         }

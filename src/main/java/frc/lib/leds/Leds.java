@@ -38,7 +38,8 @@ public class Leds extends SubsystemBase {
         side2 = buffer.createView(buffer.getLength() / 2, length - 1);
 
         led.start();
-        setColor(Color.kBlack);
+        pattern = LEDPattern.solid(Color.kBlack);
+        currentMode = Mode.PATTERN;
     }
 
     public void setAllianceColor() {

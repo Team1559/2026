@@ -1,5 +1,6 @@
 package frc.lib.swerve;
 
+import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.Pigeon2;
 
@@ -29,7 +30,7 @@ public class Pigeon2IoReal extends Pigeon2IoBase {
 
     @Override
     protected void updateInputs(GyroInputs inputs) {
-        StatusSignal.refreshAll(roll, pitch, yaw);
+        BaseStatusSignal.refreshAll(roll, pitch, yaw);
         inputs.pitch = Rotation2d.fromDegrees(pitch.getValueAsDouble());
         inputs.roll = Rotation2d.fromDegrees(roll.getValueAsDouble());
         inputs.yaw = Rotation2d.fromDegrees(yaw.getValueAsDouble());

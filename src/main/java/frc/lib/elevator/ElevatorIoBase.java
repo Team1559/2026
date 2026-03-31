@@ -5,7 +5,7 @@ import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 import frc.lib.logging.LoggableIo;
 
-public class ElevatorIo extends LoggableIo<ElevatorIo.ElevatorInputs> implements ElevatorComponent {
+public class ElevatorIoBase extends LoggableIo<ElevatorIoBase.ElevatorInputs> implements ElevatorComponent {
     @AutoLog
     public static abstract class ElevatorInputs implements LoggableInputs {
         public boolean isHome;
@@ -16,7 +16,7 @@ public class ElevatorIo extends LoggableIo<ElevatorIo.ElevatorInputs> implements
         public double heightError;
     }
 
-    public ElevatorIo() {
+    public ElevatorIoBase() {
         super(new ElevatorInputsAutoLogged());
     }
 
@@ -68,6 +68,7 @@ public class ElevatorIo extends LoggableIo<ElevatorIo.ElevatorInputs> implements
 
     @Override
     public void neutralOutput() {
-        
+        // Does nothing in Replay Mode
+
     }
 }

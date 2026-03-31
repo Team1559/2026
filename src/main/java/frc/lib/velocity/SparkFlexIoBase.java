@@ -16,6 +16,8 @@ import frc.lib.voltage.VoltageComponent;
 
 public class SparkFlexIoBase extends LoggableIo<SparkFlexIoBase.SparkFlexIoInputs>
         implements AngularVelocityComponent, AngularPositionComponent, VoltageComponent {
+    private static final String ACTIVE = "Active";
+
     @AutoLog
     public static abstract class SparkFlexIoInputs implements LoggableInputs {
         public double motorCurrent;
@@ -30,12 +32,14 @@ public class SparkFlexIoBase extends LoggableIo<SparkFlexIoBase.SparkFlexIoInput
 
     @Override
     public void neutralOutput() {
+        // neutralOutput() Does not do anything in Replay Mode
+        logger().debug(ACTIVE, false);
     }
 
     @Override
     public void setVelocity(AngularVelocity setpoint) {
         logger().debug("VelocitySetpoint", setpoint)
-                .debug("Active", true);
+                .debug(ACTIVE, true);
     }
 
     @Override
@@ -61,16 +65,17 @@ public class SparkFlexIoBase extends LoggableIo<SparkFlexIoBase.SparkFlexIoInput
     @Override
     public void setVoltage(Voltage voltage) {
         logger().debug("Voltage", voltage.in(Volts))
-                .debug("Active", true);
+                .debug(ACTIVE, true);
     }
 
     @Override
     public void setAngle(Angle setpoint) {
         logger().debug("AngleSetpoint", setpoint)
-                .debug("Active", true);
+                .debug(ACTIVE, true);
     }
 
     @Override
     public void setPercievedAngle(Angle angle) {
+        // Doesn't do anything in Replay Mode
     }
 }

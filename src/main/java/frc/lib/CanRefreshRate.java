@@ -5,7 +5,7 @@ public enum CanRefreshRate {
 
     public final int rateHz;
 
-    private CanRefreshRate(int rateHz) {
+    CanRefreshRate(int rateHz) {
         this.rateHz = rateHz;
     }
 }

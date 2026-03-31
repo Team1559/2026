@@ -13,7 +13,7 @@ public class LimitedAngularPositionIntermediate extends LoggableIntermediate imp
     private final Angle maxAngle;
     private final AngularPositionComponent child;
 
-    public LimitedAngularPositionIntermediate(Angle minAngle, Angle maxAngle, AngularPositionComponent child){
+    public LimitedAngularPositionIntermediate(Angle minAngle, Angle maxAngle, AngularPositionComponent child) {
         this.maxAngle = maxAngle;
         this.minAngle = minAngle;
         this.child = child;
@@ -22,7 +22,8 @@ public class LimitedAngularPositionIntermediate extends LoggableIntermediate imp
 
     @Override
     public void setAngle(Angle angle) {
-        Angle setPoint = Radians.of(MathUtil.clamp(angle.in(Units.Radians), minAngle.in(Units.Radians), maxAngle.in(Units.Radians)));
+        Angle setPoint = Radians
+                .of(MathUtil.clamp(angle.in(Units.Radians), minAngle.in(Units.Radians), maxAngle.in(Units.Radians)));
         child.setAngle(setPoint);
     }
 
@@ -40,5 +41,5 @@ public class LimitedAngularPositionIntermediate extends LoggableIntermediate imp
     public void neutralOutput() {
         child.neutralOutput();
     }
-    
+
 }

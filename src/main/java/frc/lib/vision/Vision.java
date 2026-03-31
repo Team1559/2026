@@ -18,17 +18,18 @@ import frc.lib.vision.VisionComponent.PoseObservation;
 import frc.lib.vision.VisionComponent.PoseObservationType;
 
 public class Vision extends LoggableSubsystem {
-    private static final double linearStdDevBaseline = 0.4;
-    private static final double angularStdDevBaseline = 0.2;
-    private static final double linearStdDevMegatag2Factor = 1;
-    private static final double angularStdDevMegatag2Factor = Double.POSITIVE_INFINITY;
-    private static final double maxAmbiguity = 0.1;
-    private static final Distance maxZError = Inches.of(3);
+    private static final double LINEAR_STD_DEV_BASELINE = 0.4;
+    private static final double ANGULAR_STD_DEV_BASELINE = 0.2;
+    private static final double LINEAR_STD_DEV_MEGATAG_2_FACTOR = 1;
+    private static final double ANGULAR_STD_DEV_MEGATAG_2_FACTOR = Double.POSITIVE_INFINITY;
+    private static final double MAX_AMBIGUITY = 0.1;
+    private static final Distance MAX_Z_ERROR = Inches.of(3);
     private final VisionComponent[] cameras;
     private final VisionConsumer visionConsumer;
     private final AprilTagFieldLayout aprilTagLayout;
 
-    public Vision(String name, VisionConsumer visionConsumer, AprilTagFieldLayout aprilTagLayout, Map<String, VisionComponent> cameras) {
+    public Vision(String name, VisionConsumer visionConsumer, AprilTagFieldLayout aprilTagLayout,
+            Map<String, VisionComponent> cameras) {
         super(name);
         this.visionConsumer = visionConsumer;
         this.aprilTagLayout = aprilTagLayout;
@@ -61,13 +62,13 @@ public class Vision extends LoggableSubsystem {
                     continue;
                 }
 
-                if (observation.tagCount() == 1 && observation.ambiguity() > maxAmbiguity) {
+                if (observation.tagCount() == 1 && observation.ambiguity() > MAX_AMBIGUITY) {
                     rejectedObservations
                             .add(new RejectedObservation(observation, RejectionReason.ONE_TAG_HIGH_AMBIGUITY));
                     continue;
                 }
 
-                if (observation.pose().getZ() > maxZError.in(Meters)) {
+                if (observation.pose().getZ() > MAX_Z_ERROR.in(Meters)) {
                     rejectedObservations.add(new RejectedObservation(observation, RejectionReason.HIGH_Z_ERROR));
                     continue;
                 }
@@ -86,12 +87,12 @@ public class Vision extends LoggableSubsystem {
                 }
 
                 double stdDevFactor = Math.pow(observation.averageTagDistance(), 2.0) / observation.tagCount();
-                double linearStdDev = linearStdDevBaseline * stdDevFactor;
-                double angularStdDev = angularStdDevBaseline * stdDevFactor;
+                double linearStdDev = LINEAR_STD_DEV_BASELINE * stdDevFactor;
+                double angularStdDev = ANGULAR_STD_DEV_BASELINE * stdDevFactor;
 
                 if (observation.type() == PoseObservationType.MEGATAG_2) {
-                    linearStdDev *= linearStdDevMegatag2Factor;
-                    angularStdDev *= angularStdDevMegatag2Factor;
+                    linearStdDev *= LINEAR_STD_DEV_MEGATAG_2_FACTOR;
+                    angularStdDev *= ANGULAR_STD_DEV_MEGATAG_2_FACTOR;
                 }
 
                 acceptedObservations
@@ -119,7 +120,7 @@ public class Vision extends LoggableSubsystem {
                 .debug("RobotPosesAccepted", robotPosesAccepted.toArray(Pose3d[]::new))
                 .debug("RobotPosesRejected", robotPosesRejected.toArray(Pose3d[]::new))
                 .debug("RejectedObservations",
-                rejectedObservations.toArray(RejectedObservation[]::new))
+                        rejectedObservations.toArray(RejectedObservation[]::new))
                 .debug("AcceptedObservations",
                         acceptedObservations.toArray(AcceptedObservation[]::new));
 

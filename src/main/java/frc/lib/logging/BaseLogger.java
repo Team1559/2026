@@ -18,6 +18,7 @@ public sealed class BaseLogger permits CustomLogger {
         debugOverride = debugMode;
     }
 
+    @SuppressWarnings("java:S3400") // Necessary method
     protected static boolean shouldLogDashboard() {
         return true;
     }
@@ -35,11 +36,7 @@ public sealed class BaseLogger permits CustomLogger {
             return debugOverride;
         }
 
-        if (DriverStation.isTest()) {
-            return true;
-        }
-
-        return false;
+        return DriverStation.isTest();
     }
 
     protected String getOutputLogPath(String key) {
