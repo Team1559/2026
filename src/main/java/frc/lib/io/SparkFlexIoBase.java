@@ -46,16 +46,6 @@ public class SparkFlexIoBase extends LoggableIo<SparkFlexIoBase.SparkFlexIoInput
     }
 
     @Override
-    public double getMotorCurrent() {
-        return getInputs().motorCurrent;
-    }
-
-    @Override
-    public double getMotorTemperature() {
-        return getInputs().motorTemp;
-    }
-
-    @Override
     public AngularVelocity getCurrentVelocity() {
         return getInputs().currentVelocity;
     }

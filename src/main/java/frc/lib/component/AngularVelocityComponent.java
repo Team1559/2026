@@ -7,10 +7,6 @@ import frc.lib.util.NeutralOutput;
 
 public interface AngularVelocityComponent extends LoggableComponent, NeutralOutput {
     void setVelocity(AngularVelocity setpoint);
-   
-    double getMotorCurrent();
-
-    double getMotorTemperature();
 
     AngularVelocity getCurrentVelocity();
 }

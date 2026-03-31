@@ -1,11 +1,18 @@
 package frc.lib.io;
 
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Temperature;
 
 import com.ctre.phoenix6.BaseStatusSignal;
@@ -60,7 +67,7 @@ public class SdsSwerveModuleIoReal extends SdsSwerveModuleIoBase {
         }
     }
 
-    public static final double WHEEL_RADIUS = Units.inchesToMeters(2.0);
+    public static final Distance WHEEL_RADIUS = Inches.of(2.0);
 
     private final ModuleType driveGearRatio;
     private final TalonFX steerMotor;
@@ -82,7 +89,7 @@ public class SdsSwerveModuleIoReal extends SdsSwerveModuleIoBase {
     public SdsSwerveModuleIoReal(Translation2d location, ModuleType moduleType, TalonFX steerMotor,
             Slot0Configs steerMotorPid,
             TalonFX driveMotor,
-            Slot0Configs driveMotorPid, double driveStatorCurrentLimit, double driveSupplyCurrentLimit,
+            Slot0Configs driveMotorPid, Current driveStatorCurrentLimit, Current driveSupplyCurrentLimit,
             CANcoder cancoder,
             Rotation2d cancoderOffset) {
         super(location);
@@ -131,10 +138,11 @@ public class SdsSwerveModuleIoReal extends SdsSwerveModuleIoBase {
     }
 
     @Override
-    public void setSpeed(double speed) {
+    public void setSpeed(LinearVelocity speed) {
         super.setSpeed(speed);
         VelocityVoltage control = new VelocityVoltage(
-                speed * (1 / (2 * WHEEL_RADIUS * Math.PI)) * driveGearRatio.driveRatio);
+                speed.in(MetersPerSecond) * (1 / (2 * WHEEL_RADIUS.in(Meters) * Math.PI))
+                 * (driveGearRatio.driveRatio));
         driveMotor.setControl(control);
     }
 
@@ -150,14 +158,15 @@ public class SdsSwerveModuleIoReal extends SdsSwerveModuleIoBase {
         BaseStatusSignal.refreshAll(driveMotorVelocity, canCoderAbsolutePosition, driveMotorPosition,
                 steerMotorTemperature,
                 driveMotorTemperature, steerMotorCurrent, driveMotorCurrent);
-        inputs.speed = driveMotorVelocity.getValueAsDouble() / driveGearRatio.driveRatio * (2 * WHEEL_RADIUS * Math.PI);
+        inputs.speed = MetersPerSecond.of(driveMotorVelocity.getValue().div(driveGearRatio.driveRatio)
+        .in(RotationsPerSecond) * (2 * WHEEL_RADIUS.in(Meters) * Math.PI));
         inputs.angle = Rotation2d.fromRotations(canCoderAbsolutePosition.getValueAsDouble()).minus(cancoderOffset);
-        inputs.distance = driveMotorPosition.getValueAsDouble() / driveGearRatio.driveRatio
-                * (2 * WHEEL_RADIUS * Math.PI);
-        inputs.steerMotorCurrent = steerMotorCurrent.getValueAsDouble();
-        inputs.driveMotorCurrent = driveMotorCurrent.getValueAsDouble();
-        inputs.steerMotorTemp = steerMotorTemperature.getValueAsDouble();
-        inputs.driveMotorTemp = driveMotorTemperature.getValueAsDouble();
+        inputs.distance = Meters.of(driveMotorPosition.getValue().in(Rotations) / driveGearRatio.driveRatio
+                * (2 * WHEEL_RADIUS.in(Meters) * Math.PI));
+        inputs.steerMotorCurrent = steerMotorCurrent.getValue();
+        inputs.driveMotorCurrent = driveMotorCurrent.getValue();
+        inputs.steerMotorTemp = steerMotorTemperature.getValue();
+        inputs.driveMotorTemp = driveMotorTemperature.getValue();
     }
 
     @Override

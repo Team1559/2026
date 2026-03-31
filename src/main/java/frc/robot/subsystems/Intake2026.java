@@ -20,7 +20,6 @@ import com.revrobotics.spark.config.SparkFlexConfig;
 
 import frc.lib.component.AngleSensor;
 import frc.lib.component.VoltageComponent;
-import frc.lib.intermediate.AngleSensorOffsetter;
 import frc.lib.io.CanCoderIoBase;
 import frc.lib.io.CanCoderIoReal;
 import frc.lib.io.SparkFlexIoBase;
@@ -85,7 +84,7 @@ public class Intake2026 extends LoggableSubsystem {
             config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
             encoder = new CanCoderIoReal(new CANcoder(ELBOW_ENCODER_ID), config);
         }
-        return new AngleSensorOffsetter(ELBOW_OFFSET, encoder);
+        return encoder.withOffset(ELBOW_OFFSET);
     }
 
     private static VoltageComponent makeElbowMotor() {

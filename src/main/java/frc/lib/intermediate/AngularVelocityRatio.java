@@ -22,16 +22,6 @@ public class AngularVelocityRatio extends LoggableIntermediate implements Angula
     }
 
     @Override
-    public double getMotorCurrent() {
-        return child.getMotorCurrent();
-    }
-
-    @Override
-    public double getMotorTemperature() {
-        return child.getMotorTemperature();
-    }
-
-    @Override
     public AngularVelocity getCurrentVelocity() {
         return child.getCurrentVelocity().div(reductionRatio);
     }

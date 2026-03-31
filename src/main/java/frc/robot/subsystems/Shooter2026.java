@@ -50,9 +50,6 @@ import com.pathplanner.lib.util.FlippingUtil;
 import frc.lib.component.AngleComponent;
 import frc.lib.component.AngleSensor;
 import frc.lib.component.AngularVelocityComponent;
-import frc.lib.intermediate.AngleLimiter;
-import frc.lib.intermediate.AngleRatio;
-import frc.lib.intermediate.AngleSensorOffsetter;
 import frc.lib.intermediate.ChineseRemainderAngle;
 import frc.lib.io.CanCoderIoBase;
 import frc.lib.io.CanCoderIoReal;
@@ -166,8 +163,7 @@ public class Shooter2026 extends LoggableSubsystem {
             config.idleMode(IdleMode.kBrake);
             sparkFlex = new SparkFlexIoReal(new SparkFlex(19, MotorType.kBrushless), config);
         }
-        return new AngleLimiter(Degrees.of(-90), Degrees.of(150),
-                new AngleRatio(10d, sparkFlex));
+        return sparkFlex.withRatio(10d).withLimits(Degrees.of(-90), Degrees.of(150));
     }
 
     public Angle getAngle() {
@@ -180,7 +176,7 @@ public class Shooter2026 extends LoggableSubsystem {
         CanCoderIoBase canCoderTwo;
         if (Logger.hasReplaySource()) {
             canCoderOne = new CanCoderIoBase();
-            canCoderTwo = new CanCoderIoBase(); 
+            canCoderTwo = new CanCoderIoBase();
         } else {
             CANcoderConfiguration configOne = new CANcoderConfiguration();
             configOne.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
@@ -191,8 +187,8 @@ public class Shooter2026 extends LoggableSubsystem {
         }
 
         return new ChineseRemainderAngle(21, 19, 200,
-                new AngleSensorOffsetter(Degrees.of(125.332021), canCoderOne),
-                new AngleSensorOffsetter(Degrees.of(-4.746094), canCoderTwo),
+                canCoderOne.withOffset(Degrees.of(125.332021)),
+                canCoderTwo.withOffset(Degrees.of(-4.746094)),
                 Degrees.of(-180), Degrees.of(180));
     }
 

@@ -1,7 +1,16 @@
 package frc.lib.io;
 
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Celsius;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.wpilibj.Timer;
 
 import org.littletonrobotics.junction.AutoLog;
@@ -14,13 +23,13 @@ import frc.lib.swerve.SwerveInputsAutoLogged;
 public class SdsSwerveModuleIoBase extends LoggableIo<SdsSwerveModuleIoBase.SwerveInputs> implements SwerveModule {
     @AutoLog
     public static abstract class SwerveInputs implements LoggableInputs {
-        public double speed;
+        public LinearVelocity speed = MetersPerSecond.zero();
         public Rotation2d angle = Rotation2d.kZero;
-        public double distance;
-        public double steerMotorTemp;
-        public double driveMotorTemp;
-        public double steerMotorCurrent;
-        public double driveMotorCurrent;
+        public Distance distance = Meters.of(0);
+        public Temperature steerMotorTemp = Celsius.of(20);
+        public Temperature driveMotorTemp = Celsius.of(20);
+        public Current steerMotorCurrent = Amps.of(0);
+        public Current driveMotorCurrent = Amps.of(0);
     }
 
     private final Translation2d location;
@@ -31,7 +40,7 @@ public class SdsSwerveModuleIoBase extends LoggableIo<SdsSwerveModuleIoBase.Swer
     }
 
     @Override
-    public void setSpeed(double speed) {
+    public void setSpeed(LinearVelocity speed) {
         logger().debug("Speed", speed);
     }
 
@@ -47,7 +56,7 @@ public class SdsSwerveModuleIoBase extends LoggableIo<SdsSwerveModuleIoBase.Swer
     }
 
     @Override
-    public double getSpeed() {
+    public LinearVelocity getSpeed() {
         return getInputs().speed;
     }
 
@@ -57,28 +66,8 @@ public class SdsSwerveModuleIoBase extends LoggableIo<SdsSwerveModuleIoBase.Swer
     }
 
     @Override
-    public double getDistance() {
+    public Distance getDistance() {
         return getInputs().distance;
-    }
-
-    @Override
-    public double getSteerMotorTemp() {
-        return getInputs().steerMotorTemp;
-    }
-
-    @Override
-    public double getDriveMotorTemp() {
-        return getInputs().driveMotorTemp;
-    }
-
-    @Override
-    public double getSteerMotorCurrent() {
-        return getInputs().steerMotorCurrent;
-    }
-
-    @Override
-    public double getDriveMotorCurrent() {
-        return getInputs().driveMotorCurrent;
     }
 
     @Override

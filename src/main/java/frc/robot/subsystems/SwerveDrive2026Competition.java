@@ -1,8 +1,16 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.KilogramSquareMeters;
+import static edu.wpi.first.units.Units.Kilograms;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Pounds;
+import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
 
 import java.util.Map;
 
@@ -12,8 +20,13 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.units.measure.Mass;
+import edu.wpi.first.units.measure.MomentOfInertia;
+import edu.wpi.first.units.measure.Voltage;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -36,20 +49,20 @@ import frc.lib.subsystem.SwerveDrive;
 
 public class SwerveDrive2026Competition extends SwerveDrive {
     private static final CANBus CANIVORE_BUS = new CANBus("1559_Canivore");
-    private static final double MASS = Units.lbsToKilograms(104);
-    private static final double RADIUS = Units.inchesToMeters(27 / 2.0); // Give or take
-    private static final double MOI = MASS * RADIUS * RADIUS;
+    private static final Mass MASS = Pounds.of(104);
+    private static final Distance RADIUS = Inches.of(27 / 2.0); // Give or take
+private static final MomentOfInertia MOI = KilogramSquareMeters
+            .of(MASS.in(Kilograms) * RADIUS.in(Meters) * RADIUS.in(Meters));
 
     private static final LinearVelocity SWERVE_MAX_LINEAR_VELOCITY = MetersPerSecond.of(5);
     private static final LinearAcceleration SWERVE_MAX_LINEAR_ACCEL = SWERVE_MAX_LINEAR_VELOCITY.div(Seconds.of(1));
     private static final AngularVelocity SWERVE_MAX_ANGULAR_VELOCITY = RotationsPerSecond.of(2);
     private static final AngularAcceleration SWERVE_MAX_ANGULAR_ACCEL = SWERVE_MAX_ANGULAR_VELOCITY.div(Seconds.of(.5));
 
-    private static final double KRAKEN_MAX_FREE_VELOCITY = 6000.0;
-    private static final double BATTERY_VOLTAGE = 12.0;
-    private static final double SECONDS_PER_MINUTE = 60.0;
-    private static final double DRIVE_MOTOR_STATOR_CURRENT = 60;
-    private static final double DRIVE_MOTOR_SUPPLY_CURRENT = 40;
+   private static final AngularVelocity KRAKEN_MAX_FREE_VELOCITY = RPM.of(6000.0);
+    private static final Voltage BATTERY_VOLTAGE = Volts.of(12.0);
+    private static final Current DRIVE_MOTOR_STATOR_CURRENT = Amps.of(60.0);
+    private static final Current DRIVE_MOTOR_SUPPLY_CURRENT = Amps.of(40.0);
     private static final double COEFFICENT_OF_FRICTION = 0.5;
 
     public static final SwerveConstraints SWERVE_CONSTRAINTS = new SwerveConstraints(SWERVE_MAX_ANGULAR_VELOCITY,
@@ -67,11 +80,12 @@ public class SwerveDrive2026Competition extends SwerveDrive {
             locations[i] = modules[i].getLocation();
         }
         RobotConfig config = new RobotConfig(MASS, MOI,
-                new ModuleConfig(SdsSwerveModuleIoReal.WHEEL_RADIUS, SWERVE_MAX_LINEAR_VELOCITY.in(MetersPerSecond),
+                new ModuleConfig(SdsSwerveModuleIoReal.WHEEL_RADIUS.in(Meters),
+                        SWERVE_MAX_LINEAR_VELOCITY.in(MetersPerSecond),
                         COEFFICENT_OF_FRICTION,
                         DCMotor.getKrakenX60(1)
                                 .withReduction(Math.abs(SdsSwerveModuleIoReal.ModuleType.MK5_R2.driveRatio)),
-                        DRIVE_MOTOR_STATOR_CURRENT,
+                        DRIVE_MOTOR_STATOR_CURRENT.in(Amps),
                         1),
                 locations);
         configureAuto(config);
@@ -89,14 +103,14 @@ public class SwerveDrive2026Competition extends SwerveDrive {
         if (Logger.hasReplaySource()) {
             return new SdsSwerveModuleIoBase(locationOffset);
         }
-        
+
         CANcoder canCoder = new CANcoder(canCoderId, CANIVORE_BUS);
         TalonFX steerMotor = new TalonFX(steerMotorId, CANIVORE_BUS);
         TalonFX driveMotor = new TalonFX(driveMotorId, CANIVORE_BUS);
 
         Slot0Configs steerMotorPid = new Slot0Configs().withKP(80);
         Slot0Configs driveMotorPid = new Slot0Configs()
-                .withKV(BATTERY_VOLTAGE / (KRAKEN_MAX_FREE_VELOCITY / SECONDS_PER_MINUTE));
+                .withKV(BATTERY_VOLTAGE.in(Volts) / (KRAKEN_MAX_FREE_VELOCITY.in(RotationsPerSecond)));
 
         return new SdsSwerveModuleIoReal(locationOffset, ModuleType.MK5_R2, steerMotor, steerMotorPid,
                 driveMotor,
