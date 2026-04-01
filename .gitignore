@@ -187,4 +187,4 @@ compile_commands.json
 .factorypath
 
 generator/build
-src/main/java/frc/robot/GitVersion.java
+src/main/java/frc/GitVersion.java
