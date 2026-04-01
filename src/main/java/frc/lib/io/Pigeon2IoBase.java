@@ -7,7 +7,6 @@ import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 import frc.lib.component.Gyro;
 import frc.lib.logging.LoggableIo;
-import frc.lib.swerve.GyroInputsAutoLogged;
 
 public class Pigeon2IoBase extends LoggableIo<Pigeon2IoBase.GyroInputs> implements Gyro {
     @AutoLog

@@ -18,7 +18,6 @@ import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 import frc.lib.component.SwerveModule;
 import frc.lib.logging.LoggableIo;
-import frc.lib.swerve.SwerveInputsAutoLogged;
 
 public class SdsSwerveModuleIoBase extends LoggableIo<SdsSwerveModuleIoBase.SwerveInputs> implements SwerveModule {
     @AutoLog

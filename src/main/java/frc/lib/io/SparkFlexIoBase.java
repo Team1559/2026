@@ -15,7 +15,6 @@ import frc.lib.component.AngleComponent;
 import frc.lib.component.AngularVelocityComponent;
 import frc.lib.component.VoltageComponent;
 import frc.lib.logging.LoggableIo;
-import frc.lib.velocity.SparkFlexIoInputsAutoLogged;
 
 public class SparkFlexIoBase extends LoggableIo<SparkFlexIoBase.SparkFlexIoInputs>
         implements AngularVelocityComponent, AngleComponent, VoltageComponent {

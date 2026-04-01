@@ -5,7 +5,6 @@ import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 import frc.lib.component.AprilTagSensor;
 import frc.lib.logging.LoggableIo;
-import frc.lib.vision.VisionInputsAutoLogged;
 
 public class LimelightCameraIoBase extends LoggableIo<LimelightCameraIoBase.VisionInputs> implements AprilTagSensor {
     @AutoLog

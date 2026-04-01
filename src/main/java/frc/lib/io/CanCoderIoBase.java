@@ -7,7 +7,6 @@ import edu.wpi.first.units.measure.Angle;
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
-import frc.lib.angular_position.CanCoderIoInputsAutoLogged;
 import frc.lib.component.AngleSensor;
 import frc.lib.logging.LoggableIo;
 
