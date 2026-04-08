@@ -27,6 +27,7 @@ import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -49,16 +50,16 @@ import com.pathplanner.lib.config.RobotConfig;
 import frc.lib.component.AngleComponent;
 import frc.lib.component.AngleSensor;
 import frc.lib.component.SwerveModule;
+import frc.lib.intermediate.DriveSteerModule;
 import frc.lib.intermediate.DriveWheelAdapter;
 import frc.lib.io.CanCoderIoBase;
 import frc.lib.io.CanCoderIoReal;
 import frc.lib.io.Pigeon2IoBase;
 import frc.lib.io.Pigeon2IoReal;
-import frc.lib.io.SdsSwerveModule;
-import frc.lib.io.SdsSwerveModule.ModuleType;
 import frc.lib.io.TalonFXIoBase;
 import frc.lib.io.TalonFXIoReal;
 import frc.lib.subsystem.SwerveDrive;
+import frc.lib.util.SdsSwerveModuleType;
 
 public class SwerveDrive2026Competition extends SwerveDrive {
     private static final CANBus CANIVORE_BUS = new CANBus("1559_Canivore");
@@ -78,7 +79,7 @@ public class SwerveDrive2026Competition extends SwerveDrive {
     private static final Current DRIVE_MOTOR_SUPPLY_CURRENT = Amps.of(40.0);
     private static final double COEFFICENT_OF_FRICTION = 0.5;
 
-    private static final ModuleType MODULE_TYPE = ModuleType.MK5_R2;
+    private static final SdsSwerveModuleType MODULE_TYPE = SdsSwerveModuleType.MK5_R2;
 
     public static final SwerveConstraints SWERVE_CONSTRAINTS = new SwerveConstraints(SWERVE_MAX_ANGULAR_VELOCITY,
             SWERVE_MAX_ANGULAR_ACCEL, SWERVE_MAX_LINEAR_VELOCITY, SWERVE_MAX_LINEAR_ACCEL);
@@ -95,11 +96,11 @@ public class SwerveDrive2026Competition extends SwerveDrive {
             locations[i] = modules[i].getLocation();
         }
         RobotConfig config = new RobotConfig(MASS, MOI,
-                new ModuleConfig(SdsSwerveModule.WHEEL_RADIUS.in(Meters),
+                new ModuleConfig(SdsSwerveModuleType.WHEEL_RADIUS.in(Meters),
                         SWERVE_MAX_LINEAR_VELOCITY.in(MetersPerSecond),
                         COEFFICENT_OF_FRICTION,
                         DCMotor.getKrakenX60(1)
-                                .withReduction(Math.abs(SdsSwerveModule.ModuleType.MK5_R2.driveRatio)),
+                                .withReduction(Math.abs(MODULE_TYPE.driveRatio)),
                         DRIVE_MOTOR_STATOR_CURRENT.in(Amps),
                         1),
                 locations);
@@ -112,7 +113,7 @@ public class SwerveDrive2026Competition extends SwerveDrive {
         logger().debug("CAN Utilization", CANIVORE_BUS.getStatus().BusUtilization);
     }
 
-    private static SdsSwerveModule createSwerveModule(int steerMotorId, int driveMotorId, int canCoderId,
+    private static DriveSteerModule createSwerveModule(int steerMotorId, int driveMotorId, int canCoderId,
             Rotation2d canCoderOffset, Translation2d locationOffset) {
 
         AngleComponent steerMotor;
@@ -153,10 +154,10 @@ public class SwerveDrive2026Competition extends SwerveDrive {
             driveMotorIO = new TalonFXIoReal(driveMotorTalonFX);
         }
 
-        DriveWheelAdapter<?> driveMotor = new DriveWheelAdapter<>(driveMotorIO, SdsSwerveModule.WHEEL_RADIUS,
+        DriveWheelAdapter<?> driveMotor = new DriveWheelAdapter<>(driveMotorIO, SdsSwerveModuleType.WHEEL_RADIUS,
                 MODULE_TYPE.driveRatio);
 
-        return new SdsSwerveModule(locationOffset, steerMotor,
+        return new DriveSteerModule(locationOffset, steerMotor,
                 driveMotor,
                 encoder.withOffset(canCoderOffset));
     }
@@ -168,13 +169,13 @@ public class SwerveDrive2026Competition extends SwerveDrive {
     private static Map<String, SwerveModule> createModules() {
         double swerveModuleX = Units.inchesToMeters(10.875);
         double swerveModuleY = Units.inchesToMeters(10.875);
-        SdsSwerveModule frontLeft = createSwerveModule(1, 3, 2, Rotation2d.fromRadians(1.866855),
+        DriveSteerModule frontLeft = createSwerveModule(1, 3, 2, Rotation2d.fromRadians(1.866855),
                 new Translation2d(swerveModuleX, swerveModuleY));
-        SdsSwerveModule frontRight = createSwerveModule(4, 6, 5, Rotation2d.fromRadians(1.825437),
+        DriveSteerModule frontRight = createSwerveModule(4, 6, 5, Rotation2d.fromRadians(1.825437),
                 new Translation2d(swerveModuleX, -swerveModuleY));
-        SdsSwerveModule rearLeft = createSwerveModule(10, 12, 11, Rotation2d.fromRadians(-0.248505),
+        DriveSteerModule rearLeft = createSwerveModule(10, 12, 11, Rotation2d.fromRadians(-0.248505),
                 new Translation2d(-swerveModuleX, swerveModuleY));
-        SdsSwerveModule rearRight = createSwerveModule(7, 9, 8, Rotation2d.fromRadians(-0.509282),
+        DriveSteerModule rearRight = createSwerveModule(7, 9, 8, Rotation2d.fromRadians(-0.509282),
                 new Translation2d(-swerveModuleX, -swerveModuleY));
         return Map.of("FrontLeft", frontLeft, "FrontRight", frontRight, "RearLeft", rearLeft, "RearRight", rearRight);
     }
