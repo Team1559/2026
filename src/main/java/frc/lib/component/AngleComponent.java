@@ -9,12 +9,16 @@ import frc.lib.util.NeutralOutput;
 
 public interface AngleComponent extends AngleSensor, NeutralOutput{
     void setAngle(Angle angle);
-
+    
+    void setPercievedAngle(Angle angle);
+    
     default void setAngle(Rotation2d angle){
         setAngle(angle.getMeasure());
     }
 
-    void setPercievedAngle(Angle angle);
+    default AngleComponent withOffset(Angle offset){
+        return this; //TODO: add offset
+    }
 
     default AngleComponent withAngleRatio(double reductionRatio) {
         return new AngleRatio(reductionRatio, this);

@@ -27,7 +27,6 @@ import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -50,7 +49,7 @@ import com.pathplanner.lib.config.RobotConfig;
 import frc.lib.component.AngleComponent;
 import frc.lib.component.AngleSensor;
 import frc.lib.component.SwerveModule;
-import frc.lib.intermediate.DriveSteerModule;
+import frc.lib.intermediate.DriveSteerSwerveModule;
 import frc.lib.intermediate.DriveWheelAdapter;
 import frc.lib.io.CanCoderIoBase;
 import frc.lib.io.CanCoderIoReal;
@@ -112,7 +111,7 @@ public class SwerveDrive2026Practice extends SwerveDrive {
         logger().debug("CAN Utilization", CANIVORE_BUS.getStatus().BusUtilization);
     }
 
-    private static DriveSteerModule createSwerveModule(int steerMotorId, int driveMotorId, int canCoderId,
+    private static DriveSteerSwerveModule createSwerveModule(int steerMotorId, int driveMotorId, int canCoderId,
             Rotation2d canCoderOffset, Translation2d locationOffset) {
 
         AngleComponent steerMotor;
@@ -165,7 +164,7 @@ public class SwerveDrive2026Practice extends SwerveDrive {
                 MODULE_TYPE.driveRatio);
 
 
-        return new DriveSteerModule(locationOffset, steerMotor,
+        return new DriveSteerSwerveModule(locationOffset, steerMotor,
                 driveMotor,
                 encoder.withOffset(canCoderOffset));
     }
@@ -177,13 +176,13 @@ public class SwerveDrive2026Practice extends SwerveDrive {
     private static Map<String, SwerveModule> createModules() {
         double swerveModuleX = Units.inchesToMeters(10.875);
         double swerveModuleY = Units.inchesToMeters(10.875);
-        DriveSteerModule frontLeft = createSwerveModule(1, 3, 2, Rotation2d.fromRadians(-0.904),
+        DriveSteerSwerveModule frontLeft = createSwerveModule(1, 3, 2, Rotation2d.fromRadians(-0.904),
                 new Translation2d(swerveModuleX, swerveModuleY));
-        DriveSteerModule frontRight = createSwerveModule(4, 6, 5, Rotation2d.fromRadians(1.729),
+        DriveSteerSwerveModule frontRight = createSwerveModule(4, 6, 5, Rotation2d.fromRadians(1.729),
                 new Translation2d(swerveModuleX, -swerveModuleY));
-        DriveSteerModule rearLeft = createSwerveModule(10, 12, 11, Rotation2d.fromRadians(-3.077),
+        DriveSteerSwerveModule rearLeft = createSwerveModule(10, 12, 11, Rotation2d.fromRadians(-3.077),
                 new Translation2d(-swerveModuleX, swerveModuleY));
-        DriveSteerModule rearRight = createSwerveModule(7, 9, 8, Rotation2d.fromRadians(0.873),
+        DriveSteerSwerveModule rearRight = createSwerveModule(7, 9, 8, Rotation2d.fromRadians(0.873),
                 new Translation2d(-swerveModuleX, -swerveModuleY));
         return Map.of("FrontLeft", frontLeft, "FrontRight", frontRight, "RearLeft", rearLeft, "RearRight", rearRight);
     }

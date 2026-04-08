@@ -8,28 +8,23 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 
 import frc.lib.component.AngleComponent;
-import frc.lib.component.AngleSensor;
 import frc.lib.component.SwerveModule;
 import frc.lib.logging.LoggableIntermediate;
 
-public class DriveSteerModule extends LoggableIntermediate implements SwerveModule {
+public class DriveSteerSwerveModule extends LoggableIntermediate implements SwerveModule {
     private final AngleComponent steerMotor;
     private final DriveWheelAdapter<?> driveMotor;
-    private final AngleSensor encoder;
     private final Translation2d location;
 
-    public DriveSteerModule(Translation2d location, AngleComponent steerMotor,
-            DriveWheelAdapter<?> driveMotor,
-            AngleSensor cancoder) {
+    public DriveSteerSwerveModule(Translation2d location, AngleComponent steerMotor,
+            DriveWheelAdapter<?> driveMotor) {
 
         this.location = location;
         this.steerMotor = steerMotor;
         this.driveMotor = driveMotor;
-        this.encoder = cancoder;
-        
+
         addChild("DriveMotor", driveMotor);
         addChild("SteerMotor", steerMotor);
-        addChild("Cancoder", encoder);
     }
 
     @Override
