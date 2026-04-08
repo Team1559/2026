@@ -12,9 +12,8 @@ import com.ctre.phoenix6.signals.InvertedValue;
 
 import frc.lib.component.AngleComponent;
 import frc.lib.component.AngleSensor;
-import frc.lib.component.DistanceSensor;
-import frc.lib.component.LinearVelocityComponent;
 import frc.lib.component.SwerveModule;
+import frc.lib.intermediate.DriveWheelAdapter;
 import frc.lib.logging.LoggableIntermediate;
 
 public class SdsSwerveModule extends LoggableIntermediate implements SwerveModule {
@@ -53,26 +52,20 @@ public class SdsSwerveModule extends LoggableIntermediate implements SwerveModul
     public static final Distance WHEEL_RADIUS = Inches.of(2.0);
 
     private final AngleComponent steerMotor;
-    private final LinearVelocityComponent driveMotor;
-    private final DistanceSensor driveMotorDistanceSensor;
+    private final DriveWheelAdapter<?> driveMotor;
     private final AngleSensor encoder;
-    // TODO - How can we solve the garbage collection issue with the cancoder?
-    // Do we just need to hold on to the AngleSensor like we did with the cancoder
-    // before?
     private final Translation2d location;
 
     public SdsSwerveModule(Translation2d location, AngleComponent steerMotor,
-            LinearVelocityComponent driveMotor, DistanceSensor driveMotorDistanceSensor,
+            DriveWheelAdapter<?> driveMotor,
             AngleSensor cancoder) {
 
         this.location = location;
         this.steerMotor = steerMotor;
         this.driveMotor = driveMotor;
-        this.driveMotorDistanceSensor = driveMotorDistanceSensor;
         this.encoder = cancoder;
         
         addChild("DriveMotor", driveMotor);
-        addChild("DriveMotorDistanceSensor", driveMotorDistanceSensor);
         addChild("SteerMotor", steerMotor);
         addChild("Cancoder", encoder);
     }
@@ -110,6 +103,6 @@ public class SdsSwerveModule extends LoggableIntermediate implements SwerveModul
 
     @Override
     public Distance getDistance() {
-        return driveMotorDistanceSensor.getDistance();
+        return driveMotor.getDistance();
     }
 }

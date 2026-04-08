@@ -48,9 +48,8 @@ import com.pathplanner.lib.config.RobotConfig;
 
 import frc.lib.component.AngleComponent;
 import frc.lib.component.AngleSensor;
-import frc.lib.component.DistanceSensor;
-import frc.lib.component.LinearVelocityComponent;
 import frc.lib.component.SwerveModule;
+import frc.lib.intermediate.DriveWheelAdapter;
 import frc.lib.io.CanCoderIoBase;
 import frc.lib.io.CanCoderIoReal;
 import frc.lib.io.Pigeon2IoBase;
@@ -117,8 +116,6 @@ public class SwerveDrive2026Competition extends SwerveDrive {
             Rotation2d canCoderOffset, Translation2d locationOffset) {
 
         AngleComponent steerMotor;
-        LinearVelocityComponent driveMotor;
-        DistanceSensor driveMotorDistanceSensor;
         AngleSensor encoder;
 
         TalonFXIoBase driveMotorIO;
@@ -156,13 +153,12 @@ public class SwerveDrive2026Competition extends SwerveDrive {
             driveMotorIO = new TalonFXIoReal(driveMotorTalonFX);
         }
 
-        driveMotor = driveMotorIO.withVelocityRatio(MODULE_TYPE.driveRatio).withVelocityWheelRadius(RADIUS);
-        driveMotorDistanceSensor = driveMotorIO.withAngleRatio(MODULE_TYPE.driveRatio).withPositionWheelRadius(RADIUS);
-        encoder.withOffset(canCoderOffset);
+        DriveWheelAdapter<?> driveMotor = new DriveWheelAdapter<>(driveMotorIO, SdsSwerveModule.WHEEL_RADIUS,
+                MODULE_TYPE.driveRatio);
 
         return new SdsSwerveModule(locationOffset, steerMotor,
-                driveMotor, driveMotorDistanceSensor,
-                encoder);
+                driveMotor,
+                encoder.withOffset(canCoderOffset));
     }
 
     private static Pigeon2IoBase createGyro() {

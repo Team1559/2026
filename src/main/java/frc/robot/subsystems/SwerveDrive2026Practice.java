@@ -48,19 +48,18 @@ import com.pathplanner.lib.config.RobotConfig;
 
 import frc.lib.component.AngleComponent;
 import frc.lib.component.AngleSensor;
-import frc.lib.component.DistanceSensor;
-import frc.lib.component.LinearVelocityComponent;
 import frc.lib.component.SwerveModule;
+import frc.lib.intermediate.DriveWheelAdapter;
 import frc.lib.io.CanCoderIoBase;
 import frc.lib.io.CanCoderIoReal;
 import frc.lib.io.Pigeon2IoBase;
 import frc.lib.io.Pigeon2IoReal;
 import frc.lib.io.SdsSwerveModule;
 import frc.lib.io.SdsSwerveModule.ModuleType;
-import frc.lib.io.SdsSwerveModuleIoBase;
 import frc.lib.io.TalonFXIoBase;
 import frc.lib.io.TalonFXIoReal;
 import frc.lib.subsystem.SwerveDrive;
+import frc.lib.util.CanRefreshRate;
 
 public class SwerveDrive2026Practice extends SwerveDrive {
     private static final CANBus CANIVORE_BUS = new CANBus("1559_Canivore");
@@ -114,9 +113,8 @@ public class SwerveDrive2026Practice extends SwerveDrive {
 
     private static SdsSwerveModule createSwerveModule(int steerMotorId, int driveMotorId, int canCoderId,
             Rotation2d canCoderOffset, Translation2d locationOffset) {
-AngleComponent steerMotor;
-        LinearVelocityComponent driveMotor;
-        DistanceSensor driveMotorDistanceSensor;
+
+        AngleComponent steerMotor;
         AngleSensor encoder;
 
         TalonFXIoBase driveMotorIO;
@@ -152,15 +150,23 @@ AngleComponent steerMotor;
                             .withSupplyCurrentLimit(DRIVE_MOTOR_SUPPLY_CURRENT));
             driveMotorTalonFX.setPosition(0);
             driveMotorIO = new TalonFXIoReal(driveMotorTalonFX);
+
+            driveMotorTalonFX.getVelocity().setUpdateFrequency(CanRefreshRate.DEFAULT.rateHz);
+            canCoder.getAbsolutePosition().setUpdateFrequency(CanRefreshRate.FAST.rateHz);
+            driveMotorTalonFX.getPosition().setUpdateFrequency(CanRefreshRate.FAST.rateHz);
+            driveMotorTalonFX.getDeviceTemp().setUpdateFrequency(CanRefreshRate.SLOW.rateHz);
+            steerMotorTalonFX.getDeviceTemp().setUpdateFrequency(CanRefreshRate.SLOW.rateHz);
+            driveMotorTalonFX.getStatorCurrent().setUpdateFrequency(CanRefreshRate.DEFAULT.rateHz);
+            steerMotorTalonFX.getStatorCurrent().setUpdateFrequency(CanRefreshRate.DEFAULT.rateHz);
         }
 
-        driveMotor = driveMotorIO.withVelocityRatio(MODULE_TYPE.driveRatio).withVelocityWheelRadius(RADIUS);
-        driveMotorDistanceSensor = driveMotorIO.withAngleRatio(MODULE_TYPE.driveRatio).withPositionWheelRadius(RADIUS);
-        encoder.withOffset(canCoderOffset);
+        DriveWheelAdapter<?> driveMotor = new DriveWheelAdapter<>(driveMotorIO, SdsSwerveModule.WHEEL_RADIUS,
+                MODULE_TYPE.driveRatio);
+
 
         return new SdsSwerveModule(locationOffset, steerMotor,
-                driveMotor, driveMotorDistanceSensor,
-                encoder);
+                driveMotor,
+                encoder.withOffset(canCoderOffset));
     }
 
     private static Pigeon2IoBase createGyro() {
