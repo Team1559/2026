@@ -115,16 +115,16 @@ public class SwerveDrive2026Practice extends SwerveDrive {
             Rotation2d canCoderOffset, Translation2d locationOffset) {
 
         AngleComponent steerMotor;
-        AngleSensor encoder;
+        //AngleSensor encoder;
 
         TalonFXIoBase driveMotorIO;
         if (Logger.hasReplaySource()) {
             steerMotor = new TalonFXIoBase();
             driveMotorIO = new TalonFXIoBase();
-            encoder = new CanCoderIoBase();
+            //encoder = new CanCoderIoBase();
         } else {
             CANcoder canCoder = new CANcoder(canCoderId, CANIVORE_BUS);
-            encoder = new CanCoderIoReal(canCoder, new CANcoderConfiguration());
+            //encoder = new CanCoderIoReal(canCoder, new CANcoderConfiguration());
             TalonFX steerMotorTalonFX = new TalonFX(steerMotorId, CANIVORE_BUS);
             steerMotorTalonFX.getConfigurator().apply(new TalonFXConfiguration());
             steerMotorTalonFX.getConfigurator().apply(new MotorOutputConfigs()
@@ -136,7 +136,7 @@ public class SwerveDrive2026Practice extends SwerveDrive {
             ClosedLoopGeneralConfigs clgConfig = new ClosedLoopGeneralConfigs();
             clgConfig.ContinuousWrap = true;
             steerMotorTalonFX.getConfigurator().apply(clgConfig);
-            steerMotor = new TalonFXIoReal(steerMotorTalonFX);
+            steerMotor = new TalonFXIoReal(steerMotorTalonFX).withOffset(canCoderOffset);
 
             TalonFX driveMotorTalonFX = new TalonFX(driveMotorId, CANIVORE_BUS);
             driveMotorTalonFX.getConfigurator().apply(new TalonFXConfiguration());
