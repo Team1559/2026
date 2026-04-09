@@ -137,7 +137,7 @@ public class SwerveDrive2026Competition extends SwerveDrive {
             ClosedLoopGeneralConfigs clgConfig = new ClosedLoopGeneralConfigs();
             clgConfig.ContinuousWrap = true;
             steerMotorTalonFX.getConfigurator().apply(clgConfig);
-            steerMotor = new TalonFXIoReal(steerMotorTalonFX);      //TODO: need offset
+            steerMotor = new TalonFXIoReal(steerMotorTalonFX).withOffset(canCoderOffset);      //TODO: need offset
 
             TalonFX driveMotorTalonFX = new TalonFX(driveMotorId, CANIVORE_BUS);
             driveMotorTalonFX.getConfigurator().apply(new TalonFXConfiguration());

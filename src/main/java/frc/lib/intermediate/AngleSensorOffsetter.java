@@ -5,11 +5,11 @@ import edu.wpi.first.units.measure.Angle;
 import frc.lib.component.AngleSensor;
 import frc.lib.logging.LoggableIntermediate;
 
-public class AngleSensorOffsetter extends LoggableIntermediate implements AngleSensor {
-    private final Angle offset;
-    private final AngleSensor child;
+public class AngleSensorOffsetter<T extends AngleSensor> extends LoggableIntermediate implements AngleSensor {
+    protected final Angle offset;
+    protected final T child;
 
-    public AngleSensorOffsetter(Angle offset, AngleSensor child) {
+    public AngleSensorOffsetter(Angle offset, T child) {
         this.offset = offset;
         this.child = child;
         setChild(child);

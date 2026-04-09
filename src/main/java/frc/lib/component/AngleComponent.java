@@ -3,6 +3,7 @@ package frc.lib.component;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
 
+import frc.lib.intermediate.AngleComponentOffsetter;
 import frc.lib.intermediate.AngleLimiter;
 import frc.lib.intermediate.AngleRatio;
 import frc.lib.util.NeutralOutput;
@@ -16,8 +17,14 @@ public interface AngleComponent extends AngleSensor, NeutralOutput{
         setAngle(angle.getMeasure());
     }
 
+    @Override
     default AngleComponent withOffset(Angle offset){
-        return this; //TODO: add offset
+        return new AngleComponentOffsetter<>(offset, this);
+    }
+
+    @Override
+    default AngleComponent withOffset(Rotation2d offset) {
+        return new AngleComponentOffsetter<>(offset.getMeasure(), this);
     }
 
     default AngleComponent withAngleRatio(double reductionRatio) {
