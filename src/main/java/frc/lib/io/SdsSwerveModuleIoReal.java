@@ -86,7 +86,9 @@ public class SdsSwerveModuleIoReal extends SdsSwerveModuleIoBase {
     private final StatusSignal<Current> steerMotorCurrent;
     private final StatusSignal<Current> driveMotorCurrent;
 
-    public SdsSwerveModuleIoReal(Translation2d location, ModuleType moduleType, TalonFX steerMotor,
+    public SdsSwerveModuleIoReal(Translation2d location, 
+            ModuleType moduleType,
+            TalonFX steerMotor,
             Slot0Configs steerMotorPid,
             TalonFX driveMotor,
             Slot0Configs driveMotorPid, Current driveStatorCurrentLimit, Current driveSupplyCurrentLimit,

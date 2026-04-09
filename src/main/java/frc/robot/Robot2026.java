@@ -87,6 +87,7 @@ public class Robot2026 extends Robot {
 
         pilotController.rightTrigger().whileTrue(new ShootCommand(shooter,
                 shooter::targetLocation));
+
         pilotController.rightBumper().whileTrue(new WiggleIntakeCommand(intake));
 
         pilotController.a().onTrue(new InstantCommand(shooter::useAbsoluteAngle));
@@ -103,8 +104,29 @@ public class Robot2026 extends Robot {
 
     @Override
     protected void setTestBindings() {
+        drivetrain.setDefaultCommand(new TeleopDriveCommand(() -> pilotController.getLeftY() * -1,
+                () -> pilotController.getLeftX() * -1, () -> pilotController.getRightX() * -1,
+                SwerveDrive2026Competition.SWERVE_CONSTRAINTS, drivetrain, () -> true)); //Always robot oriented
+
+        pilotController.leftBumper()
+                .whileTrue(new TeleopDriveCommand(() -> pilotController.getLeftY() * -1,
+                        () -> pilotController.getLeftX() * -1, () -> pilotController.getRightX() * -1,
+                        SwerveDrive2026Competition.SLOW_SWERVE_CONSTRAINTS, drivetrain, () -> true));
+
         pilotController.leftTrigger()
                 .whileTrue(new StartEndCommand(intake::runForwards, intake::stop, intake));
+
+        pilotController.leftTrigger().onTrue(new InstantCommand(intake::moveElbowDown));
+
+        pilotController.rightStick().onTrue(new InstantCommand(intake::moveElbowUp,
+                intake));
+        
+        pilotController.rightBumper().whileTrue(new WiggleIntakeCommand(intake));
+        
+        pilotController.rightTrigger().whileTrue(new ShootCommand(shooter,
+                (shooter::targetLocation)));
+        
+        pilotController.b().onTrue(new InstantCommand(shooter::zeroTurret));
     }
 
     @Override

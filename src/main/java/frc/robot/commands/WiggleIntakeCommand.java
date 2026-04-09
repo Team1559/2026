@@ -27,7 +27,8 @@ public class WiggleIntakeCommand extends Command {
         if (intake.isAtLowerLimit()) {
             intake.moveElbowUp();
             lastKnownTime = currentTime;
-        } else if (intake.isAtUpperLimit() ||  currentTime > lastKnownTime + 0.5) {
+        //No longer brings intake all the way up, just makes it not "Down", better for new hopper
+        } else if (!intake.isAtLowerLimit() ||  currentTime > lastKnownTime + 0.5) { 
             intake.moveElbowDown();
             lastKnownTime = currentTime;
         }
