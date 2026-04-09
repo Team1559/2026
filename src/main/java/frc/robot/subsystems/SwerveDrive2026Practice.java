@@ -165,8 +165,7 @@ public class SwerveDrive2026Practice extends SwerveDrive {
 
 
         return new DriveSteerSwerveModule(locationOffset, steerMotor,
-                driveMotor,
-                encoder.withOffset(canCoderOffset));
+                driveMotor);    //TODO: need encoder
     }
 
     private static Pigeon2IoBase createGyro() {
