@@ -108,7 +108,7 @@ public class Shooter2026 extends LoggableSubsystem {
         this.addChild("Flywheel", flywheel);
         this.addChild("FeedWheel", feedWheel);
         this.addChild("TurretAngleSensor", turretAngleSensor);
-        zeroTurret();
+        useAbsoluteAngle();
     }
 
     public Shooter2026(Supplier<Pose2d> robotPositionSupplier, Supplier<ChassisSpeeds> robotSpeedSupplier) {
@@ -187,8 +187,8 @@ public class Shooter2026 extends LoggableSubsystem {
         }
 
         return new ChineseRemainderAngle(21, 19, 200,
-                canCoderOne.withOffset(Degrees.of(125.332021)),
-                canCoderTwo.withOffset(Degrees.of(-4.746094)),
+                canCoderOne.withOffset(Degrees.of(126.650391)),
+                canCoderTwo.withOffset(Degrees.of(-4.306641)),
                 Degrees.of(-180), Degrees.of(180));
     }
 

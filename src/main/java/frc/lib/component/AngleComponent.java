@@ -15,7 +15,7 @@ public interface AngleComponent extends AngleSensor, NeutralOutput{
         return new AngleRatio(reductionRatio, this);
     }
 
-    default AngleComponent withLimits(Angle max, Angle min) {
+    default AngleComponent withLimits(Angle min, Angle max) {
         return new AngleLimiter(min, max, this);
     }
 }

@@ -16,6 +16,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 
 import frc.lib.Robot;
 import frc.lib.command.TeleopDriveCommand;
+import frc.lib.logging.BaseLogger;
 import frc.lib.subsystem.SwerveDrive;
 
 import frc.robot.commands.ShootCommand;
@@ -40,19 +41,18 @@ public class Robot2026 extends Robot {
     private final Indexer2026 indexer;
 
     public Robot2026() {
-        // BaseLogger.overrideDebugMode(false)
+        BaseLogger.overrideDebugMode(true);
         drivetrain = new SwerveDrive2026Competition();
         vision = new Vision2026(drivetrain);
         shooter = new Shooter2026(drivetrain::getPosition, drivetrain::getCurrentSpeed);
         intake = new Intake2026();
-        indexer = new Indexer2026(shooter::isShooting, intake::isIntaking);
-
+        indexer = new Indexer2026(shooter::isShooting);
+        
         pilotController = new CommandXboxController(0);
-        coPilotController = new CommandXboxController(1);
-
         registerNamedCommands();
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData(autoChooser);
+        coPilotController = new CommandXboxController(1);
     }
 
     private void registerNamedCommands() {
