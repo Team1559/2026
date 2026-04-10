@@ -1,81 +1,105 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
+
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Voltage;
 
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.Voltage;
-import frc.lib.angular_position.AngularPositionSensor;
-import frc.lib.angular_position.CanCoderIo;
-import frc.lib.velocity.SparkFlexIo;
-import frc.lib.voltage.VoltageComponent;
-import frc.lib.voltage.VoltageSubsystem;
+import frc.lib.component.AngleSensor;
+import frc.lib.component.VoltageComponent;
+import frc.lib.io.CanCoderIoBase;
+import frc.lib.io.CanCoderIoReal;
+import frc.lib.io.SparkFlexIoBase;
+import frc.lib.io.SparkFlexIoReal;
+import frc.lib.logging.LoggableSubsystem;
+import frc.lib.util.ForwardReverseNeutral;
 
-public class Intake2026 extends VoltageSubsystem {
+public class Intake2026 extends LoggableSubsystem {
     private static final int INTAKE_MOTOR_ID = 22;
     private static final int ELBOW_MOTOR_ID = 21;
-    private static final int ELBOW_ENCODER_ID = 16; // TODO: find ID value
+    private static final int ELBOW_ENCODER_ID = 16;
     private static final Voltage FORWARD_VOLTAGE = Volts.of(6);
     private static final Voltage REVERSE_VOLTAGE = Volts.of(-5);
     private static final Voltage ELBOW_UP_VOLTAGE = Volts.of(3);
     private static final Voltage ELBOW_DOWN_VOLTAGE = Volts.of(-1);
     private static final Voltage HOLD_ELBOW_UP = Volts.of(0.5);
     private static final Voltage HOLD_ELBOW_DOWN = Volts.of(-0.2);
-    private static final Angle ELBOW_OFFSET = Rotations.of(0.757813);
+    private static final Angle ELBOW_OFFSET = Degrees.of(189.4);
     private static final Angle UP_ANGLE = Degrees.of(86);
     private static final Angle DOWN_ANGLE = Degrees.of(30);
 
+    private final VoltageComponent intakeMotor;
     private final VoltageComponent elbowMotor;
-    private final AngularPositionSensor elbowEncoder;
-
-    private ElbowState elbowState = ElbowState.NEUTRAL;
-    private IntakeState intakeState = IntakeState.NEUTRAL;
+    private final AngleSensor elbowEncoder;
     
+    private ElbowState elbowState = ElbowState.NEUTRAL;
+    private ForwardReverseNeutral intakeState = ForwardReverseNeutral.NEUTRAL;
+
     public Intake2026() {
-        super("Intake",
-                new SparkFlexIo("IntakeMotor", new SparkFlex(INTAKE_MOTOR_ID, MotorType.kBrushless),
-                        makeIntakeConfig()));
+        super("Intake");
 
-        elbowMotor = new SparkFlexIo("ElbowMotor", new SparkFlex(ELBOW_MOTOR_ID, MotorType.kBrushless),
-                makeElbowConfig());
+        intakeMotor = makeIntakeMotor();
+        elbowMotor = makeElbowMotor();
+        elbowEncoder = makeElbowEncoder();
 
-        elbowEncoder = new CanCoderIo("ElbowEncoder", new CANcoder(ELBOW_ENCODER_ID), ELBOW_OFFSET,
-                makeEncoderConfig());
-
-        addChildren(elbowMotor, elbowEncoder);
+        addChild("IntakeMotor", intakeMotor);
+        addChild("ElbowMotor", elbowMotor);
+        addChild("ElbowEncoder", elbowEncoder);
     }
 
-    private static SparkFlexConfig makeIntakeConfig() {
-        SparkFlexConfig config = new SparkFlexConfig();
-        config.idleMode(IdleMode.kBrake);
-        config.inverted(false);
-        config.smartCurrentLimit(80);
-        return config;
+    private static VoltageComponent makeIntakeMotor() {
+        VoltageComponent sparkFlex;
+        if (Logger.hasReplaySource() ) {
+            sparkFlex = new SparkFlexIoBase();
+        } else {
+            SparkFlexConfig config = new SparkFlexConfig();
+            config.idleMode(IdleMode.kBrake);
+            config.inverted(false);
+            config.smartCurrentLimit(80);
+            sparkFlex = new SparkFlexIoReal(new SparkFlex(INTAKE_MOTOR_ID, MotorType.kBrushless), config);
+        }
+        return sparkFlex;
     }
 
-    private static SparkFlexConfig makeElbowConfig() {
-        SparkFlexConfig config = new SparkFlexConfig();
-        config.idleMode(IdleMode.kBrake);
-        config.smartCurrentLimit(80);
-        return config;
+    private static AngleSensor makeElbowEncoder() {
+        AngleSensor encoder;
+        if (Logger.hasReplaySource()) {
+            encoder = new CanCoderIoBase();
+        } else {
+            CANcoderConfiguration config = new CANcoderConfiguration();
+            config.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
+            config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
+            encoder = new CanCoderIoReal(new CANcoder(ELBOW_ENCODER_ID), config);
+        }
+        return encoder.withOffset(ELBOW_OFFSET);
     }
 
-    private static CANcoderConfiguration makeEncoderConfig() {
-        CANcoderConfiguration config = new CANcoderConfiguration();
-        config.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-        config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
-        return config;
+    private static VoltageComponent makeElbowMotor() {
+        VoltageComponent sparkFlex;
+        if (Logger.hasReplaySource()) {
+            sparkFlex = new SparkFlexIoBase();
+        } else {
+            SparkFlexConfig config = new SparkFlexConfig();
+            config.idleMode(IdleMode.kBrake);
+            config.smartCurrentLimit(80);
+            sparkFlex = new SparkFlexIoReal(new SparkFlex(ELBOW_MOTOR_ID, MotorType.kBrushless), config);
+        }
+        return sparkFlex;
     }
 
     public void moveElbowUp() {
@@ -91,16 +115,15 @@ public class Intake2026 extends VoltageSubsystem {
     }
 
     public void runForwards() {
-        intakeState = IntakeState.FOWARDS;
+        intakeState = ForwardReverseNeutral.FORWARD;
     }
 
     public void runReverse() {
-        intakeState = IntakeState.BACKWARDS;
+        intakeState = ForwardReverseNeutral.REVERSE;
     }
 
-    @Override
-    public void neutralOutput() {
-        intakeState = IntakeState.NEUTRAL;
+    public void stop() {
+        intakeState = ForwardReverseNeutral.NEUTRAL;
     }
 
     @Override
@@ -108,8 +131,8 @@ public class Intake2026 extends VoltageSubsystem {
         super.periodic();
         logger().debug("ElbowUp", isAtUpperLimit())
                 .debug("ElbowDown", isAtLowerLimit())
-                .debug("ElbowState", elbowState);
-
+                .debug("ElbowState", elbowState)
+                .debug("ElbowAngle", elbowEncoder.getAngle());
         switch (elbowState) {
             case NEUTRAL:
                 elbowMotor.neutralOutput();
@@ -132,20 +155,20 @@ public class Intake2026 extends VoltageSubsystem {
 
         switch (intakeState) {
             case NEUTRAL:
-                super.neutralOutput();
+                intakeMotor.neutralOutput();
                 break;
-            case FOWARDS:
+            case FORWARD:
                 if (isAtLowerLimit()) {
-                    setVoltage(FORWARD_VOLTAGE);
+                    intakeMotor.setVoltage(FORWARD_VOLTAGE);
                 } else {
-                    super.neutralOutput();
+                    intakeMotor.neutralOutput();
                 }
                 break;
-            case BACKWARDS:
+            case REVERSE:
                 if (isAtLowerLimit()) {
-                    setVoltage(REVERSE_VOLTAGE);
+                    intakeMotor.setVoltage(REVERSE_VOLTAGE);
                 } else {
-                    super.neutralOutput();
+                    intakeMotor.neutralOutput();
                 }
                 break;
         }
@@ -159,19 +182,13 @@ public class Intake2026 extends VoltageSubsystem {
         return elbowEncoder.getAngle().lte(DOWN_ANGLE);
     }
 
-    public boolean isIntaking(){
-        return intakeState == IntakeState.FOWARDS;
+    public boolean isIntaking() {
+        return intakeState == ForwardReverseNeutral.FORWARD;
     }
 
     private enum ElbowState {
         UP,
         DOWN,
         NEUTRAL
-    }
-
-    private enum IntakeState{
-        FOWARDS,
-        BACKWARDS,
-        NEUTRAL,
     }
 }

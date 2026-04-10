@@ -2,43 +2,87 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Volts;
 
+import java.util.function.BooleanSupplier;
+
+import edu.wpi.first.units.measure.Voltage;
+
+import org.littletonrobotics.junction.Logger;
+
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 
-import edu.wpi.first.units.measure.Voltage;
-import frc.lib.velocity.SparkFlexIo;
-import frc.lib.voltage.VoltageSubsystem;
+import frc.lib.component.VoltageComponent;
+import frc.lib.io.SparkFlexIoBase;
+import frc.lib.io.SparkFlexIoReal;
+import frc.lib.logging.LoggableSubsystem;
+import frc.lib.util.ForwardReverseNeutral;
 
-public class Indexer2026 extends VoltageSubsystem {
+public class Indexer2026 extends LoggableSubsystem {
     private static final int MOTOR_ID = 26;
     private static final Voltage FORWARDS_VOLTAGE = Volts.of(6);
     private static final Voltage REVERSE_VOLTAGE = Volts.of(-6);
 
-    public Indexer2026() {
-        super("Indexer", new SparkFlexIo("IndexerMotor", new SparkFlex(MOTOR_ID, MotorType.kBrushless), makeConfig()));
+    private final VoltageComponent motor;
+
+    private ForwardReverseNeutral commandedState = ForwardReverseNeutral.FORWARD;
+
+    private final BooleanSupplier[] runConditions;
+
+    public Indexer2026(BooleanSupplier... runConditions) {
+        super("Indexer");
+        motor = makeIndexerMotor();
+        addChild("IndexerMotor", motor);
+        this.runConditions = runConditions;
     }
 
-    private static SparkFlexConfig makeConfig() {
-        SparkFlexConfig config = new SparkFlexConfig();
-        config.idleMode(IdleMode.kBrake);
-        config.inverted(false);
-        config.smartCurrentLimit(80);
-        return config;
+    private static VoltageComponent makeIndexerMotor() {
+        VoltageComponent sparkFlex;
+        if (Logger.hasReplaySource()) {
+            sparkFlex = new SparkFlexIoBase();
+        } else {
+            SparkFlexConfig config = new SparkFlexConfig();
+            config.idleMode(IdleMode.kBrake);
+            config.inverted(false);
+            config.smartCurrentLimit(80);
+            sparkFlex = new SparkFlexIoReal(new SparkFlex(MOTOR_ID, MotorType.kBrushless), config);
+        }
+        return sparkFlex;
     }
 
     public void runForwards() {
-        setVoltage(FORWARDS_VOLTAGE);
+        commandedState = ForwardReverseNeutral.FORWARD;
     }
 
     public void runReverse() {
-        setVoltage(REVERSE_VOLTAGE);
+        commandedState = ForwardReverseNeutral.REVERSE;
+    }
+
+    public void stop() {
+        commandedState = ForwardReverseNeutral.NEUTRAL;
     }
 
     @Override
-    public void neutralOutput() {
-        super.neutralOutput();
+    public void periodic() {
+        super.periodic();
+        if (commandedState == ForwardReverseNeutral.FORWARD) {
+            motor.setVoltage(FORWARDS_VOLTAGE);
+        } else if (commandedState == ForwardReverseNeutral.REVERSE) {
+            motor.setVoltage(REVERSE_VOLTAGE);
+        } else {
+            boolean run = false;
+            for (BooleanSupplier shouldRun : runConditions) {
+                if (shouldRun.getAsBoolean()) {
+                    run = true;
+                    break;
+                }
+            }
+            if (run) {
+                motor.setVoltage(FORWARDS_VOLTAGE);
+            } else {
+                motor.neutralOutput();
+            }
+        }
     }
-
 }

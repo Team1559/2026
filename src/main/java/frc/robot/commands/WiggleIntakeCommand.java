@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+
 import frc.robot.subsystems.Intake2026;
 
 public class WiggleIntakeCommand extends Command {
@@ -26,7 +27,8 @@ public class WiggleIntakeCommand extends Command {
         if (intake.isAtLowerLimit()) {
             intake.moveElbowUp();
             lastKnownTime = currentTime;
-        } else if (intake.isAtUpperLimit() ||  currentTime > lastKnownTime + 0.5) {
+        //No longer brings intake all the way up, just makes it not "Down", better for new hopper
+        } else if (!intake.isAtLowerLimit() ||  currentTime > lastKnownTime + 0.5) { 
             intake.moveElbowDown();
             lastKnownTime = currentTime;
         }
@@ -35,6 +37,6 @@ public class WiggleIntakeCommand extends Command {
     @Override
     public void end(boolean interrupted) {
         intake.moveElbowDown();
-        intake.neutralOutput();
+        intake.stop();
     }
 }

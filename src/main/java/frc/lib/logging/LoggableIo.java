@@ -6,10 +6,8 @@ import org.littletonrobotics.junction.inputs.LoggableInputs;
 public abstract class LoggableIo<T extends LoggableInputs> implements LoggableComponent {
     private CustomLogger logger;    
     private final T inputs;
-    private final String name;
 
-    protected LoggableIo(String name, T inputs) {
-        this.name = name;
+    protected LoggableIo(T inputs) {
         this.inputs = inputs;
     }
 
@@ -35,11 +33,11 @@ public abstract class LoggableIo<T extends LoggableInputs> implements LoggableCo
             throw new IllegalStateException("Cannot init the io twice");
         }
 
-        logger = new CustomLogger(logPath + "/" + name);
+        logger = new CustomLogger(logPath);
         logInputs();
     }
 
-    protected CustomLogger logger() {
+    protected final CustomLogger logger() {
         return logger;
     }
 

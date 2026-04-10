@@ -61,5 +61,18 @@
     "**/build/generated/sources/annotationProcessor/**/*"
   ],
 "java.dependency.enableDependencyCheckup": false,
-"java.jdt.ls.vmargs": "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx2G -Xms100m -Xlog:disable"
+"java.jdt.ls.vmargs": "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx2G -Xms100m -Xlog:disable",
+"java.completion.importOrder": [
+    "#",
+    "java",
+    "javax",
+    "edu.wpi.first",
+    "org.littletonrobotics",
+    "com.ctre.phoenix6",
+    "com.revrobotics",
+    "com.pathplanner",
+    "",
+    "frc.lib",
+    "frc.robot"
+]
 }
