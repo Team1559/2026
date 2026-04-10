@@ -47,7 +47,7 @@ public class Robot2026 extends Robot {
         shooter = new Shooter2026(drivetrain::getPosition, drivetrain::getCurrentSpeed);
         intake = new Intake2026();
         indexer = new Indexer2026(shooter::isShooting);
-        
+
         pilotController = new CommandXboxController(0);
         registerNamedCommands();
         autoChooser = AutoBuilder.buildAutoChooser();
@@ -90,7 +90,9 @@ public class Robot2026 extends Robot {
 
         pilotController.rightBumper().whileTrue(new WiggleIntakeCommand(intake));
 
-        pilotController.a().onTrue(new InstantCommand(shooter::useAbsoluteAngle));
+        pilotController.a().whileTrue(new StartEndCommand(() -> shooter.setSpinFlywheel(true),
+                () -> shooter.setSpinFlywheel(false), shooter));
+        // pilotController.a().onTrue(new InstantCommand(shooter::useAbsoluteAngle));
         pilotController.b().onTrue(new InstantCommand(shooter::zeroTurret));
 
         // Copilot gets uh oh buttons
@@ -106,7 +108,7 @@ public class Robot2026 extends Robot {
     protected void setTestBindings() {
         drivetrain.setDefaultCommand(new TeleopDriveCommand(() -> pilotController.getLeftY() * -1,
                 () -> pilotController.getLeftX() * -1, () -> pilotController.getRightX() * -1,
-                SwerveDrive2026Competition.SWERVE_CONSTRAINTS, drivetrain, () -> true)); //Always robot oriented
+                SwerveDrive2026Competition.SWERVE_CONSTRAINTS, drivetrain, () -> true)); // Always robot oriented
 
         pilotController.leftBumper()
                 .whileTrue(new TeleopDriveCommand(() -> pilotController.getLeftY() * -1,
@@ -120,12 +122,12 @@ public class Robot2026 extends Robot {
 
         pilotController.rightStick().onTrue(new InstantCommand(intake::moveElbowUp,
                 intake));
-        
+
         pilotController.rightBumper().whileTrue(new WiggleIntakeCommand(intake));
-        
+
         pilotController.rightTrigger().whileTrue(new ShootCommand(shooter,
                 (shooter::targetLocation)));
-        
+
         pilotController.b().onTrue(new InstantCommand(shooter::zeroTurret));
     }
 
@@ -144,8 +146,8 @@ public class Robot2026 extends Robot {
         shooter.zeroTurret();
     }
 
-	@Override
-	protected Command getAutoCommand() {
+    @Override
+    protected Command getAutoCommand() {
         return autoChooser.getSelected();
-	}
+    }
 }

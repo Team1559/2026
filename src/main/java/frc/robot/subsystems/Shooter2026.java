@@ -367,7 +367,7 @@ public class Shooter2026 extends LoggableSubsystem {
 
         logger().debug("TargetFieldSpace", targetFieldSpace)
                 .debug("TargetShooterSpace", target)
-                .debug("FlywheelStaet", flywheelState)
+                .debug("FlywheelState", flywheelState)
                 .debug("FeedwheelState", feedwheelState)
                 .debug("OutputVelocity", flywheel.getCurrentVelocity())
                 .debug("TurretAngle", turret.getAngle())
