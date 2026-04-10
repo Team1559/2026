@@ -50,7 +50,7 @@ import frc.lib.subsystem.SwerveDrive;
 public class SwerveDrive2026Competition extends SwerveDrive {
     private static final CANBus CANIVORE_BUS = new CANBus("1559_Canivore");
     private static final Mass MASS = Pounds.of(104);
-    private static final Distance RADIUS = Inches.of(27 / 2.0); // Give or take
+    private static final Distance RADIUS = Inches.of(27 / 2.0);
 private static final MomentOfInertia MOI = KilogramSquareMeters
             .of(MASS.in(Kilograms) * RADIUS.in(Meters) * RADIUS.in(Meters));
 
