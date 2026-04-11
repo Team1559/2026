@@ -1,10 +1,14 @@
 package frc.lib;
 
+import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Seconds;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Scanner;
 
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -25,11 +29,12 @@ import frc.GitVersion;
 public abstract class Robot extends LoggedRobot {
     private static final String ENVIRONMENT_VARIABLE = "AKIT_LOG_PATH";
     private static final String ADVANTAGE_SCOPE_FILE_NAME = "akit-log-path.txt";
+    public static final Time LOOP_PERIOD = Seconds.of(0.02);
 
     @SuppressWarnings({ "java:S1699", "unused" }) // setUseTiming is not meant to be overridden,
                                                   // and auto generated constants causing dead code
     protected Robot() {
-        super(0.02);
+        super(LOOP_PERIOD.in(Seconds));
 
         DriverStation.silenceJoystickConnectionWarning(true);
         StatusLogger.disableAutoLogging();
