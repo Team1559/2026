@@ -31,7 +31,6 @@ import edu.wpi.first.units.measure.Voltage;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.CANBus;
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.ClosedLoopGeneralConfigs;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
@@ -47,12 +46,9 @@ import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.RobotConfig;
 
 import frc.lib.component.AngleComponent;
-import frc.lib.component.AngleSensor;
 import frc.lib.component.SwerveModule;
 import frc.lib.intermediate.DriveSteerSwerveModule;
 import frc.lib.intermediate.DriveWheelAdapter;
-import frc.lib.io.CanCoderIoBase;
-import frc.lib.io.CanCoderIoReal;
 import frc.lib.io.Pigeon2IoBase;
 import frc.lib.io.Pigeon2IoReal;
 import frc.lib.io.TalonFXIoBase;

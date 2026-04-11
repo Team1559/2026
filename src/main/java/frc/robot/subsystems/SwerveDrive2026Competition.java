@@ -46,11 +46,10 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.RobotConfig;
 
-import frc.lib.component.AngleComponent;
-import frc.lib.component.AngleSensor;
 import frc.lib.component.SwerveModule;
 import frc.lib.intermediate.DriveSteerSwerveModule;
 import frc.lib.intermediate.DriveWheelAdapter;
+import frc.lib.intermediate.FusedAngleIntermediate;
 import frc.lib.io.CanCoderIoBase;
 import frc.lib.io.CanCoderIoReal;
 import frc.lib.io.Pigeon2IoBase;
@@ -115,17 +114,18 @@ public class SwerveDrive2026Competition extends SwerveDrive {
     private static DriveSteerSwerveModule createSwerveModule(int steerMotorId, int driveMotorId, int canCoderId,
             Rotation2d canCoderOffset, Translation2d locationOffset) {
 
-        AngleComponent steerMotor;
-        //AngleSensor encoder;
+        TalonFXIoBase steerMotor;
+        CanCoderIoBase encoder;
 
         TalonFXIoBase driveMotorIO;
+
         if (Logger.hasReplaySource()) {
             steerMotor = new TalonFXIoBase();
             driveMotorIO = new TalonFXIoBase();
-            //encoder = new CanCoderIoBase();
+            encoder = new CanCoderIoBase();
         } else {
             CANcoder canCoder = new CANcoder(canCoderId, CANIVORE_BUS);
-            //encoder = new CanCoderIoReal(canCoder, new CANcoderConfiguration());
+            encoder = new CanCoderIoReal(canCoder, new CANcoderConfiguration());
             TalonFX steerMotorTalonFX = new TalonFX(steerMotorId, CANIVORE_BUS);
             steerMotorTalonFX.getConfigurator().apply(new TalonFXConfiguration());
             steerMotorTalonFX.getConfigurator().apply(new MotorOutputConfigs()
@@ -137,7 +137,7 @@ public class SwerveDrive2026Competition extends SwerveDrive {
             ClosedLoopGeneralConfigs clgConfig = new ClosedLoopGeneralConfigs();
             clgConfig.ContinuousWrap = true;
             steerMotorTalonFX.getConfigurator().apply(clgConfig);
-            steerMotor = new TalonFXIoReal(steerMotorTalonFX).withOffset(canCoderOffset);     
+            steerMotor = new TalonFXIoReal(steerMotorTalonFX);
 
             TalonFX driveMotorTalonFX = new TalonFX(driveMotorId, CANIVORE_BUS);
             driveMotorTalonFX.getConfigurator().apply(new TalonFXConfiguration());
@@ -153,10 +153,13 @@ public class SwerveDrive2026Competition extends SwerveDrive {
             driveMotorIO = new TalonFXIoReal(driveMotorTalonFX);
         }
 
+
+        FusedAngleIntermediate steerMotorCanCoder = new FusedAngleIntermediate(encoder, steerMotor);
+
         DriveWheelAdapter<?> driveMotor = new DriveWheelAdapter<>(driveMotorIO, SdsSwerveModuleType.WHEEL_RADIUS,
                 MODULE_TYPE.driveRatio);
 
-        return new DriveSteerSwerveModule(locationOffset, steerMotor,
+        return new DriveSteerSwerveModule(locationOffset, steerMotorCanCoder.withOffset(canCoderOffset),
                 driveMotor);
     }
 
