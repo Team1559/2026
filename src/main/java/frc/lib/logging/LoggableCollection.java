@@ -3,11 +3,11 @@ package frc.lib.logging;
 import java.util.Map;
 import java.util.Map.Entry;
 
-public abstract class LoggableIntermediate implements LoggableComponent {
+public class LoggableCollection implements LoggableComponent {
     private final LoggableDaycare children = new LoggableDaycare();
     private CustomLogger logger;
 
-    protected LoggableIntermediate() {}
+    protected LoggableCollection() {}
 
     protected final void addChildren(String folder, Map<String, ? extends LoggableComponent> children) {
         for (Entry<String, ? extends LoggableComponent> entry : children.entrySet()) {
@@ -30,13 +30,15 @@ public abstract class LoggableIntermediate implements LoggableComponent {
         this.addChildren("", Map.of(name, child));
     }
 
-    //loggle
-    protected final void setChild(LoggableComponent child) {
-        children.setChild(child);
+    @Override
+    public void periodic() {
+        for (LoggableComponent child : children) {
+            child.periodic();
+        }
     }
 
     @Override
-    public final void setLogPath(String logPath) {
+    public void setLogPath(String logPath) {
         if (logger != null) {
             throw new IllegalStateException("Cannot set log path more than once");
         }
@@ -44,18 +46,7 @@ public abstract class LoggableIntermediate implements LoggableComponent {
         for (Entry<String, LoggableComponent> entry : children.getChildren().entrySet()) {
             LoggableComponent child = entry.getValue();
             String childPath = entry.getKey();
-            if (childPath.isEmpty()) {
-                child.setLogPath(logPath);
-            } else {
-                child.setLogPath(logPath + "/" + childPath);
-            }
-        }
-    }
-
-    @Override
-    public void periodic() {
-        for (LoggableComponent child : children) {
-            child.periodic();
+            child.setLogPath(logPath + "/" + childPath);
         }
     }
 
