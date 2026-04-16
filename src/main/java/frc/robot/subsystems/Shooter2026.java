@@ -241,6 +241,10 @@ public class Shooter2026 extends LoggableSubsystem {
         turret.setPercievedAngle(Degrees.of(0));
     }
 
+    public final void ninteyTurret() {
+        turret.setPercievedAngle(Degrees.of(90));
+    }
+
     public AngularVelocity getTargetFlywheelVelocity() {
         return targetFlywheelVelocity;
     }

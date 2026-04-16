@@ -41,8 +41,7 @@ public class Robot2026 extends Robot {
     private final Indexer2026 indexer;
 
     public Robot2026() {
-        BaseLogger.overrideDebugMode(true);
-        
+        // BaseLogger.overrideDebugMode(true)
         drivetrain = new SwerveDrive2026Competition();
         vision = new Vision2026(drivetrain);
         shooter = new Shooter2026(drivetrain::getPosition, drivetrain::getCurrentSpeed);
@@ -93,9 +92,6 @@ public class Robot2026 extends Robot {
 
         pilotController.a().whileTrue(new StartEndCommand(() -> shooter.setSpinFlywheel(true),
                 () -> shooter.setSpinFlywheel(false), shooter));
-        pilotController.a().onTrue(new InstantCommand(shooter::useAbsoluteAngle));
-        pilotController.b().onTrue(new InstantCommand(shooter::zeroTurret));
-
         // Copilot gets uh oh buttons
         coPilotController.leftTrigger()
                 .whileTrue(new StartEndCommand(intake::runReverse, intake::stop, intake));
@@ -103,6 +99,9 @@ public class Robot2026 extends Robot {
 
         coPilotController.rightTrigger()
                 .whileTrue(new StartEndCommand(shooter::reverseAll, shooter::neutralAll, shooter));
+        coPilotController.rightTrigger().whileTrue(new StartEndCommand(intake::runReverse, intake::stop, intake));
+        coPilotController.a().onTrue(new InstantCommand(shooter::useAbsoluteAngle));
+        coPilotController.b().onTrue(new InstantCommand(shooter::zeroTurret));
     }
 
     @Override
@@ -110,6 +109,12 @@ public class Robot2026 extends Robot {
         pilotController.rightTrigger().whileTrue(new ShootCommand(shooter,
                 (shooter::targetLocation)));
                 
+    }
+
+    @Override
+    public void autonomousInit(){
+        super.autonomousInit();
+        shooter.ninteyTurret(); //"Zero" the turret, but actually just set it to 90 degrees
     }
 
     @Override

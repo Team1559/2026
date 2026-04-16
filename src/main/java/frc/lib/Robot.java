@@ -121,6 +121,7 @@ public abstract class Robot extends LoggedRobot {
     @Override
     public void autonomousInit() {
         CommandScheduler.getInstance().schedule(getAutoCommand());
+        
     }
 
     @Override
