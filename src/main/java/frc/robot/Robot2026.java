@@ -101,7 +101,7 @@ public class Robot2026 extends Robot {
                 .whileTrue(new StartEndCommand(shooter::reverseAll, shooter::neutralAll, shooter));
         coPilotController.rightTrigger().whileTrue(new StartEndCommand(intake::runReverse, intake::stop, intake));
         coPilotController.a().onTrue(new InstantCommand(shooter::useAbsoluteAngle));
-        coPilotController.b().onTrue(new InstantCommand(shooter::zeroTurret));
+        coPilotController.b().onTrue(new InstantCommand(shooter::ninteyTurret));
     }
 
     @Override
