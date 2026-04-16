@@ -46,4 +46,10 @@ public sealed class BaseLogger permits CustomLogger {
     protected void processInputs(LoggableInputs inputs) {
         Logger.processInputs(logPath, inputs);
     }
+
+    public void debugPrintln(String message){
+        if (shouldLogDebug()) {
+            System.out.println(message);
+        }
+    }
 }

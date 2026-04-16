@@ -37,15 +37,16 @@ public class Robot2026 extends Robot {
     @SuppressWarnings("unused") // To avoid garbage collection of our vision
     private final Vision2026 vision;
     private final Shooter2026 shooter;
-    // private final Intake2026 intake;
+    private final Intake2026 intake;
     private final Indexer2026 indexer;
 
     public Robot2026() {
         BaseLogger.overrideDebugMode(true);
+        
         drivetrain = new SwerveDrive2026Competition();
         vision = new Vision2026(drivetrain);
         shooter = new Shooter2026(drivetrain::getPosition, drivetrain::getCurrentSpeed);
-        // intake = new Intake2026();
+        intake = new Intake2026();
         indexer = new Indexer2026(shooter::isShooting);
 
         pilotController = new CommandXboxController(0);
@@ -56,14 +57,14 @@ public class Robot2026 extends Robot {
     }
 
     private void registerNamedCommands() {
-        // NamedCommands.registerCommand("Wiggle", new WiggleIntakeCommand(intake));
-        // NamedCommands.registerCommand("IntakeUp", new InstantCommand(intake::moveElbowUp));
-        // NamedCommands.registerCommand("IntakeDown", new InstantCommand(intake::moveElbowDown));
+        NamedCommands.registerCommand("Wiggle", new WiggleIntakeCommand(intake));
+        NamedCommands.registerCommand("IntakeUp", new InstantCommand(intake::moveElbowUp));
+        NamedCommands.registerCommand("IntakeDown", new InstantCommand(intake::moveElbowDown));
         NamedCommands.registerCommand("Shoot", new ShootCommand(shooter,
                 Shooter2026::ourHubLocation));
-        // NamedCommands.registerCommand("RunIntakeForwards", new InstantCommand(intake::runForwards));
-        // NamedCommands.registerCommand("StopIntake", new InstantCommand(intake::stop));
-        // NamedCommands.registerCommand("Intake", new StartEndCommand(intake::runForwards, intake::stop));
+        NamedCommands.registerCommand("RunIntakeForwards", new InstantCommand(intake::runForwards));
+        NamedCommands.registerCommand("StopIntake", new InstantCommand(intake::stop));
+        NamedCommands.registerCommand("Intake", new StartEndCommand(intake::runForwards, intake::stop));
     }
 
     @Override
@@ -77,28 +78,28 @@ public class Robot2026 extends Robot {
                         () -> pilotController.getLeftX() * -1, () -> pilotController.getRightX() * -1,
                         SwerveDrive2026Competition.SLOW_SWERVE_CONSTRAINTS, drivetrain, () -> false));
 
-        // pilotController.leftTrigger()
-        //         .whileTrue(new StartEndCommand(intake::runForwards, intake::stop, intake));
+        pilotController.leftTrigger()
+                .whileTrue(new StartEndCommand(intake::runForwards, intake::stop, intake));
 
-        // pilotController.leftTrigger().onTrue(new InstantCommand(intake::moveElbowDown));
+        pilotController.leftTrigger().onTrue(new InstantCommand(intake::moveElbowDown));
 
-        // pilotController.rightStick().onTrue(new InstantCommand(intake::moveElbowUp,
-        //         intake));
+        pilotController.rightStick().onTrue(new InstantCommand(intake::moveElbowUp,
+                intake));
 
         pilotController.rightTrigger().whileTrue(new ShootCommand(shooter,
                 shooter::targetLocation));
 
-        // pilotController.rightBumper().whileTrue(new WiggleIntakeCommand(intake));
+        pilotController.rightBumper().whileTrue(new WiggleIntakeCommand(intake));
 
         pilotController.a().whileTrue(new StartEndCommand(() -> shooter.setSpinFlywheel(true),
                 () -> shooter.setSpinFlywheel(false), shooter));
-        // pilotController.a().onTrue(new InstantCommand(shooter::useAbsoluteAngle));
+        pilotController.a().onTrue(new InstantCommand(shooter::useAbsoluteAngle));
         pilotController.b().onTrue(new InstantCommand(shooter::zeroTurret));
 
         // Copilot gets uh oh buttons
-        // coPilotController.leftTrigger()
-        //         .whileTrue(new StartEndCommand(intake::runReverse, intake::stop, intake));
-        // coPilotController.leftBumper().onTrue(new InstantCommand(intake::elbowNeutral));
+        coPilotController.leftTrigger()
+                .whileTrue(new StartEndCommand(intake::runReverse, intake::stop, intake));
+        coPilotController.leftBumper().onTrue(new InstantCommand(intake::elbowNeutral));
 
         coPilotController.rightTrigger()
                 .whileTrue(new StartEndCommand(shooter::reverseAll, shooter::neutralAll, shooter));
@@ -108,21 +109,16 @@ public class Robot2026 extends Robot {
     protected void setTestBindings() {
         pilotController.rightTrigger().whileTrue(new ShootCommand(shooter,
                 (shooter::targetLocation)));
+                
     }
 
     @Override
     public void disabledInit() {
         super.disabledInit();
-        // intake.stop();
+        intake.stop();
         indexer.stop();
         shooter.setSpinFlywheel(false);
         shooter.setShooting(false);
-    }
-
-    @Override
-    public void autonomousInit() {
-        super.autonomousInit();
-        shooter.zeroTurret();
     }
 
     @Override
