@@ -96,7 +96,7 @@ public class Shooter2026 extends LoggableSubsystem {
 
     public static final LinearAcceleration GRAVITATIONAL_ACCEL = MetersPerSecondPerSecond.of(9.80665);
     private static final Time FLYWHEEL_DEBOUNCE = Seconds.of(0.15);
-    private static final AngularVelocity TOLERANCE = RPM.of(20);
+    private static final AngularVelocity TOLERANCE = RPM.of(100);
     private static final Time LOOKAHEAD = Seconds.of(1 / 20d);
 
     private static final Angle TURRET_MAX = Degrees.of(200);

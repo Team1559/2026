@@ -95,8 +95,7 @@ public class Robot2026 extends Robot {
 
         pilotController.rightBumper().whileTrue(new WiggleIntakeCommand(intake));
 
-        pilotController.x().whileTrue(new StartEndCommand(() -> shooter.setSpinFlywheel(true),
-                () -> shooter.setSpinFlywheel(false), shooter));
+        pilotController.x().onTrue(new InstantCommand(() -> shooter.setSpinFlywheel(true)));
         // Copilot gets uh oh buttons
         coPilotController.leftTrigger()
                 .whileTrue(new StartEndCommand(intake::runReverse, intake::stop, intake));
