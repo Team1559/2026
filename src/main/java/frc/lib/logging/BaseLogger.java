@@ -32,7 +32,6 @@ public sealed class BaseLogger permits CustomLogger {
         if (DriverStation.isFMSAttached()) {
             return false;
         }
-        
         if (debugOverride != null) {
             return debugOverride;
         }

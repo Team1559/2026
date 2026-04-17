@@ -204,8 +204,8 @@ public class Shooter2026 extends LoggableSubsystem {
         }
 
         return new ChineseRemainderAngle(21, 20, 200,
-                canCoderOne.withOffset(Degrees.of(160.400391)),
-                canCoderTwo.withOffset(Degrees.of(-65.917969)),
+                canCoderOne.withOffset(Degrees.of(124.101563)),
+                canCoderTwo.withOffset(Degrees.of(-13.095703)),
                 Degrees.of(-240), Degrees.of(240));
     }
 
@@ -349,16 +349,16 @@ public class Shooter2026 extends LoggableSubsystem {
         Pose2d robotPosition = robotPositionSupplier.get();
         Translation3d target = calculateTargetShooterSpace(targetFieldSpace, robotPosition, turretOffset);
 
+        Angle chineseAngle = turretAngleSensor.getAngle();
         logger().debug("TargetFieldSpace", targetFieldSpace)
                 .debug("TargetShooterSpace", target)
                 .debug("FlywheelState", flywheelState)
                 .debug("FeedwheelState", feedwheelState)
                 .debug("OutputVelocity", flywheel.getCurrentVelocity())
                 .debug("TurretAngle", turret.getAngle())
-                .debug("IsFlywheelReady?", isFlywheelReady());
-        if (DriverStation.isTest() || DriverStation.isDisabled()) {
-            logger().dashboard("CrtAngle", turretAngleSensor.getAngle());
-        }
+                .debug("IsFlywheelReady?", isFlywheelReady())
+                .debug("CrtAngle", chineseAngle)
+                .debug("ChineseDifference", chineseAngle.minus(turret.getAngle()));
 
         if (feedwheelState == ForwardReverseNeutral.FORWARD) {
             feedWheel.setVelocity(RPM.of(1500));
@@ -369,7 +369,6 @@ public class Shooter2026 extends LoggableSubsystem {
         }
 
         logger().dashboard("IsShooting", feedwheelState == ForwardReverseNeutral.FORWARD);
-        logger().debug("ChineseDifference", turretAngleSensor.getAngle().minus(turret.getAngle()));
         if (target == null) {
             return;
         }

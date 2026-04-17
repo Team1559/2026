@@ -21,14 +21,14 @@ public class ShootCommand extends Command {
 
     @Override
     public void initialize() {
-        shooter.setTargetFieldSpace(targetSupplier.get());
         shooter.setSpinFlywheel(true);
         shooter.setShooting(false);
         canShoot = false;
     }
-
+    
     @Override
     public void execute() {
+        shooter.setTargetFieldSpace(targetSupplier.get());
         if(canShoot){
             shooter.setShooting(true);
         } else {
