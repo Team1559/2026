@@ -35,9 +35,22 @@
           }
         },
         {
-          "type": "path",
+          "type": "deadline",
           "data": {
-            "pathName": "Fast CLB"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Faster CLB But Fixed"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "SpinFlywheel"
+                }
+              }
+            ]
           }
         },
         {

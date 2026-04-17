@@ -20,12 +20,12 @@
         "y": 5.552985858603183
       },
       "prevControl": {
-        "x": 4.519826365469471,
-        "y": 5.551967429329123
+        "x": 4.519826370908513,
+        "y": 5.551973404659439
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Left Bump"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 2.5,
-    "rotation": -141.25631347905414
+    "rotation": -141.6016932678198
   },
   "reversed": false,
   "folder": null,
