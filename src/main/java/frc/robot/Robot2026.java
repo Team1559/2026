@@ -111,11 +111,9 @@ public class Robot2026 extends Robot {
 
     @Override
     protected void setTestBindings() {
-        drivetrain.setDefaultCommand(new JoystickSwerveDriveCommand(drivetrain, pilotController::getLeftX,
-                pilotController::getLeftY, pilotController::getRightX,
-                SwerveDrive2026Competition.SWERVE_CONSTRAINTS, 0.1, false));
-        pilotController.b().whileTrue(new NatesNinetyCommand(drivetrain, pilotController::getLeftX,
-                pilotController::getLeftY, SwerveDrive2026Competition.SWERVE_CONSTRAINTS, 0.1));
+        pilotController.leftTrigger()
+                .whileTrue(new StartEndCommand(intake::runForwards, intake::stop, intake));
+
     }
 
     @Override
