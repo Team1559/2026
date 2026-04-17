@@ -13,7 +13,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Fast RBC"
+            "pathName": "Faster LBC"
           }
         },
         {
@@ -25,7 +25,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Fast CIR"
+            "pathName": "Faster CIL"
           }
         },
         {
@@ -37,7 +37,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Fast CRB"
+            "pathName": "Fast CLB"
           }
         },
         {
@@ -51,6 +51,12 @@
                 }
               },
               {
+                "type": "named",
+                "data": {
+                  "name": "Shoot"
+                }
+              },
+              {
                 "type": "sequential",
                 "data": {
                   "commands": [
@@ -68,18 +74,6 @@
                     }
                   ]
                 }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Shoot"
-                }
-              },
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Right Bump to Close Shoot"
-                }
               }
             ]
           }
@@ -87,13 +81,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Close Shoot to Right Bump "
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Fast RBC Pass 2"
+            "pathName": "Fast LBC"
           }
         },
         {
@@ -105,13 +93,26 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Center Swipe RTL"
+            "pathName": "Left Bump Center Swipe"
           }
         },
         {
-          "type": "path",
+          "type": "deadline",
           "data": {
-            "pathName": "Bombastic Center to Left Bump"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Faster CLB"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "SpinFlywheel"
+                }
+              }
+            ]
           }
         },
         {
@@ -119,13 +120,19 @@
           "data": {
             "commands": [
               {
+                "type": "named",
+                "data": {
+                  "name": "Shoot"
+                }
+              },
+              {
                 "type": "sequential",
                 "data": {
                   "commands": [
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 2.0
+                        "waitTime": 3.0
                       }
                     },
                     {
@@ -136,12 +143,6 @@
                     }
                   ]
                 }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Shoot"
-                }
               }
             ]
           }
@@ -149,7 +150,7 @@
       ]
     }
   },
-  "resetOdom": false,
+  "resetOdom": true,
   "folder": null,
   "choreoAuto": false
 }

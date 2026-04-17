@@ -64,6 +64,8 @@ public class Robot2026 extends Robot {
         NamedCommands.registerCommand("RunIntakeForwards", new InstantCommand(intake::runForwards));
         NamedCommands.registerCommand("StopIntake", new InstantCommand(intake::stop));
         NamedCommands.registerCommand("Intake", new StartEndCommand(intake::runForwards, intake::stop));
+        NamedCommands.registerCommand("SpinFlywheel", new StartEndCommand(() -> shooter.setSpinFlywheel(true),
+                () -> shooter.setSpinFlywheel(false), shooter));
     }
 
     @Override
