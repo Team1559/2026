@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.42,
-        "y": 5.445
+        "x": 3.402871115189352,
+        "y": 5.5
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.5723353886525797,
-        "y": 5.797378310236005
+        "x": 2.555206503841932,
+        "y": 5.852378310236005
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Left Bump Facing Trench"
     },
     {
       "anchor": {
@@ -62,7 +62,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 135.0
   },
   "useDefaultConstraints": true
 }
