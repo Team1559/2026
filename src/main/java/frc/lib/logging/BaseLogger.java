@@ -24,14 +24,15 @@ public sealed class BaseLogger permits CustomLogger {
     }
 
     protected static boolean shouldLogDebug() {
-        if (DriverStation.isFMSAttached()) {
-            return false;
-        }
-
+        
         if (Logger.hasReplaySource()) {
             return true;
         }
-
+        
+        if (DriverStation.isFMSAttached()) {
+            return false;
+        }
+        
         if (debugOverride != null) {
             return debugOverride;
         }
