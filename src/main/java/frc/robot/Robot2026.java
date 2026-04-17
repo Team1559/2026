@@ -15,10 +15,10 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
 import frc.lib.Robot;
-import frc.lib.command.TeleopDriveCommand;
-import frc.lib.logging.BaseLogger;
+import frc.lib.command.JoystickSwerveDriveCommand;
 import frc.lib.subsystem.SwerveDrive;
 
+import frc.robot.commands.NatesNinetyCommand;
 import frc.robot.commands.ShootCommand;
 import frc.robot.commands.WiggleIntakeCommand;
 import frc.robot.subsystems.Indexer2026;
@@ -68,14 +68,17 @@ public class Robot2026 extends Robot {
 
     @Override
     protected void setTeleopBindings() {
-        drivetrain.setDefaultCommand(new TeleopDriveCommand(() -> pilotController.getLeftY() * -1,
-                () -> pilotController.getLeftX() * -1, () -> pilotController.getRightX() * -1,
-                SwerveDrive2026Competition.SWERVE_CONSTRAINTS, drivetrain, () -> false));
+        drivetrain.setDefaultCommand(new JoystickSwerveDriveCommand(drivetrain, pilotController::getLeftX,
+                pilotController::getLeftY, pilotController::getRightX,
+                SwerveDrive2026Competition.SWERVE_CONSTRAINTS, 0.1, false));
 
-        pilotController.leftBumper()
-                .whileTrue(new TeleopDriveCommand(() -> pilotController.getLeftY() * -1,
-                        () -> pilotController.getLeftX() * -1, () -> pilotController.getRightX() * -1,
-                        SwerveDrive2026Competition.SLOW_SWERVE_CONSTRAINTS, drivetrain, () -> false));
+        pilotController.leftBumper().whileTrue(
+                new JoystickSwerveDriveCommand(drivetrain, pilotController::getLeftX,
+                        pilotController::getLeftY, pilotController::getRightX,
+                        SwerveDrive2026Competition.SLOW_SWERVE_CONSTRAINTS, 0.1, false));
+
+        pilotController.b().whileTrue(new NatesNinetyCommand(drivetrain, pilotController::getLeftX,
+                pilotController::getLeftY, SwerveDrive2026Competition.SWERVE_CONSTRAINTS, 0.1));
 
         pilotController.leftTrigger()
                 .whileTrue(new StartEndCommand(intake::runForwards, intake::stop, intake));
@@ -108,13 +111,13 @@ public class Robot2026 extends Robot {
     protected void setTestBindings() {
         pilotController.rightTrigger().whileTrue(new ShootCommand(shooter,
                 (shooter::targetLocation)));
-                
+
     }
 
     @Override
-    public void autonomousInit(){
+    public void autonomousInit() {
         super.autonomousInit();
-        shooter.ninteyTurret(); //"Zero" the turret, but actually just set it to 90 degrees
+        shooter.ninteyTurret(); // "Zero" the turret, but actually just set it to 90 degrees
     }
 
     @Override

@@ -5,6 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "type": "java",
+            "name": "NatesNinetyCommand",
+            "request": "launch",
+            "mainClass": "frc.robot.commands.NatesNinetyCommand",
+            "projectName": "2026-Rebuilt"
+        },
+        {
             "type": "wpilib",
             "name": "WPILib Desktop Debug",
             "request": "launch",
