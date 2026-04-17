@@ -58,7 +58,7 @@ public class LockedHeadingSwerveDriveCommand extends SwerveDriveCommand {
 
         Angle angleToTarget = heading.minus(swerveDrive.getPosition().getRotation()).getMeasure();
 
-        AngularVelocity angularVelocity = RadiansPerSecond.of(pid.calculate(angleToTarget.in(Rotations)));
+        AngularVelocity angularVelocity = RadiansPerSecond.of(pid.calculate(-angleToTarget.in(Rotations)));
 
         angularVelocity = RadiansPerSecond.of(MathUtil.clamp(angularVelocity.in(RadiansPerSecond),
                 -1 * swerveConstraints.getMaxAngularVelocity().in(RadiansPerSecond),

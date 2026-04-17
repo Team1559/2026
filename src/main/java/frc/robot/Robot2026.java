@@ -79,7 +79,7 @@ public class Robot2026 extends Robot {
                         pilotController::getLeftY, pilotController::getRightX,
                         SwerveDrive2026Competition.SLOW_SWERVE_CONSTRAINTS, 0.1, false));
 
-        pilotController.b().whileTrue(new NatesNinetyCommand(drivetrain, pilotController::getLeftX,
+        pilotController.y().whileTrue(new NatesNinetyCommand(drivetrain, pilotController::getLeftX,
                 pilotController::getLeftY, SwerveDrive2026Competition.SWERVE_CONSTRAINTS, 0.1));
 
         pilotController.leftTrigger()
@@ -95,7 +95,7 @@ public class Robot2026 extends Robot {
 
         pilotController.rightBumper().whileTrue(new WiggleIntakeCommand(intake));
 
-        pilotController.a().whileTrue(new StartEndCommand(() -> shooter.setSpinFlywheel(true),
+        pilotController.x().whileTrue(new StartEndCommand(() -> shooter.setSpinFlywheel(true),
                 () -> shooter.setSpinFlywheel(false), shooter));
         // Copilot gets uh oh buttons
         coPilotController.leftTrigger()
@@ -111,9 +111,11 @@ public class Robot2026 extends Robot {
 
     @Override
     protected void setTestBindings() {
-        pilotController.rightTrigger().whileTrue(new ShootCommand(shooter,
-                (shooter::targetLocation)));
-
+        drivetrain.setDefaultCommand(new JoystickSwerveDriveCommand(drivetrain, pilotController::getLeftX,
+                pilotController::getLeftY, pilotController::getRightX,
+                SwerveDrive2026Competition.SWERVE_CONSTRAINTS, 0.1, false));
+        pilotController.b().whileTrue(new NatesNinetyCommand(drivetrain, pilotController::getLeftX,
+                pilotController::getLeftY, SwerveDrive2026Competition.SWERVE_CONSTRAINTS, 0.1));
     }
 
     @Override
