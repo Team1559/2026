@@ -254,6 +254,8 @@ public class Shooter2026 extends LoggableSubsystem {
         if (Math.abs(flywheel.getCurrentVelocity().minus(targetFlywheelVelocity).in(RPM)) < TOLERANCE.in(RPM)
                 && targetFlywheelVelocity.gt(RPM.zero())) {
             return Timer.getTimestamp() - timestampFlywheelNotReady > FLYWHEEL_DEBOUNCE.in(Seconds);
+        } else if (flywheel.getCurrentVelocity().gt(RPM.of(4500)) && targetFlywheelVelocity.gt(RPM.of(5000))) {
+            return true;
         } else {
             timestampFlywheelNotReady = Timer.getTimestamp();
             return false;

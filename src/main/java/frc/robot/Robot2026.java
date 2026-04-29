@@ -11,6 +11,8 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
@@ -29,7 +31,7 @@ import frc.robot.subsystems.Vision2026;
 
 public class Robot2026 extends Robot {
 
-    private final SendableChooser<Command> autoChooser;
+    private final LoggedDashboardChooser<Command> autoChooser;
     private final CommandXboxController pilotController;
     private final CommandXboxController coPilotController;
     private final SwerveDrive drivetrain;
@@ -50,8 +52,7 @@ public class Robot2026 extends Robot {
 
         pilotController = new CommandXboxController(0);
         registerNamedCommands();
-        autoChooser = AutoBuilder.buildAutoChooser();
-        SmartDashboard.putData(autoChooser);
+        autoChooser = new LoggedDashboardChooser<>("AutoChooser", AutoBuilder.buildAutoChooser());
         coPilotController = new CommandXboxController(1);
     }
 
@@ -132,6 +133,6 @@ public class Robot2026 extends Robot {
 
     @Override
     protected Command getAutoCommand() {
-        return autoChooser.getSelected();
+        return autoChooser.get();
     }
 }
