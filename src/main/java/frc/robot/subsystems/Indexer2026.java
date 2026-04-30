@@ -21,7 +21,7 @@ import frc.lib.util.ForwardReverseNeutral;
 
 public class Indexer2026 extends LoggableSubsystem {
     private static final int MOTOR_ID = 26;
-    private static final Voltage FORWARDS_VOLTAGE = Volts.of(6);
+    private static final Voltage FORWARDS_VOLTAGE = Volts.of(9);
     private static final Voltage REVERSE_VOLTAGE = Volts.of(-6);
 
     private final VoltageComponent motor;

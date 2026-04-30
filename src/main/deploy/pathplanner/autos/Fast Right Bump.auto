@@ -5,15 +5,51 @@
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "IntakeDown"
+          }
+        },
+        {
           "type": "path",
           "data": {
-            "pathName": "adfasdf"
+            "pathName": "Fast RBC"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "RunIntakeForwards"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Fast CIR"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "StopIntake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Fast CRB"
           }
         },
         {
           "type": "parallel",
           "data": {
             "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Shoot"
+                }
+              },
               {
                 "type": "sequential",
                 "data": {
@@ -34,9 +70,9 @@
                 }
               },
               {
-                "type": "named",
+                "type": "path",
                 "data": {
-                  "name": "Shoot"
+                  "pathName": "Fast Bump-Shoot"
                 }
               }
             ]
@@ -45,7 +81,7 @@
       ]
     }
   },
-  "resetOdom": true,
+  "resetOdom": false,
   "folder": null,
   "choreoAuto": false
 }
