@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.FeetPerSecond;
 import static edu.wpi.first.units.Units.Inches;
@@ -12,7 +11,6 @@ import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 
-import java.util.PrimitiveIterator;
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -49,8 +47,6 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 
 import com.pathplanner.lib.util.FlippingUtil;
-
-import org.opencv.core.Mat.Tuple2;
 
 import frc.lib.component.AngleComponent;
 import frc.lib.component.AngleSensor;
@@ -103,8 +99,8 @@ public class Shooter2026 extends LoggableSubsystem {
     private static final Angle TURRET_MIN = Degrees.of(-60);
     private static final Angle TURRET_MID = TURRET_MAX.plus(TURRET_MIN).div(2);
 
-    private static final int previousMeasurementCount = 5;
-    CircularBuffer<PastAngle> previousAngles = new CircularBuffer<>(previousMeasurementCount);
+    private static final int PREVIOUS_MEASUREMENT_COUNT = 5;
+    private final CircularBuffer<PastAngle> previousAngles = new CircularBuffer<>(PREVIOUS_MEASUREMENT_COUNT);
 
     private record PastAngle(Double timestamp, Rotation2d angle) {
     }
@@ -231,7 +227,7 @@ public class Shooter2026 extends LoggableSubsystem {
         }
     }
 
-    public void useAbsoluteAngle() {
+    public final void useAbsoluteAngle() {
         Angle crtAngle = turretAngleSensor.getAngle();
         turret.setPercievedAngle(crtAngle);
         logger().dashboard("CrtAngle", crtAngle);

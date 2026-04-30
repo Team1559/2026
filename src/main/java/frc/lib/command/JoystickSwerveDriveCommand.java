@@ -1,8 +1,5 @@
 package frc.lib.command;
 
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.MathUtil;
