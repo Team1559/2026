@@ -1,9 +1,6 @@
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.units.measure.Angle;
@@ -38,8 +35,8 @@ public class Intake2026 extends LoggableSubsystem {
     private static final Voltage ELBOW_UP_VOLTAGE = Volts.of(3);
     private static final Voltage ELBOW_DOWN_VOLTAGE = Volts.of(-1);
     private static final Voltage HOLD_ELBOW_UP = Volts.of(0.5);
-    private static final Voltage HOLD_ELBOW_DOWN = Volts.of(-0.2);
-    private static final Angle ELBOW_OFFSET = Degrees.of(189.4);
+    private static final Voltage HOLD_ELBOW_DOWN = Volts.of(-0.4);
+    private static final Angle ELBOW_OFFSET = Degrees.of(-55.195313);
     private static final Angle UP_ANGLE = Degrees.of(86);
     private static final Angle DOWN_ANGLE = Degrees.of(30);
 
@@ -83,7 +80,7 @@ public class Intake2026 extends LoggableSubsystem {
         } else {
             CANcoderConfiguration config = new CANcoderConfiguration();
             config.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-            config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
+            config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = .5;
             encoder = new CanCoderIoReal(new CANcoder(ELBOW_ENCODER_ID), config);
         }
         return encoder.withOffset(ELBOW_OFFSET);

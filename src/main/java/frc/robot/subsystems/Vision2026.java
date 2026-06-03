@@ -26,10 +26,14 @@ public class Vision2026 extends Vision {
         Supplier<Rotation2d> yaw = () -> drivetrain.getPosition().getRotation();
         
         AprilTagSensor frontStraight = makeCamera("limelight-fronts", yaw);
-        AprilTagSensor frontLeft = makeCamera("limelight", yaw);
+        AprilTagSensor frontLeft = makeCamera("limelight-frontl", yaw);
         AprilTagSensor backLeft = makeCamera("limelight-backl", yaw);
 
-        return Map.of("FrontStraight", frontStraight, "FrontLeft", frontLeft, "BackLeft", backLeft);
+        return Map.of(
+            "FrontStraight", frontStraight,
+            "FrontLeft", frontLeft,
+            "BackLeft", backLeft
+        );
     }
 
     private static AprilTagSensor makeCamera(String hostname, Supplier<Rotation2d> yawSupplier) {

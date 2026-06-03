@@ -4,21 +4,21 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
 import frc.lib.Robot;
-import frc.lib.command.TeleopDriveCommand;
-import frc.lib.logging.BaseLogger;
+import frc.lib.command.JoystickSwerveDriveCommand;
 import frc.lib.subsystem.SwerveDrive;
 
+import frc.robot.commands.NatesNinetyCommand;
 import frc.robot.commands.ShootCommand;
 import frc.robot.commands.WiggleIntakeCommand;
 import frc.robot.subsystems.Indexer2026;
@@ -29,7 +29,7 @@ import frc.robot.subsystems.Vision2026;
 
 public class Robot2026 extends Robot {
 
-    private final SendableChooser<Command> autoChooser;
+    private final LoggedDashboardChooser<Command> autoChooser;
     private final CommandXboxController pilotController;
     private final CommandXboxController coPilotController;
     private final SwerveDrive drivetrain;
@@ -41,7 +41,7 @@ public class Robot2026 extends Robot {
     private final Indexer2026 indexer;
 
     public Robot2026() {
-        BaseLogger.overrideDebugMode(true);
+        // BaseLogger.overrideDebugMode(true)
         drivetrain = new SwerveDrive2026Competition();
         vision = new Vision2026(drivetrain);
         shooter = new Shooter2026(drivetrain::getPosition, drivetrain::getCurrentSpeed);
@@ -50,8 +50,7 @@ public class Robot2026 extends Robot {
 
         pilotController = new CommandXboxController(0);
         registerNamedCommands();
-        autoChooser = AutoBuilder.buildAutoChooser();
-        SmartDashboard.putData(autoChooser);
+        autoChooser = new LoggedDashboardChooser<>("AutoChooser", AutoBuilder.buildAutoChooser());
         coPilotController = new CommandXboxController(1);
     }
 
@@ -64,18 +63,23 @@ public class Robot2026 extends Robot {
         NamedCommands.registerCommand("RunIntakeForwards", new InstantCommand(intake::runForwards));
         NamedCommands.registerCommand("StopIntake", new InstantCommand(intake::stop));
         NamedCommands.registerCommand("Intake", new StartEndCommand(intake::runForwards, intake::stop));
+        NamedCommands.registerCommand("SpinFlywheel", new StartEndCommand(() -> shooter.setSpinFlywheel(true),
+                () -> shooter.setSpinFlywheel(false), shooter));
     }
 
     @Override
     protected void setTeleopBindings() {
-        drivetrain.setDefaultCommand(new TeleopDriveCommand(() -> pilotController.getLeftY() * -1,
-                () -> pilotController.getLeftX() * -1, () -> pilotController.getRightX() * -1,
-                SwerveDrive2026Competition.SWERVE_CONSTRAINTS, drivetrain, () -> false));
+        drivetrain.setDefaultCommand(new JoystickSwerveDriveCommand(drivetrain, pilotController::getLeftX,
+                pilotController::getLeftY, pilotController::getRightX,
+                SwerveDrive2026Competition.SWERVE_CONSTRAINTS, 0.1, false));
 
-        pilotController.leftBumper()
-                .whileTrue(new TeleopDriveCommand(() -> pilotController.getLeftY() * -1,
-                        () -> pilotController.getLeftX() * -1, () -> pilotController.getRightX() * -1,
-                        SwerveDrive2026Competition.SLOW_SWERVE_CONSTRAINTS, drivetrain, () -> false));
+        pilotController.leftBumper().whileTrue(
+                new JoystickSwerveDriveCommand(drivetrain, pilotController::getLeftX,
+                        pilotController::getLeftY, pilotController::getRightX,
+                        SwerveDrive2026Competition.SLOW_SWERVE_CONSTRAINTS, 0.1, false));
+
+        pilotController.y().whileTrue(new NatesNinetyCommand(drivetrain, pilotController::getLeftX,
+                pilotController::getLeftY, SwerveDrive2026Competition.SWERVE_CONSTRAINTS, 0.1));
 
         pilotController.leftTrigger()
                 .whileTrue(new StartEndCommand(intake::runForwards, intake::stop, intake));
@@ -90,11 +94,7 @@ public class Robot2026 extends Robot {
 
         pilotController.rightBumper().whileTrue(new WiggleIntakeCommand(intake));
 
-        pilotController.a().whileTrue(new StartEndCommand(() -> shooter.setSpinFlywheel(true),
-                () -> shooter.setSpinFlywheel(false), shooter));
-        // pilotController.a().onTrue(new InstantCommand(shooter::useAbsoluteAngle));
-        pilotController.b().onTrue(new InstantCommand(shooter::zeroTurret));
-
+        pilotController.x().onTrue(new InstantCommand(() -> shooter.setSpinFlywheel(true)));
         // Copilot gets uh oh buttons
         coPilotController.leftTrigger()
                 .whileTrue(new StartEndCommand(intake::runReverse, intake::stop, intake));
@@ -102,33 +102,22 @@ public class Robot2026 extends Robot {
 
         coPilotController.rightTrigger()
                 .whileTrue(new StartEndCommand(shooter::reverseAll, shooter::neutralAll, shooter));
+        coPilotController.rightTrigger().whileTrue(new StartEndCommand(intake::runReverse, intake::stop, intake));
+        coPilotController.a().onTrue(new InstantCommand(shooter::useAbsoluteAngle));
+        coPilotController.b().onTrue(new InstantCommand(shooter::ninteyTurret));
     }
 
     @Override
     protected void setTestBindings() {
-        drivetrain.setDefaultCommand(new TeleopDriveCommand(() -> pilotController.getLeftY() * -1,
-                () -> pilotController.getLeftX() * -1, () -> pilotController.getRightX() * -1,
-                SwerveDrive2026Competition.SWERVE_CONSTRAINTS, drivetrain, () -> true)); // Always robot oriented
-
-        pilotController.leftBumper()
-                .whileTrue(new TeleopDriveCommand(() -> pilotController.getLeftY() * -1,
-                        () -> pilotController.getLeftX() * -1, () -> pilotController.getRightX() * -1,
-                        SwerveDrive2026Competition.SLOW_SWERVE_CONSTRAINTS, drivetrain, () -> true));
-
         pilotController.leftTrigger()
                 .whileTrue(new StartEndCommand(intake::runForwards, intake::stop, intake));
 
-        pilotController.leftTrigger().onTrue(new InstantCommand(intake::moveElbowDown));
+    }
 
-        pilotController.rightStick().onTrue(new InstantCommand(intake::moveElbowUp,
-                intake));
-
-        pilotController.rightBumper().whileTrue(new WiggleIntakeCommand(intake));
-
-        pilotController.rightTrigger().whileTrue(new ShootCommand(shooter,
-                (shooter::targetLocation)));
-
-        pilotController.b().onTrue(new InstantCommand(shooter::zeroTurret));
+    @Override
+    public void autonomousInit() {
+        super.autonomousInit();
+        shooter.ninteyTurret(); // "Zero" the turret, but actually just set it to 90 degrees
     }
 
     @Override
@@ -141,13 +130,7 @@ public class Robot2026 extends Robot {
     }
 
     @Override
-    public void autonomousInit() {
-        super.autonomousInit();
-        shooter.zeroTurret();
-    }
-
-    @Override
     protected Command getAutoCommand() {
-        return autoChooser.getSelected();
+        return autoChooser.get();
     }
 }
