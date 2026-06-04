@@ -76,7 +76,7 @@ public class Shooter2026 extends LoggableSubsystem {
 
     private final AngleComponent turret;
     private final AngleSensor turretAngleSensor;
-    private final SparkFlexIoBase flywheel; // AngularVelocityComponant
+    private final SparkFlexIoBase flywheel;
     private final AngularVelocityComponent feedWheel;
 
     private final Pose3d turretOffset;
@@ -237,7 +237,7 @@ public class Shooter2026 extends LoggableSubsystem {
         turret.setPercievedAngle(Degrees.of(0));
     }
 
-    public final void ninteyTurret() {
+    public final void ninetyTurret() {
         turret.setPercievedAngle(Degrees.of(90));
     }
 
