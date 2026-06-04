@@ -26,6 +26,7 @@ public class SparkFlexIoBase extends LoggableIo<SparkFlexIoBase.SparkFlexIoInput
         public double motorTemp;
         public AngularVelocity currentVelocity = RPM.zero();
         public Angle position = Angle.ofRelativeUnits(0, Units.Rotations);
+        public double appliedOutput = 0.0;
     }
 
     public SparkFlexIoBase() {
