@@ -7,19 +7,17 @@ import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 
 import frc.lib.component.AngleComponent;
-import frc.lib.logging.LoggableIntermediate;
+import frc.lib.logging.LoggableAdaptor;
 
-public class AngleLimiter extends LoggableIntermediate implements AngleComponent {
+public class AngleLimiter extends LoggableAdaptor<AngleComponent> implements AngleComponent {
 
     private final Angle minAngle;
     private final Angle maxAngle;
-    private final AngleComponent child;
 
     public AngleLimiter(Angle minAngle, Angle maxAngle, AngleComponent child) {
+        super(child);
         this.maxAngle = maxAngle;
         this.minAngle = minAngle;
-        this.child = child;
-        this.setChild(child);
     }
 
     @Override

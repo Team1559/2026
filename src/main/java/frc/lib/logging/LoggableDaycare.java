@@ -9,9 +9,6 @@ class LoggableDaycare implements Iterable<LoggableComponent> {
     private final Map<String, LoggableComponent> children = new LinkedHashMap<>();
 
     final String addChild(String folder, String name, LoggableComponent child) {
-        if (this.children.containsKey("")) {
-            throw new IllegalStateException("Cannot add named child if unnamed child already exists");
-        }
         if (child == null) {
             throw new NullPointerException("Child cannot be null");
         }
@@ -34,17 +31,6 @@ class LoggableDaycare implements Iterable<LoggableComponent> {
             throw new IllegalStateException("Child already exists at path: " + key);
         }
         return key;
-    }
-
-    // loggle
-    final void setChild(LoggableComponent child) {
-        if (child == null) {
-            throw new NullPointerException("Child cannot be null");
-        }
-        if (!children.isEmpty()) {
-            throw new IllegalStateException("An unnamed child must be the only child");
-        }
-        this.children.put("", child);
     }
 
     final Map<String, LoggableComponent> getChildren() {

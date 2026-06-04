@@ -3,16 +3,14 @@ package frc.lib.intermediate;
 import edu.wpi.first.units.measure.Angle;
 
 import frc.lib.component.AngleSensor;
-import frc.lib.logging.LoggableIntermediate;
+import frc.lib.logging.LoggableAdaptor;
 
-public class AngleSensorOffsetter extends LoggableIntermediate implements AngleSensor {
+public class AngleSensorOffsetter extends LoggableAdaptor<AngleSensor> implements AngleSensor {
     private final Angle offset;
-    private final AngleSensor child;
 
     public AngleSensorOffsetter(Angle offset, AngleSensor child) {
+        super(child);
         this.offset = offset;
-        this.child = child;
-        setChild(child);
     }
 
     @Override

@@ -6,10 +6,10 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
 
 import frc.lib.component.AngleSensor;
-import frc.lib.logging.LoggableIntermediate;
+import frc.lib.logging.LoggableCollection;
 
 //Rest in peace chinese ba​by 2/21/2026
-public class ChineseRemainderAngle extends LoggableIntermediate implements AngleSensor {
+public class ChineseRemainderAngle extends LoggableCollection implements AngleSensor {
 
     private final AngleSensor childOne;
     private final AngleSensor childTwo;
