@@ -104,7 +104,7 @@ public class Robot2026 extends Robot {
                 .whileTrue(new StartEndCommand(shooter::reverseAll, shooter::neutralAll, shooter));
         coPilotController.rightTrigger().whileTrue(new StartEndCommand(intake::runReverse, intake::stop, intake));
         coPilotController.a().onTrue(new InstantCommand(shooter::useAbsoluteAngle));
-        coPilotController.b().onTrue(new InstantCommand(shooter::ninteyTurret));
+        coPilotController.b().onTrue(new InstantCommand(shooter::ninetyTurret));
     }
 
     @Override
@@ -117,7 +117,7 @@ public class Robot2026 extends Robot {
     @Override
     public void autonomousInit() {
         super.autonomousInit();
-        shooter.ninteyTurret(); // "Zero" the turret, but actually just set it to 90 degrees
+        shooter.ninetyTurret(); // "Zero" the turret, but actually just set it to 90 degrees
     }
 
     @Override
