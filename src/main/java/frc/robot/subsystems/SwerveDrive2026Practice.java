@@ -77,7 +77,7 @@ public class SwerveDrive2026Practice extends SwerveDrive {
     public static final SdsSwerveModuleType MODULE_TYPE = SdsSwerveModuleType.MK4I_L3;
     public static final SwerveConstraints SWERVE_CONSTRAINTS = new SwerveConstraints(SWERVE_MAX_ANGULAR_VELOCITY,
             SWERVE_MAX_ANGULAR_ACCEL, SWERVE_MAX_LINEAR_VELOCITY, SWERVE_MAX_LINEAR_ACCEL);
-    public static final SwerveConstraints SLOW_SWEyRVE_CONSTRAINTS = new SwerveConstraints(
+    public static final SwerveConstraints SLOW_SWERVE_CONSTRAINTS = new SwerveConstraints(
             SWERVE_MAX_ANGULAR_VELOCITY.div(6), SWERVE_MAX_ANGULAR_ACCEL, SWERVE_MAX_LINEAR_VELOCITY.div(6),
             SWERVE_MAX_LINEAR_ACCEL);
 

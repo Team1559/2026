@@ -173,8 +173,6 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer, Ne
         }
         targetRotationalVelocity = Rotation2d.fromRadians(
                 currentRotationalVelocity.getRadians() + (targetRotationalAcceleration.getRadians() * ROBOT_PERIOD));
-        // Use this math instead of WPIs built - in .plus() method, because the .plus()
-        // method clamps the output from -pi to pi radians.
 
         ChassisSpeeds accelLimitedSpeeds = new ChassisSpeeds(targetLinearVelocity.getX(), targetLinearVelocity.getY(),
                 targetRotationalVelocity.getRadians());

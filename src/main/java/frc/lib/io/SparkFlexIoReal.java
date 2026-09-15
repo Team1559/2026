@@ -35,6 +35,7 @@ public class SparkFlexIoReal extends SparkFlexIoBase {
         inputs.motorCurrent = motor.getOutputCurrent();
         inputs.motorTemp = motor.getMotorTemperature();
         inputs.position = Rotations.of(encoder.getPosition());
+        inputs.appliedOutput = motor.getAppliedOutput();
     }
 
     @Override
