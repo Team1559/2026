@@ -9,32 +9,30 @@ import edu.wpi.first.units.measure.LinearVelocity;
 
 import frc.lib.component.AngularVelocityComponent;
 import frc.lib.component.LinearVelocityComponent;
-import frc.lib.logging.LoggableIntermediate;
+import frc.lib.logging.LoggableAdapter;
 
-public class WheelVelocityIntermediate extends LoggableIntermediate implements LinearVelocityComponent {
+public class WheelVelocityIntermediate extends LoggableAdapter<AngularVelocityComponent> implements LinearVelocityComponent {
 
-    private final AngularVelocityComponent wheel;
     private final Distance circumference;
 
     public WheelVelocityIntermediate(AngularVelocityComponent wheel, Distance wheelRadius) {
-        this.wheel = wheel;
-        this.setChild(wheel);
+        super(wheel);
         circumference = wheelRadius.times(2 * Math.PI);
     }
 
     @Override
     public void neutralOutput() {
-        wheel.neutralOutput();
+        child.neutralOutput();
     }
 
     @Override
     public void setVelocity(LinearVelocity setpoint) {
-        wheel.setVelocity(RotationsPerSecond.of(setpoint.in(MetersPerSecond) / circumference.in(Meters)));
+        child.setVelocity(RotationsPerSecond.of(setpoint.in(MetersPerSecond) / circumference.in(Meters)));
     }
 
     @Override
     public LinearVelocity getCurrentVelocity() {
-        return MetersPerSecond.of(wheel.getCurrentVelocity().in(RotationsPerSecond) * circumference.in(Meters));
+        return MetersPerSecond.of(child.getCurrentVelocity().in(RotationsPerSecond) * circumference.in(Meters));
     }
 
 }

@@ -12,17 +12,15 @@ import frc.lib.component.AngleSensor;
 import frc.lib.component.AngularVelocityComponent;
 import frc.lib.component.DistanceSensor;
 import frc.lib.component.LinearVelocityComponent;
-import frc.lib.logging.LoggableIntermediate;
+import frc.lib.logging.LoggableAdapter;
 
-public class DriveWheelAdapter<T extends AngleSensor & AngularVelocityComponent> extends LoggableIntermediate
+public class DriveWheelAdapter<T extends AngleSensor & AngularVelocityComponent> extends LoggableAdapter<T>
         implements DistanceSensor, LinearVelocityComponent {
-    private final T motor;
     private final Distance circumference;
     private final double reductionRatio;
 
     public DriveWheelAdapter(T motor, Distance wheelRadius, double reductionRatio) {
-        this.motor = motor;
-        this.setChild(motor);
+        super(motor);
         this.reductionRatio = reductionRatio;
 
         circumference = wheelRadius.times(2 * Math.PI);
@@ -30,23 +28,23 @@ public class DriveWheelAdapter<T extends AngleSensor & AngularVelocityComponent>
 
     @Override
     public Distance getDistance() {
-        return circumference.times(motor.getAngle().in(Rotations)).div(reductionRatio);
+        return circumference.times(child.getAngle().in(Rotations)).div(reductionRatio);
     }
 
     @Override
     public void neutralOutput() {
-        motor.neutralOutput();
+        child.neutralOutput();
     }
 
     @Override
     public void setVelocity(LinearVelocity setpoint) {
-        motor.setVelocity(
+        child.setVelocity(
                 RotationsPerSecond.of(setpoint.in(MetersPerSecond) / circumference.in(Meters)).times(reductionRatio));
     }
 
     @Override
     public LinearVelocity getCurrentVelocity() {
-        return MetersPerSecond.of(motor.getCurrentVelocity().in(RotationsPerSecond) * circumference.in(Meters))
+        return MetersPerSecond.of(child.getCurrentVelocity().in(RotationsPerSecond) * circumference.in(Meters))
                 .div(reductionRatio);
     }
 

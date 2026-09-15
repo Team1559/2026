@@ -6,9 +6,9 @@ import edu.wpi.first.units.measure.Angle;
 
 import frc.lib.component.AngleComponent;
 import frc.lib.component.AngleSensor;
-import frc.lib.logging.LoggableIntermediate;
+import frc.lib.logging.LoggableCollection;
 
-public class FusedAngleIntermediate extends LoggableIntermediate implements AngleComponent{
+public class FusedAngleIntermediate extends LoggableCollection implements AngleComponent{
     private final AngleSensor sensor;
     private final AngleComponent actuator;
     private Angle sensorOffset = Degrees.zero();

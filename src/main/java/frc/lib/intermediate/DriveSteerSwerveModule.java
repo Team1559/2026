@@ -9,9 +9,9 @@ import edu.wpi.first.units.measure.LinearVelocity;
 
 import frc.lib.component.AngleComponent;
 import frc.lib.component.SwerveModule;
-import frc.lib.logging.LoggableIntermediate;
+import frc.lib.logging.LoggableCollection;
 
-public class DriveSteerSwerveModule extends LoggableIntermediate implements SwerveModule {
+public class DriveSteerSwerveModule extends LoggableCollection implements SwerveModule {
     private final AngleComponent steerMotor;
     private final DriveWheelAdapter<?> driveMotor;
     private final Translation2d location;
