@@ -49,7 +49,7 @@ import com.pathplanner.lib.config.RobotConfig;
 import frc.lib.component.SwerveModule;
 import frc.lib.intermediate.DriveSteerSwerveModule;
 import frc.lib.intermediate.DriveWheelAdapter;
-import frc.lib.intermediate.FusedAngleIntermediate;
+import frc.lib.intermediate.FusedAngleActuator;
 import frc.lib.io.CanCoderIoBase;
 import frc.lib.io.CanCoderIoReal;
 import frc.lib.io.Pigeon2IoBase;
@@ -154,7 +154,7 @@ public class SwerveDrive2026Competition extends SwerveDrive {
         }
 
 
-        FusedAngleIntermediate steerMotorCanCoder = new FusedAngleIntermediate(encoder, steerMotor);
+        FusedAngleActuator steerMotorCanCoder = new FusedAngleActuator(encoder, steerMotor);
 
         DriveWheelAdapter<?> driveMotor = new DriveWheelAdapter<>(driveMotorIO, SdsSwerveModuleType.WHEEL_RADIUS,
                 MODULE_TYPE.driveRatio);

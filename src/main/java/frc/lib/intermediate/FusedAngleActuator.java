@@ -8,12 +8,12 @@ import frc.lib.component.AngleComponent;
 import frc.lib.component.AngleSensor;
 import frc.lib.logging.LoggableCollection;
 
-public class FusedAngleIntermediate extends LoggableCollection implements AngleComponent{
+public class FusedAngleActuator extends LoggableCollection implements AngleComponent{
     private final AngleSensor sensor;
     private final AngleComponent actuator;
     private Angle sensorOffset = Degrees.zero();
 
-    public FusedAngleIntermediate(AngleSensor sensor, AngleComponent actuator) {
+    public FusedAngleActuator(AngleSensor sensor, AngleComponent actuator) {
         this.sensor = sensor;
         this.actuator = actuator;
 

@@ -11,11 +11,11 @@ import frc.lib.component.AngularVelocityComponent;
 import frc.lib.component.LinearVelocityComponent;
 import frc.lib.logging.LoggableAdapter;
 
-public class WheelVelocityIntermediate extends LoggableAdapter<AngularVelocityComponent> implements LinearVelocityComponent {
+public class WheelVelocityAdapter extends LoggableAdapter<AngularVelocityComponent> implements LinearVelocityComponent {
 
     private final Distance circumference;
 
-    public WheelVelocityIntermediate(AngularVelocityComponent wheel, Distance wheelRadius) {
+    public WheelVelocityAdapter(AngularVelocityComponent wheel, Distance wheelRadius) {
         super(wheel);
         circumference = wheelRadius.times(2 * Math.PI);
     }

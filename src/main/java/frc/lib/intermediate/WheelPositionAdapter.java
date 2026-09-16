@@ -9,11 +9,11 @@ import frc.lib.component.DistanceSensor;
 import frc.lib.logging.LoggableAdapter;
 
 // I would not tolerate this class name if you ever had to actually type it
-public class WheelPositionSensorIntermediate extends LoggableAdapter<AngleSensor> implements DistanceSensor {
+public class WheelPositionAdapter extends LoggableAdapter<AngleSensor> implements DistanceSensor {
 
     private final Distance circumference;
 
-    public WheelPositionSensorIntermediate(AngleSensor sensor, Distance wheelRadius) {
+    public WheelPositionAdapter(AngleSensor sensor, Distance wheelRadius) {
         super(sensor);
         circumference = wheelRadius.times(2 * Math.PI);
 
