@@ -3,9 +3,9 @@ package frc.lib.intermediate;
 import edu.wpi.first.units.measure.Angle;
 
 import frc.lib.component.AngleComponent;
-import frc.lib.logging.LoggableAdaptor;
+import frc.lib.logging.LoggableAdapter;
 
-public class AngleRatio extends LoggableAdaptor<AngleComponent> implements AngleComponent {
+public class AngleRatio extends LoggableAdapter<AngleComponent> implements AngleComponent {
     private final double reductionRatio;
 
     public AngleRatio(double reductionRatio, AngleComponent child) {
