@@ -30,13 +30,13 @@ public class Intake2026 extends LoggableSubsystem {
     private static final int INTAKE_MOTOR_ID = 22;
     private static final int ELBOW_MOTOR_ID = 21;
     private static final int ELBOW_ENCODER_ID = 16;
-    private static final Voltage FORWARD_VOLTAGE = Volts.of(6);
+    private static final Voltage FORWARD_VOLTAGE = Volts.of(4); //TOSOOO 6
     private static final Voltage REVERSE_VOLTAGE = Volts.of(-5);
     private static final Voltage ELBOW_UP_VOLTAGE = Volts.of(3);
-    private static final Voltage ELBOW_DOWN_VOLTAGE = Volts.of(-1);
+    private static final Voltage ELBOW_DOWN_VOLTAGE = Volts.of(-2);
     private static final Voltage HOLD_ELBOW_UP = Volts.of(0.5);
     private static final Voltage HOLD_ELBOW_DOWN = Volts.of(-0.4);
-    private static final Angle ELBOW_OFFSET = Degrees.of(-55.195313);
+    private static final Angle ELBOW_OFFSET = Degrees.of(-235.810547);
     private static final Angle UP_ANGLE = Degrees.of(86);
     private static final Angle DOWN_ANGLE = Degrees.of(30);
 
@@ -80,7 +80,7 @@ public class Intake2026 extends LoggableSubsystem {
         } else {
             CANcoderConfiguration config = new CANcoderConfiguration();
             config.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-            config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = .5;
+            config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.10;
             encoder = new CanCoderIoReal(new CANcoder(ELBOW_ENCODER_ID), config);
         }
         return encoder.withOffset(ELBOW_OFFSET);

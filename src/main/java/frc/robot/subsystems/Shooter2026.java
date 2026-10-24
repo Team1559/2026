@@ -72,7 +72,7 @@ public class Shooter2026 extends LoggableSubsystem {
     private ForwardReverseNeutral feedwheelState = ForwardReverseNeutral.NEUTRAL;
     private ForwardReverseNeutral flywheelState = ForwardReverseNeutral.NEUTRAL;
 
-    private static final Rotation2d flapperAngle = Rotation2d.fromDegrees(60);
+    private static final Rotation2d flapperAngle = Rotation2d.fromDegrees(52);
 
     private final AngleComponent turret;
     private final AngleSensor turretAngleSensor;
@@ -99,6 +99,8 @@ public class Shooter2026 extends LoggableSubsystem {
     private static final Angle TURRET_MIN = Degrees.of(-60);
     private static final Angle TURRET_MID = TURRET_MAX.plus(TURRET_MIN).div(2);
 
+    private static boolean lockToZero = false;
+
     private static final int PREVIOUS_MEASUREMENT_COUNT = 5;
     private final CircularBuffer<PastAngle> previousAngles = new CircularBuffer<>(PREVIOUS_MEASUREMENT_COUNT);
 
@@ -121,7 +123,8 @@ public class Shooter2026 extends LoggableSubsystem {
         this.addChild("Flywheel", flywheel);
         this.addChild("FeedWheel", feedWheel);
         this.addChild("TurretAngleSensor", turretAngleSensor);
-        useAbsoluteAngle();
+        //useAbsoluteAngle();
+        zeroTurret();
     }
 
     public Shooter2026(Supplier<Pose2d> robotPositionSupplier, Supplier<ChassisSpeeds> robotSpeedSupplier) {
@@ -200,8 +203,8 @@ public class Shooter2026 extends LoggableSubsystem {
         }
 
         return new ChineseRemainderAngle(21, 20, 200,
-                canCoderOne.withOffset(Degrees.of(124.101563)),
-                canCoderTwo.withOffset(Degrees.of(-13.095703)),
+                canCoderOne.withOffset(Degrees.of(108.544922)),
+                canCoderTwo.withOffset(Degrees.of(6.943359)),
                 Degrees.of(-240), Degrees.of(240));
     }
 
@@ -298,9 +301,9 @@ public class Shooter2026 extends LoggableSubsystem {
     }
 
     private static AngularVelocity calculateFlywheelVelocity(LinearVelocity projectileVelocity) {
-        return RPM.of(1825 + -43.7 * projectileVelocity.in(FeetPerSecond)
-                + 4.56 * Math.pow(projectileVelocity.in(FeetPerSecond), 2));
-
+        return RPM.of(-9.34 + 139 * projectileVelocity.in(FeetPerSecond)
+                + 0.276 * Math.pow(projectileVelocity.in(FeetPerSecond), 2));
+        // return RPM.of(3000);
     }
 
     private static Translation3d calculateVirtualTarget(Time initialGuess, Translation3d initialHubPose,
@@ -410,7 +413,12 @@ public class Shooter2026 extends LoggableSubsystem {
 
         logger().debug("AngleToTarget", angleToTarget)
                 .debug("TurretSetpoint", turretSetpoint);
-        turret.setAngle(turretSetpoint);
+                
+        if(lockToZero) {
+                turret.setAngle(Degrees.of(0));
+        } else {
+            turret.setAngle(turretSetpoint);
+        }
 
         targetTurretSpace = calculateTargetLocationTurretSpace(virtualTarget, angleToTarget);
         logger().debug("VirtualTargetTurretSpace", targetTurretSpace);
@@ -511,6 +519,14 @@ public class Shooter2026 extends LoggableSubsystem {
     public void reverseAll() {
         flywheelState = ForwardReverseNeutral.REVERSE;
         feedwheelState = ForwardReverseNeutral.REVERSE;
+    }
+
+    public void lockTurretToZero() {
+        lockToZero = true;
+    }
+
+    public void unlockTurret() {
+        lockToZero = false;
     }
 
 }

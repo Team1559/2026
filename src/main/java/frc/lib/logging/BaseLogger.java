@@ -1,6 +1,7 @@
 package frc.lib.logging;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotBase;
 
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
@@ -28,7 +29,9 @@ public sealed class BaseLogger permits CustomLogger {
         if (Logger.hasReplaySource()) {
             return true;
         }
-        
+        if (RobotBase.isSimulation()) {
+            return true;
+        }
         if (DriverStation.isFMSAttached()) {
             return false;
         }
