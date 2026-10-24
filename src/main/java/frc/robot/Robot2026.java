@@ -16,6 +16,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 
 import frc.lib.Robot;
 import frc.lib.command.JoystickSwerveDriveCommand;
+import frc.lib.logging.BaseLogger;
 import frc.lib.subsystem.SwerveDrive;
 
 import frc.robot.commands.NatesNinetyCommand;
@@ -33,6 +34,7 @@ public class Robot2026 extends Robot {
     private final CommandXboxController pilotController;
     private final CommandXboxController coPilotController;
     private final SwerveDrive drivetrain;
+    private static final double CONTROLLER_DEADBAND = 0.15;
 
     @SuppressWarnings("unused") // To avoid garbage collection of our vision
     private final Vision2026 vision;
@@ -41,7 +43,7 @@ public class Robot2026 extends Robot {
     private final Indexer2026 indexer;
 
     public Robot2026() {
-        // BaseLogger.overrideDebugMode(true)
+        BaseLogger.overrideDebugMode(true);
         drivetrain = new SwerveDrive2026Competition();
         vision = new Vision2026(drivetrain);
         shooter = new Shooter2026(drivetrain::getPosition, drivetrain::getCurrentSpeed);
@@ -71,15 +73,15 @@ public class Robot2026 extends Robot {
     protected void setTeleopBindings() {
         drivetrain.setDefaultCommand(new JoystickSwerveDriveCommand(drivetrain, pilotController::getLeftX,
                 pilotController::getLeftY, pilotController::getRightX,
-                SwerveDrive2026Competition.SWERVE_CONSTRAINTS, 0.1, false));
+                SwerveDrive2026Competition.SWERVE_CONSTRAINTS, CONTROLLER_DEADBAND, false));
 
         pilotController.leftBumper().whileTrue(
                 new JoystickSwerveDriveCommand(drivetrain, pilotController::getLeftX,
                         pilotController::getLeftY, pilotController::getRightX,
-                        SwerveDrive2026Competition.SLOW_SWERVE_CONSTRAINTS, 0.1, false));
+                        SwerveDrive2026Competition.SLOW_SWERVE_CONSTRAINTS, CONTROLLER_DEADBAND, false));
 
         pilotController.y().whileTrue(new NatesNinetyCommand(drivetrain, pilotController::getLeftX,
-                pilotController::getLeftY, SwerveDrive2026Competition.SWERVE_CONSTRAINTS, 0.1));
+                pilotController::getLeftY, SwerveDrive2026Competition.SWERVE_CONSTRAINTS, CONTROLLER_DEADBAND));
 
         pilotController.leftTrigger()
                 .whileTrue(new StartEndCommand(intake::runForwards, intake::stop, intake));
@@ -105,13 +107,14 @@ public class Robot2026 extends Robot {
         coPilotController.rightTrigger().whileTrue(new StartEndCommand(intake::runReverse, intake::stop, intake));
         coPilotController.a().onTrue(new InstantCommand(shooter::useAbsoluteAngle));
         coPilotController.b().onTrue(new InstantCommand(shooter::ninetyTurret));
+
+        coPilotController.y().onTrue(new InstantCommand(shooter::lockTurretToZero));
+        coPilotController.x().onTrue(new InstantCommand(shooter::unlockTurret));
     }
 
     @Override
     protected void setTestBindings() {
-        pilotController.leftTrigger()
-                .whileTrue(new StartEndCommand(intake::runForwards, intake::stop, intake));
-
+        
     }
 
     @Override
