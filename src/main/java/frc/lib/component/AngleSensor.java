@@ -1,5 +1,6 @@
 package frc.lib.component;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
 
 import frc.lib.intermediate.AngleSensorOffsetter;
@@ -10,5 +11,9 @@ public interface AngleSensor extends LoggableComponent{
 
     default AngleSensor withOffset(Angle offset) {
         return new AngleSensorOffsetter(offset, this);
+    }
+
+    default AngleSensor withOffset(Rotation2d offset) {
+        return withOffset(offset.getMeasure());
     }
 }
