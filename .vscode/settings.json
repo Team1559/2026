@@ -37,7 +37,7 @@
     "org.mockito.Mockito.*",
     "org.mockito.ArgumentMatchers.*",
     "org.mockito.Answers.*",
-    "edu.wpi.first.units.Units.*"
+    "org.wpilib.units.Units.*"
   ],
   "java.completion.filteredTypes": [
     "java.awt.*",
@@ -53,26 +53,10 @@
     "javax.swing.*",
     "javax.management.*",
     "javax.smartcardio.*",
-    "edu.wpi.first.math.proto.*",
-    "edu.wpi.first.math.**.proto.*",
-    "edu.wpi.first.math.**.struct.*",
+    "org.wpilib.math.proto.*",
+    "org.wpilib.math.**.proto.*",
+    "org.wpilib.math.**.struct.*",
   ],
-  "java.diagnostic.filter": [
-    "**/build/generated/sources/annotationProcessor/**/*"
-  ],
-"java.dependency.enableDependencyCheckup": false,
-"java.jdt.ls.vmargs": "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx2G -Xms100m -Xlog:disable",
-"java.completion.importOrder": [
-    "#",
-    "java",
-    "javax",
-    "edu.wpi.first",
-    "org.littletonrobotics",
-    "com.ctre.phoenix6",
-    "com.revrobotics",
-    "com.pathplanner",
-    "",
-    "frc.lib",
-    "frc.robot"
-]
+  "java.debug.settings.enableRunDebugCodeLens": false,
+  "java.dependency.enableDependencyCheckup": false
 }

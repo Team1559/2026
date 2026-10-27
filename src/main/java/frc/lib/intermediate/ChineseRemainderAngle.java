@@ -1,9 +1,9 @@
 package frc.lib.intermediate;
 
-import static edu.wpi.first.units.Units.Rotations;
+import static org.wpilib.units.Units.Rotations;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.units.measure.Angle;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.units.measure.Angle;
 
 import frc.lib.component.AngleSensor;
 import frc.lib.logging.LoggableCollection;

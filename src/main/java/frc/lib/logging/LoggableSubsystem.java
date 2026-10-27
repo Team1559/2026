@@ -3,7 +3,7 @@ package frc.lib.logging;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import org.wpilib.command2.SubsystemBase;
 
 public abstract class LoggableSubsystem extends SubsystemBase {
     private final LoggableDaycare children = new LoggableDaycare();

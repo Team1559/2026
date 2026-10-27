@@ -1,6 +1,6 @@
 package frc.lib.intermediate;
 
-import edu.wpi.first.units.measure.AngularVelocity;
+import org.wpilib.units.measure.AngularVelocity;
 
 import frc.lib.component.AngularVelocityComponent;
 import frc.lib.logging.LoggableAdaptor;

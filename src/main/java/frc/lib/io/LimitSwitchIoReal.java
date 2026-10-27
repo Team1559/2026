@@ -1,6 +1,6 @@
 package frc.lib.io;
 
-import edu.wpi.first.wpilibj.DigitalInput;
+import org.wpilib.hardware.discrete.DigitalInput;
 
 public class LimitSwitchIoReal extends LimitSwitchIoBase {
 

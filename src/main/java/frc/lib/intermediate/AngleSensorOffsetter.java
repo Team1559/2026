@@ -1,6 +1,6 @@
 package frc.lib.intermediate;
 
-import edu.wpi.first.units.measure.Angle;
+import org.wpilib.units.measure.Angle;
 
 import frc.lib.component.AngleSensor;
 import frc.lib.logging.LoggableAdaptor;

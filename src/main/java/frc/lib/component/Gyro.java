@@ -1,6 +1,6 @@
 package frc.lib.component;
 
-import edu.wpi.first.math.geometry.Rotation2d;
+import org.wpilib.math.geometry.Rotation2d;
 
 import frc.lib.logging.LoggableComponent;
 

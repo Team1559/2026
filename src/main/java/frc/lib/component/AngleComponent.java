@@ -1,6 +1,6 @@
 package frc.lib.component;
 
-import edu.wpi.first.units.measure.Angle;
+import org.wpilib.units.measure.Angle;
 
 import frc.lib.intermediate.AngleLimiter;
 import frc.lib.intermediate.AngleRatio;

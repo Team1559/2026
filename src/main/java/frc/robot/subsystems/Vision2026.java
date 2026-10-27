@@ -3,9 +3,9 @@ package frc.robot.subsystems;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.geometry.Rotation2d;
+import org.wpilib.vision.apriltag.AprilTagFieldLayout;
+import org.wpilib.vision.apriltag.AprilTagFields;
+import org.wpilib.math.geometry.Rotation2d;
 
 import org.littletonrobotics.junction.Logger;
 

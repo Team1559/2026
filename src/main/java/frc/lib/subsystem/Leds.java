@@ -2,14 +2,18 @@ package frc.lib.subsystem;
 
 import java.util.function.DoubleSupplier;
 
-import edu.wpi.first.wpilibj.AddressableLED;
-import edu.wpi.first.wpilibj.AddressableLEDBuffer;
-import edu.wpi.first.wpilibj.AddressableLEDBufferView;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.LEDPattern;
-import edu.wpi.first.wpilibj.util.Color;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import org.wpilib.hardware.led.AddressableLED;
+import org.wpilib.hardware.led.AddressableLEDBuffer;
+import org.wpilib.hardware.led.AddressableLEDBufferView;
+import org.wpilib.driverstation.MatchState;
+import org.wpilib.driverstation.RobotState;
+import org.wpilib.driverstation.Alliance;
+import org.wpilib.driverstation.MatchType;
+import org.wpilib.driverstation.DriverStationErrors;
+import org.wpilib.driverstation.Alliance;
+import org.wpilib.hardware.led.LEDPattern;
+import org.wpilib.util.Color;
+import org.wpilib.command2.SubsystemBase;
 
 public class Leds extends SubsystemBase {
     private final AddressableLED led;
@@ -38,13 +42,13 @@ public class Leds extends SubsystemBase {
         side2 = buffer.createView(buffer.getLength() / 2, length - 1);
 
         led.start();
-        pattern = LEDPattern.solid(Color.kBlack);
+        pattern = LEDPattern.solid(Color.BLACK);
         currentMode = Mode.PATTERN;
     }
 
     public void setAllianceColor() {
-        boolean isBlue = DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue;
-        pattern = LEDPattern.solid(isBlue ? Color.kBlue : Color.kRed);
+        boolean isBlue = MatchState.getAlliance().orElse(Alliance.BLUE) == Alliance.BLUE;
+        pattern = LEDPattern.solid(isBlue ? Color.BLUE : Color.RED);
         currentMode = Mode.PATTERN;
     }
 
@@ -64,9 +68,9 @@ public class Leds extends SubsystemBase {
     }
 
     private void renderProgressBar(DoubleSupplier progress) {
-        Color bg = DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue ? Color.kAliceBlue
-                : Color.kDeepPink;
-        Color fg = DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue ? Color.kBlue : Color.kRed;
+        Color bg = MatchState.getAlliance().orElse(Alliance.BLUE) == Alliance.BLUE ? Color.ALICE_BLUE
+                : Color.DEEP_PINK;
+        Color fg = MatchState.getAlliance().orElse(Alliance.BLUE) == Alliance.BLUE ? Color.BLUE : Color.RED;
 
         int width = 10;
 

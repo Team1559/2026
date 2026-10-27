@@ -2,25 +2,29 @@ package frc.lib.subsystem;
 
 import java.util.Map;
 
-import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.units.measure.AngularAcceleration;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.LinearAcceleration;
-import edu.wpi.first.units.measure.LinearVelocity;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import org.wpilib.math.linalg.Matrix;
+import org.wpilib.math.estimator.SwerveDrivePoseEstimator;
+import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.math.geometry.Translation2d;
+import org.wpilib.math.kinematics.ChassisVelocities;
+import org.wpilib.math.kinematics.SwerveDriveKinematics;
+import org.wpilib.math.kinematics.SwerveModulePosition;
+import org.wpilib.math.kinematics.SwerveModuleState;
+import org.wpilib.math.numbers.N1;
+import org.wpilib.math.numbers.N3;
+import org.wpilib.units.measure.AngularAcceleration;
+import org.wpilib.units.measure.AngularVelocity;
+import org.wpilib.units.measure.LinearAcceleration;
+import org.wpilib.units.measure.LinearVelocity;
+import org.wpilib.driverstation.MatchState;
+import org.wpilib.driverstation.RobotState;
+import org.wpilib.driverstation.Alliance;
+import org.wpilib.driverstation.MatchType;
+import org.wpilib.driverstation.DriverStationErrors;
+import org.wpilib.driverstation.Alliance;
+import org.wpilib.smartdashboard.Field2d;
+import org.wpilib.smartdashboard.SmartDashboard;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
@@ -44,7 +48,7 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer, Ne
     private double maxLinearAcceleration = Double.POSITIVE_INFINITY;
     private Rotation2d maxRotationalAcceleration = Rotation2d.fromRadians(Double.POSITIVE_INFINITY);
 
-    private ChassisSpeeds targetSpeed = new ChassisSpeeds();
+    private ChassisVelocities targetSpeed = new ChassisVelocities();
 
     private static final double ROBOT_PERIOD = 0.02;
 
@@ -66,7 +70,7 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer, Ne
 
         this.kinematics = new SwerveDriveKinematics(locations);
         this.estimator = new SwerveDrivePoseEstimator(kinematics, gyro.getYaw(), positions,
-                DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
+                MatchState.getAlliance().orElse(Alliance.BLUE) == Alliance.BLUE
                         ? new Pose2d(new Translation2d(), Rotation2d.fromDegrees(180))
                         : new Pose2d()); // Changed the initial rotation
 
@@ -77,18 +81,18 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer, Ne
     public final void configureAuto(RobotConfig robotConfig) {
         AutoBuilder.configure(this::getPosition, this::resetPose, this::getCurrentSpeed, this::driveRobotOriented,
                 new PPHolonomicDriveController(new PIDConstants(5), new PIDConstants(10)), robotConfig,
-                () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red, this);
+                () -> MatchState.getAlliance().orElse(Alliance.BLUE) == Alliance.RED, this);
     }
 
-    public void driveFieldOriented(ChassisSpeeds speeds) {
-        driveRobotOriented(ChassisSpeeds.fromFieldRelativeSpeeds(speeds, getPosition().getRotation()));
+    public void driveFieldOriented(ChassisVelocities speeds) {
+        driveRobotOriented(ChassisVelocities.fromFieldRelativeSpeeds(speeds, getPosition().getRotation()));
     }
 
     public void stopDriving() {
-        driveRobotOriented(new ChassisSpeeds(0, 0, 0));
+        driveRobotOriented(new ChassisVelocities(0, 0, 0));
     }
 
-    public void driveRobotOriented(ChassisSpeeds speeds) {
+    public void driveRobotOriented(ChassisVelocities speeds) {
         targetSpeed = speeds;
     }
 
@@ -100,12 +104,12 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer, Ne
         return modules.clone();
     }
 
-    public ChassisSpeeds getCurrentSpeed() {
+    public ChassisVelocities getCurrentSpeed() {
         SwerveModuleState[] states = new SwerveModuleState[modules.length];
         for (int i = 0; i < states.length; i++) {
             states[i] = new SwerveModuleState(modules[i].getSpeed(), modules[i].getAngle());
         }
-        return kinematics.toChassisSpeeds(states);
+        return kinematics.toChassisVelocities(states);
     }
 
     private SwerveModulePosition[] getModulePositions() {
@@ -140,12 +144,12 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer, Ne
 
     @SuppressWarnings("java:S1244") // We must check if numbers are -0
     private void drive() {
-        ChassisSpeeds currentChassisSpeeds = getCurrentSpeed();
+        ChassisVelocities currentChassisVelocities = getCurrentSpeed();
 
-        Translation2d currentLinearVelocity = new Translation2d(currentChassisSpeeds.vxMetersPerSecond,
-                currentChassisSpeeds.vyMetersPerSecond);
-        Translation2d targetLinearVelocity = new Translation2d(targetSpeed.vxMetersPerSecond,
-                targetSpeed.vyMetersPerSecond);
+        Translation2d currentLinearVelocity = new Translation2d(currentChassisVelocities.vx,
+                currentChassisVelocities.vy);
+        Translation2d targetLinearVelocity = new Translation2d(targetSpeed.vx,
+                targetSpeed.vy);
         Translation2d targetLinearAcceleration = targetLinearVelocity.minus(currentLinearVelocity).div(ROBOT_PERIOD);
 
         if (targetLinearAcceleration.getNorm() > maxLinearAcceleration) {
@@ -155,9 +159,9 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer, Ne
 
         targetLinearVelocity = currentLinearVelocity.plus(targetLinearAcceleration.times(ROBOT_PERIOD));
 
-        Rotation2d currentRotationalVelocity = Rotation2d.fromRadians(currentChassisSpeeds.omegaRadiansPerSecond);
+        Rotation2d currentRotationalVelocity = Rotation2d.fromRadians(currentChassisVelocities.omega);
 
-        Rotation2d targetRotationalVelocity = Rotation2d.fromRadians(targetSpeed.omegaRadiansPerSecond);
+        Rotation2d targetRotationalVelocity = Rotation2d.fromRadians(targetSpeed.omega);
         Rotation2d targetRotationalAcceleration = (Rotation2d
                 .fromRadians(targetRotationalVelocity.getRadians() - currentRotationalVelocity.getRadians()))
                 .div(ROBOT_PERIOD);
@@ -174,19 +178,19 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer, Ne
         targetRotationalVelocity = Rotation2d.fromRadians(
                 currentRotationalVelocity.getRadians() + (targetRotationalAcceleration.getRadians() * ROBOT_PERIOD));
 
-        ChassisSpeeds accelLimitedSpeeds = new ChassisSpeeds(targetLinearVelocity.getX(), targetLinearVelocity.getY(),
+        ChassisVelocities accelLimitedSpeeds = new ChassisVelocities(targetLinearVelocity.getX(), targetLinearVelocity.getY(),
                 targetRotationalVelocity.getRadians());
 
         logger().debug("TargetVelocity", accelLimitedSpeeds);
 
-        if (accelLimitedSpeeds.vxMetersPerSecond == -0) {
-            accelLimitedSpeeds.vxMetersPerSecond = 0;
+        if (accelLimitedSpeeds.vx == -0) {
+            accelLimitedSpeeds.vx = 0;
         }
-        if (accelLimitedSpeeds.vyMetersPerSecond == -0) {
-            accelLimitedSpeeds.vyMetersPerSecond = 0;
+        if (accelLimitedSpeeds.vy == -0) {
+            accelLimitedSpeeds.vy = 0;
         }
-        if (accelLimitedSpeeds.omegaRadiansPerSecond == -0) {
-            accelLimitedSpeeds.omegaRadiansPerSecond = 0;
+        if (accelLimitedSpeeds.omega == -0) {
+            accelLimitedSpeeds.omega = 0;
         }
 
         SwerveModuleState[] states = kinematics.toSwerveModuleStates(accelLimitedSpeeds);
@@ -197,7 +201,7 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer, Ne
         }
         for (int i = 0; i < modules.length; i++) {
             states[i].optimize(modules[i].getAngle());
-            states[i].speedMetersPerSecond *= minCos;
+            states[i].velocity *= minCos;
             modules[i].setState(states[i]);
         }
     }

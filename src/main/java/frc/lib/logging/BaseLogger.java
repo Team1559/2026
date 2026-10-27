@@ -1,7 +1,11 @@
 package frc.lib.logging;
 
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotBase;
+import org.wpilib.driverstation.MatchState;
+import org.wpilib.driverstation.RobotState;
+import org.wpilib.driverstation.Alliance;
+import org.wpilib.driverstation.MatchType;
+import org.wpilib.driverstation.DriverStationErrors;
+import org.wpilib.framework.RobotBase;
 
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
@@ -32,14 +36,14 @@ public sealed class BaseLogger permits CustomLogger {
         if (RobotBase.isSimulation()) {
             return true;
         }
-        if (DriverStation.isFMSAttached()) {
+        if (RobotState.isFMSAttached()) {
             return false;
         }
         if (debugOverride != null) {
             return debugOverride;
         }
 
-        return DriverStation.isTest();
+        return RobotState.isUtility();
     }
 
     protected String getOutputLogPath(String key) {

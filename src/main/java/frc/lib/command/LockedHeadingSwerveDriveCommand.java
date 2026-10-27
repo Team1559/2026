@@ -1,16 +1,16 @@
 package frc.lib.command;
 
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.Rotations;
+import static org.wpilib.units.Units.RadiansPerSecond;
+import static org.wpilib.units.Units.Rotations;
 
 import java.util.function.DoubleSupplier;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
+import org.wpilib.math.util.MathUtil;
+import org.wpilib.math.controller.PIDController;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.math.kinematics.ChassisVelocities;
+import org.wpilib.units.measure.Angle;
+import org.wpilib.units.measure.AngularVelocity;
 
 import frc.lib.subsystem.SwerveDrive;
 import frc.lib.subsystem.SwerveDrive.SwerveConstraints;
@@ -36,7 +36,7 @@ public class LockedHeadingSwerveDriveCommand extends SwerveDriveCommand {
     }
 
     @Override
-    protected ChassisSpeeds calculateChassisSpeeds() {
+    protected ChassisVelocities calculateChassisVelocities() {
         double x = leftStickY.getAsDouble() * -1;
         double y = leftStickX.getAsDouble() * -1;
 
@@ -58,11 +58,11 @@ public class LockedHeadingSwerveDriveCommand extends SwerveDriveCommand {
 
         AngularVelocity angularVelocity = RadiansPerSecond.of(pid.calculate(-angleToTarget.in(Rotations)));
 
-        angularVelocity = RadiansPerSecond.of(MathUtil.clamp(angularVelocity.in(RadiansPerSecond),
+        angularVelocity = RadiansPerSecond.of(Math.clamp(angularVelocity.in(RadiansPerSecond),
                 -1 * swerveConstraints.getMaxAngularVelocity().in(RadiansPerSecond),
                 swerveConstraints.getMaxAngularVelocity().in(RadiansPerSecond)));
 
-        return new ChassisSpeeds(swerveConstraints.getMaxLinearVelocity().times(x),
+        return new ChassisVelocities(swerveConstraints.getMaxLinearVelocity().times(x),
                 swerveConstraints.getMaxLinearVelocity().times(y), angularVelocity);
     }
 

@@ -1,9 +1,13 @@
 package frc.lib.command;
 
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj2.command.Command;
+import org.wpilib.math.kinematics.ChassisVelocities;
+import org.wpilib.driverstation.MatchState;
+import org.wpilib.driverstation.RobotState;
+import org.wpilib.driverstation.Alliance;
+import org.wpilib.driverstation.MatchType;
+import org.wpilib.driverstation.DriverStationErrors;
+import org.wpilib.driverstation.Alliance;
+import org.wpilib.command2.Command;
 
 import frc.lib.subsystem.SwerveDrive;
 
@@ -23,19 +27,19 @@ public abstract class SwerveDriveCommand extends Command {
 
     @Override
     public void execute() {
-        ChassisSpeeds chassisSpeeds = calculateChassisSpeeds();
+        ChassisVelocities chassisSpeeds = calculateChassisVelocities();
 
         if (driveRobotOriented) {
             swerveDrive.driveRobotOriented(chassisSpeeds);
-        } else if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
-            swerveDrive.driveFieldOriented(new ChassisSpeeds(-1 * chassisSpeeds.vxMetersPerSecond, 
-                    -1 * chassisSpeeds.vyMetersPerSecond, 
-                    chassisSpeeds.omegaRadiansPerSecond));
+        } else if (MatchState.getAlliance().orElse(Alliance.BLUE) == Alliance.RED) {
+            swerveDrive.driveFieldOriented(new ChassisVelocities(-1 * chassisSpeeds.vx, 
+                    -1 * chassisSpeeds.vy, 
+                    chassisSpeeds.omega));
         } else {
             swerveDrive.driveFieldOriented(chassisSpeeds);
         }
     }
 
     //sow the seeds of chassis speeds
-    protected abstract ChassisSpeeds calculateChassisSpeeds();
+    protected abstract ChassisVelocities calculateChassisVelocities();
 }

@@ -1,38 +1,42 @@
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.FeetPerSecond;
-import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
-import static edu.wpi.first.units.Units.RPM;
-import static edu.wpi.first.units.Units.Rotations;
-import static edu.wpi.first.units.Units.Second;
-import static edu.wpi.first.units.Units.Seconds;
+import static org.wpilib.units.Units.Degrees;
+import static org.wpilib.units.Units.FeetPerSecond;
+import static org.wpilib.units.Units.Inches;
+import static org.wpilib.units.Units.Meters;
+import static org.wpilib.units.Units.MetersPerSecond;
+import static org.wpilib.units.Units.MetersPerSecondPerSecond;
+import static org.wpilib.units.Units.RPM;
+import static org.wpilib.units.Units.Rotations;
+import static org.wpilib.units.Units.Second;
+import static org.wpilib.units.Units.Seconds;
 
 import java.util.function.Supplier;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.units.measure.LinearAcceleration;
-import edu.wpi.first.units.measure.LinearVelocity;
-import edu.wpi.first.units.measure.Time;
-import edu.wpi.first.util.CircularBuffer;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
+import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.math.geometry.Pose3d;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.math.geometry.Rotation3d;
+import org.wpilib.math.geometry.Translation2d;
+import org.wpilib.math.geometry.Translation3d;
+import org.wpilib.math.kinematics.ChassisVelocities;
+import org.wpilib.math.util.Units;
+import org.wpilib.units.measure.Angle;
+import org.wpilib.units.measure.AngularVelocity;
+import org.wpilib.units.measure.Distance;
+import org.wpilib.units.measure.LinearAcceleration;
+import org.wpilib.units.measure.LinearVelocity;
+import org.wpilib.units.measure.Time;
+import org.wpilib.util.container.CircularBuffer;
+import org.wpilib.driverstation.MatchState;
+import org.wpilib.driverstation.RobotState;
+import org.wpilib.driverstation.Alliance;
+import org.wpilib.driverstation.MatchType;
+import org.wpilib.driverstation.DriverStationErrors;
+import org.wpilib.driverstation.Alliance;
+import org.wpilib.system.Timer;
+import org.wpilib.command2.Command;
+import org.wpilib.command2.InstantCommand;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -61,7 +65,7 @@ import frc.lib.util.ForwardReverseNeutral;
 
 public class Shooter2026 extends LoggableSubsystem {
     private final Supplier<Pose2d> robotPositionSupplier;
-    private final Supplier<ChassisSpeeds> robotSpeedSupplier;
+    private final Supplier<ChassisVelocities> robotSpeedSupplier;
 
     private AngularVelocity targetFlywheelVelocity = RPM.zero();
     // ^ Init at zero to fix crash due to null in isFlywheelReady
@@ -107,7 +111,7 @@ public class Shooter2026 extends LoggableSubsystem {
     private record PastAngle(Double timestamp, Rotation2d angle) {
     }
 
-    public Shooter2026(Supplier<Pose2d> robotPositionSupplier, Supplier<ChassisSpeeds> robotSpeedSupplier,
+    public Shooter2026(Supplier<Pose2d> robotPositionSupplier, Supplier<ChassisVelocities> robotSpeedSupplier,
             Pose3d turretOffset, AngleComponent turret,
             SparkFlexIoBase flywheel, AngularVelocityComponent feedWheel,
             AngleSensor turretAngleSensor) {
@@ -127,7 +131,7 @@ public class Shooter2026 extends LoggableSubsystem {
         zeroTurret();
     }
 
-    public Shooter2026(Supplier<Pose2d> robotPositionSupplier, Supplier<ChassisSpeeds> robotSpeedSupplier) {
+    public Shooter2026(Supplier<Pose2d> robotPositionSupplier, Supplier<ChassisVelocities> robotSpeedSupplier) {
         this(robotPositionSupplier, robotSpeedSupplier,
                 new Pose3d(Inches.of(5.5), Inches.of(5.5), Inches.of(28), Rotation3d.kZero),
                 makeTurret(), makeFlywheel(), makeFeedwheel(),
@@ -383,8 +387,8 @@ public class Shooter2026 extends LoggableSubsystem {
         Time initialGuess = targetTurretSpace.getMeasureX().div(projectileVelocity.times(flapperAngle.getCos()));
         logger().debug("InitialGuess", initialGuess);
 
-        ChassisSpeeds robotSpeed = robotSpeedSupplier.get();
-        Translation3d targetSpeed = new Translation3d(robotSpeed.vxMetersPerSecond, robotSpeed.vyMetersPerSecond, 0)
+        ChassisVelocities robotSpeed = robotSpeedSupplier.get();
+        Translation3d targetSpeed = new Translation3d(robotSpeed.vx, robotSpeed.vy, 0)
                 .unaryMinus().rotateBy(turretOffset.getRotation().unaryMinus());
         logger().debug("TargetSpeed", targetSpeed);
 
@@ -470,14 +474,14 @@ public class Shooter2026 extends LoggableSubsystem {
     }
 
     public static Translation3d ourHubLocation() {
-        return DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Red ? RED_HUB_LOCATION : BLUE_HUB_LOCATION;
+        return MatchState.getAlliance().orElse(Alliance.RED) == Alliance.RED ? RED_HUB_LOCATION : BLUE_HUB_LOCATION;
     }
 
     public Translation3d targetLocation() {
-        Alliance alliance = DriverStation.getAlliance().orElse(Alliance.Red);
+        Alliance alliance = MatchState.getAlliance().orElse(Alliance.RED);
         Translation3d target;
         Pose2d robotLocation = robotPositionSupplier.get();
-        if (alliance == Alliance.Red) {
+        if (alliance == Alliance.RED) {
             robotLocation = FlippingUtil.flipFieldPose(robotLocation);
         }
         if (robotLocation.getMeasureX().lt(Inches.of(182.11))) {
@@ -488,7 +492,7 @@ public class Shooter2026 extends LoggableSubsystem {
             target = BLUE_FERRY_TWO;
         }
 
-        if (alliance == Alliance.Red) {
+        if (alliance == Alliance.RED) {
             return flip(target);
         }
         return target;

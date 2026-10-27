@@ -1,5 +1,5 @@
 package frc.lib.component;
-import edu.wpi.first.units.measure.Voltage;
+import org.wpilib.units.measure.Voltage;
 
 import frc.lib.logging.LoggableComponent;
 import frc.lib.util.NeutralOutput;

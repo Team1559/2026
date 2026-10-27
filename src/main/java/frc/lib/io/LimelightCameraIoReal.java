@@ -6,17 +6,17 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.networktables.DoubleArrayPublisher;
-import edu.wpi.first.networktables.DoubleArraySubscriber;
-import edu.wpi.first.networktables.DoubleSubscriber;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.TimestampedDoubleArray;
-import edu.wpi.first.wpilibj.RobotController;
+import org.wpilib.math.geometry.Pose3d;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.math.geometry.Rotation3d;
+import org.wpilib.math.util.Units;
+import org.wpilib.networktables.DoubleArrayPublisher;
+import org.wpilib.networktables.DoubleArraySubscriber;
+import org.wpilib.networktables.DoubleSubscriber;
+import org.wpilib.networktables.NetworkTable;
+import org.wpilib.networktables.NetworkTableInstance;
+import org.wpilib.networktables.TimestampedDoubleArray;
+import org.wpilib.system.RobotController;
 
 public class LimelightCameraIoReal extends LimelightCameraIoBase {
     private final Supplier<Rotation2d> yaw;

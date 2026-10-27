@@ -1,8 +1,8 @@
 package frc.lib.subsystem;
 
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
+import org.wpilib.command2.Command;
+import org.wpilib.command2.CommandScheduler;
+import org.wpilib.command2.InstantCommand;
 
 import frc.lib.logging.LoggableSubsystem;
 

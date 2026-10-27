@@ -2,8 +2,8 @@ package frc.lib.command;
 
 import java.util.function.DoubleSupplier;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import org.wpilib.math.util.MathUtil;
+import org.wpilib.math.kinematics.ChassisVelocities;
 
 import frc.lib.subsystem.SwerveDrive;
 import frc.lib.subsystem.SwerveDrive.SwerveConstraints;
@@ -31,7 +31,7 @@ public class JoystickSwerveDriveCommand extends SwerveDriveCommand {
     }
 
     @Override
-    protected ChassisSpeeds calculateChassisSpeeds() {
+    protected ChassisVelocities calculateChassisVelocities() {
         double x = leftStickY.getAsDouble() * -1;
         double y = leftStickX.getAsDouble() * -1;
         double rotation = rightStickX.getAsDouble() * -1;
@@ -52,7 +52,7 @@ public class JoystickSwerveDriveCommand extends SwerveDriveCommand {
 
         rotation = MathUtil.applyDeadband(rotation, deadband);
 
-        return new ChassisSpeeds(swerveConstraints.getMaxLinearVelocity().times(x),
+        return new ChassisVelocities(swerveConstraints.getMaxLinearVelocity().times(x),
                 swerveConstraints.getMaxLinearVelocity().times(y),
                 swerveConstraints.getMaxAngularVelocity().times(rotation));
     }

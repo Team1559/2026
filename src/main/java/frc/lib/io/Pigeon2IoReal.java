@@ -1,7 +1,7 @@
 package frc.lib.io;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.units.measure.Angle;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.units.measure.Angle;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;

@@ -1,18 +1,22 @@
 package frc.lib.subsystem;
 
-import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.Meters;
+import static org.wpilib.units.Units.Inches;
+import static org.wpilib.units.Units.Meters;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.wpilibj.DriverStation;
+import org.wpilib.vision.apriltag.AprilTagFieldLayout;
+import org.wpilib.math.linalg.VecBuilder;
+import org.wpilib.math.geometry.Pose3d;
+import org.wpilib.units.measure.Distance;
+import org.wpilib.driverstation.MatchState;
+import org.wpilib.driverstation.RobotState;
+import org.wpilib.driverstation.Alliance;
+import org.wpilib.driverstation.MatchType;
+import org.wpilib.driverstation.DriverStationErrors;
 
 import frc.lib.component.AprilTagSensor;
 import frc.lib.component.AprilTagSensor.PoseObservation;
@@ -76,7 +80,7 @@ public class Vision extends LoggableSubsystem {
                     continue;
                 }
 
-                if (observation.type() == PoseObservationType.MEGATAG_2 && DriverStation.isDisabled()) {
+                if (observation.type() == PoseObservationType.MEGATAG_2 && RobotState.isDisabled()) {
                     rejectedObservations.add(new RejectedObservation(observation, RejectionReason.MT2_AND_DISABLED));
                     continue;
                 }

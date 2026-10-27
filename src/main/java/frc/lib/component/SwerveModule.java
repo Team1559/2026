@@ -1,12 +1,12 @@
 package frc.lib.component;
 
-import static edu.wpi.first.units.Units.MetersPerSecond;
+import static org.wpilib.units.Units.MetersPerSecond;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.units.measure.LinearVelocity;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.math.geometry.Translation2d;
+import org.wpilib.math.kinematics.SwerveModuleState;
+import org.wpilib.units.measure.Distance;
+import org.wpilib.units.measure.LinearVelocity;
 
 import frc.lib.logging.LoggableComponent;
 import frc.lib.util.NeutralOutput;
@@ -35,7 +35,7 @@ public interface SwerveModule extends LoggableComponent, NeutralOutput {
 
     default void setState(SwerveModuleState state) {
         setAngle(state.angle);
-        setSpeed(MetersPerSecond.of(state.speedMetersPerSecond));
+        setSpeed(MetersPerSecond.of(state.velocity));
     }
 
     LinearVelocity getSpeed();

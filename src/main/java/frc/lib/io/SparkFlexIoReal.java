@@ -1,12 +1,12 @@
 package frc.lib.io;
 
-import static edu.wpi.first.units.Units.RPM;
-import static edu.wpi.first.units.Units.Rotations;
+import static org.wpilib.units.Units.RPM;
+import static org.wpilib.units.Units.Rotations;
 
-import edu.wpi.first.units.Units;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Voltage;
+import org.wpilib.units.Units;
+import org.wpilib.units.measure.Angle;
+import org.wpilib.units.measure.AngularVelocity;
+import org.wpilib.units.measure.Voltage;
 
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;

@@ -4,10 +4,10 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.StartEndCommand;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import org.wpilib.command2.Command;
+import org.wpilib.command2.InstantCommand;
+import org.wpilib.command2.StartEndCommand;
+import org.wpilib.command2.button.CommandXboxController;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 

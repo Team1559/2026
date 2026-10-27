@@ -1,10 +1,10 @@
 package frc.lib.intermediate;
 
-import static edu.wpi.first.units.Units.Radians;
+import static org.wpilib.units.Units.Radians;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.units.Units;
-import edu.wpi.first.units.measure.Angle;
+import org.wpilib.math.util.MathUtil;
+import org.wpilib.units.Units;
+import org.wpilib.units.measure.Angle;
 
 import frc.lib.component.AngleComponent;
 import frc.lib.logging.LoggableAdaptor;
@@ -23,7 +23,7 @@ public class AngleLimiter extends LoggableAdaptor<AngleComponent> implements Ang
     @Override
     public void setAngle(Angle angle) {
         Angle setPoint = Radians
-                .of(MathUtil.clamp(angle.in(Units.Radians), minAngle.in(Units.Radians), maxAngle.in(Units.Radians)));
+                .of(Math.clamp(angle.in(Units.Radians), minAngle.in(Units.Radians), maxAngle.in(Units.Radians)));
         child.setAngle(setPoint);
     }
 

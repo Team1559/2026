@@ -1,6 +1,6 @@
 package frc.lib.component;
 
-import edu.wpi.first.math.geometry.Pose3d;
+import org.wpilib.math.geometry.Pose3d;
 
 import frc.lib.logging.LoggableComponent;
 

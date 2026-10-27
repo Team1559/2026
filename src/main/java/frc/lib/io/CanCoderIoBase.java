@@ -1,8 +1,8 @@
 package frc.lib.io;
 
-import static edu.wpi.first.units.Units.Rotations;
+import static org.wpilib.units.Units.Rotations;
 
-import edu.wpi.first.units.measure.Angle;
+import org.wpilib.units.measure.Angle;
 
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.inputs.LoggableInputs;

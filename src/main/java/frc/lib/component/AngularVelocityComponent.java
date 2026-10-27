@@ -1,6 +1,6 @@
 package frc.lib.component;
 
-import edu.wpi.first.units.measure.AngularVelocity;
+import org.wpilib.units.measure.AngularVelocity;
 
 import frc.lib.logging.LoggableComponent;
 import frc.lib.util.NeutralOutput;
