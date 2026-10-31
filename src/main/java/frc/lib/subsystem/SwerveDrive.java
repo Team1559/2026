@@ -2,7 +2,8 @@ package frc.lib.subsystem;
 
 import java.util.Map;
 
-import org.wpilib.math.linalg.Matrix;
+import org.wpilib.driverstation.Alliance;
+import org.wpilib.driverstation.MatchState;
 import org.wpilib.math.estimator.SwerveDrivePoseEstimator;
 import org.wpilib.math.geometry.Pose2d;
 import org.wpilib.math.geometry.Rotation2d;
@@ -10,21 +11,15 @@ import org.wpilib.math.geometry.Translation2d;
 import org.wpilib.math.kinematics.ChassisVelocities;
 import org.wpilib.math.kinematics.SwerveDriveKinematics;
 import org.wpilib.math.kinematics.SwerveModulePosition;
-import org.wpilib.math.kinematics.SwerveModuleState;
+import org.wpilib.math.kinematics.SwerveModuleVelocity;
+import org.wpilib.math.linalg.Matrix;
 import org.wpilib.math.numbers.N1;
 import org.wpilib.math.numbers.N3;
+import org.wpilib.smartdashboard.Field2d;
 import org.wpilib.units.measure.AngularAcceleration;
 import org.wpilib.units.measure.AngularVelocity;
 import org.wpilib.units.measure.LinearAcceleration;
 import org.wpilib.units.measure.LinearVelocity;
-import org.wpilib.driverstation.MatchState;
-import org.wpilib.driverstation.RobotState;
-import org.wpilib.driverstation.Alliance;
-import org.wpilib.driverstation.MatchType;
-import org.wpilib.driverstation.DriverStationErrors;
-import org.wpilib.driverstation.Alliance;
-import org.wpilib.smartdashboard.Field2d;
-import org.wpilib.smartdashboard.SmartDashboard;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
@@ -75,7 +70,7 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer, Ne
                         : new Pose2d()); // Changed the initial rotation
 
         field = new Field2d();
-        SmartDashboard.putData("Field", field);
+        // SmartDashboard.putData("Field", field);  TODO: replace smart dashboard
     }
 
     public final void configureAuto(RobotConfig robotConfig) {
@@ -85,7 +80,7 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer, Ne
     }
 
     public void driveFieldOriented(ChassisVelocities speeds) {
-        driveRobotOriented(ChassisVelocities.fromFieldRelativeSpeeds(speeds, getPosition().getRotation()));
+        driveRobotOriented(speeds.toRobotRelative(getPosition().getRotation()));
     }
 
     public void stopDriving() {
@@ -105,9 +100,9 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer, Ne
     }
 
     public ChassisVelocities getCurrentSpeed() {
-        SwerveModuleState[] states = new SwerveModuleState[modules.length];
+        SwerveModuleVelocity[] states = new SwerveModuleVelocity[modules.length];
         for (int i = 0; i < states.length; i++) {
-            states[i] = new SwerveModuleState(modules[i].getSpeed(), modules[i].getAngle());
+            states[i] = new SwerveModuleVelocity(modules[i].getSpeed(), modules[i].getAngle());
         }
         return kinematics.toChassisVelocities(states);
     }
@@ -193,14 +188,14 @@ public class SwerveDrive extends LoggableSubsystem implements VisionConsumer, Ne
             accelLimitedSpeeds.omega = 0;
         }
 
-        SwerveModuleState[] states = kinematics.toSwerveModuleStates(accelLimitedSpeeds);
+        SwerveModuleVelocity[] states = kinematics.toSwerveModuleVelocities(accelLimitedSpeeds);
         double minCos = 1;
         for (int i = 0; i < modules.length; i++) {
             double cos = Math.cos((modules[i].getAngle().minus(states[i].angle)).getRadians());
             minCos = Math.min(minCos, Math.abs(cos));
         }
         for (int i = 0; i < modules.length; i++) {
-            states[i].optimize(modules[i].getAngle());
+            states[i] = states[i].optimize(modules[i].getAngle());
             states[i].velocity *= minCos;
             modules[i].setState(states[i]);
         }

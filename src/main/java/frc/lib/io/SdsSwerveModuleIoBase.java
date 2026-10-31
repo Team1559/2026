@@ -23,7 +23,7 @@ public class SdsSwerveModuleIoBase extends LoggableIo<SdsSwerveModuleIoBase.Swer
     @AutoLog
     public static abstract class SwerveInputs implements LoggableInputs {
         public LinearVelocity speed = MetersPerSecond.zero();
-        public Rotation2d angle = Rotation2d.kZero;
+        public Rotation2d angle = Rotation2d.ZERO;
         public Distance distance = Meters.of(0);
         public Temperature steerMotorTemp = Celsius.of(20);
         public Temperature driveMotorTemp = Celsius.of(20);

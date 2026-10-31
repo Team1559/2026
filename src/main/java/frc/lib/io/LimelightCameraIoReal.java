@@ -1,5 +1,8 @@
 package frc.lib.io;
 
+import static org.wpilib.units.Units.Milliseconds;
+import static org.wpilib.units.Units.Nanoseconds;
+
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -38,7 +41,7 @@ public class LimelightCameraIoReal extends LimelightCameraIoBase {
     protected void updateInputs(VisionInputs inputs) {
         // Update connection status based on whether an update has been seen in the last
         // 250ms
-        inputs.isConnected = ((RobotController.getFPGATime() - latencySubscriber.getLastChange()) / 1000) < 250;
+        inputs.isConnected = RobotController.getMeasureMonotonicTime().minus(Nanoseconds.of(latencySubscriber.getLastChange())).lt(Milliseconds.of(250));
 
         // Update orientation for MegaTag 2
         orientationPublisher.accept(new double[] { yaw.get().getDegrees(), 0.0, 0.0, 0.0, 0.0, 0.0 });

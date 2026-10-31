@@ -185,3 +185,9 @@ compile_commands.json
 
 # Eclipse generated file for annotation processors
 .factorypath
+
+# build directories
+**/build/**
+
+# git version
+**/GitVersion.java

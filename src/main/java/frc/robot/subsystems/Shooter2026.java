@@ -13,6 +13,12 @@ import static org.wpilib.units.Units.Seconds;
 
 import java.util.function.Supplier;
 
+import org.littletonrobotics.junction.Logger;
+import org.wpilib.command2.Command;
+import org.wpilib.command2.InstantCommand;
+import org.wpilib.driverstation.Alliance;
+import org.wpilib.driverstation.MatchState;
+import org.wpilib.hardware.bus.CANPort;
 import org.wpilib.math.geometry.Pose2d;
 import org.wpilib.math.geometry.Pose3d;
 import org.wpilib.math.geometry.Rotation2d;
@@ -21,6 +27,7 @@ import org.wpilib.math.geometry.Translation2d;
 import org.wpilib.math.geometry.Translation3d;
 import org.wpilib.math.kinematics.ChassisVelocities;
 import org.wpilib.math.util.Units;
+import org.wpilib.system.Timer;
 import org.wpilib.units.measure.Angle;
 import org.wpilib.units.measure.AngularVelocity;
 import org.wpilib.units.measure.Distance;
@@ -28,29 +35,17 @@ import org.wpilib.units.measure.LinearAcceleration;
 import org.wpilib.units.measure.LinearVelocity;
 import org.wpilib.units.measure.Time;
 import org.wpilib.util.container.CircularBuffer;
-import org.wpilib.driverstation.MatchState;
-import org.wpilib.driverstation.RobotState;
-import org.wpilib.driverstation.Alliance;
-import org.wpilib.driverstation.MatchType;
-import org.wpilib.driverstation.DriverStationErrors;
-import org.wpilib.driverstation.Alliance;
-import org.wpilib.system.Timer;
-import org.wpilib.command2.Command;
-import org.wpilib.command2.InstantCommand;
 
-import org.littletonrobotics.junction.Logger;
-
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
-
+import com.pathplanner.lib.util.FlippingUtil;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
-
-import com.pathplanner.lib.util.FlippingUtil;
 
 import frc.lib.component.AngleComponent;
 import frc.lib.component.AngleSensor;
@@ -133,7 +128,7 @@ public class Shooter2026 extends LoggableSubsystem {
 
     public Shooter2026(Supplier<Pose2d> robotPositionSupplier, Supplier<ChassisVelocities> robotSpeedSupplier) {
         this(robotPositionSupplier, robotSpeedSupplier,
-                new Pose3d(Inches.of(5.5), Inches.of(5.5), Inches.of(28), Rotation3d.kZero),
+                new Pose3d(Inches.of(5.5), Inches.of(5.5), Inches.of(28), Rotation3d.ZERO),
                 makeTurret(), makeFlywheel(), makeFeedwheel(),
                 makeCrtAngleSensor());
     }
@@ -148,7 +143,7 @@ public class Shooter2026 extends LoggableSubsystem {
             config.inverted(false);
             config.idleMode(IdleMode.kCoast);
             config.voltageCompensation(12.0);
-            return new SparkFlexIoReal(new SparkFlex(17, MotorType.kBrushless), config);
+            return new SparkFlexIoReal(new SparkFlex(CANPort.CAN_S0, 17, MotorType.kBrushless), config);
         }
     }
 
@@ -162,7 +157,7 @@ public class Shooter2026 extends LoggableSubsystem {
             config.closedLoop.feedForward.kV(0.00016 * 12);
             config.idleMode(IdleMode.kBrake);
             config.voltageCompensation(12.0);
-            sparkFlex = new SparkFlexIoReal(new SparkFlex(16, MotorType.kBrushless), config);
+            sparkFlex = new SparkFlexIoReal(new SparkFlex(CANPort.CAN_S0, 16, MotorType.kBrushless), config);
         }
         return sparkFlex;
     }
@@ -181,7 +176,7 @@ public class Shooter2026 extends LoggableSubsystem {
             config.voltageCompensation(12.0);
             config.inverted(true);
             config.idleMode(IdleMode.kBrake);
-            sparkFlex = new SparkFlexIoReal(new SparkFlex(19, MotorType.kBrushless), config);
+            sparkFlex = new SparkFlexIoReal(new SparkFlex(CANPort.CAN_S0, 19, MotorType.kBrushless), config);
         }
         return sparkFlex.withRatio(10d).withLimits(TURRET_MIN, TURRET_MAX);
     }
@@ -200,10 +195,10 @@ public class Shooter2026 extends LoggableSubsystem {
         } else {
             CANcoderConfiguration configOne = new CANcoderConfiguration();
             configOne.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-            canCoderOne = new CanCoderIoReal(new CANcoder(14), configOne);
+            canCoderOne = new CanCoderIoReal(new CANcoder(14, new CANBus(CANPort.CAN_S0)), configOne);
             CANcoderConfiguration configTwo = new CANcoderConfiguration();
             configTwo.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-            canCoderTwo = new CanCoderIoReal(new CANcoder(15), configTwo);
+            canCoderTwo = new CanCoderIoReal(new CANcoder(15, new CANBus(CANPort.CAN_S0)), configTwo);
         }
 
         return new ChineseRemainderAngle(21, 20, 200,
@@ -273,13 +268,13 @@ public class Shooter2026 extends LoggableSubsystem {
         // Target Position in robot coordinates
         Translation3d robotTranslation = new Translation3d(robotPosition.getTranslation());
         Rotation3d robotRotation = new Rotation3d(robotPosition.getRotation());
-        Translation3d robotToTarget = targetFieldSpace.minus(robotTranslation).rotateBy(robotRotation.unaryMinus());
+        Translation3d robotToTarget = targetFieldSpace.minus(robotTranslation).rotateBy(robotRotation.inverse());
 
         // Target position in turret coordinates
         Translation3d turretTranslation = turretOffset.getTranslation();
         Rotation3d turretRotation = turretOffset.getRotation();
 
-        return robotToTarget.minus(turretTranslation).rotateBy(turretRotation.unaryMinus());
+        return robotToTarget.minus(turretTranslation).rotateBy(turretRotation.inverse());
     }
 
     private static Translation3d shooterSpaceToFieldSpace(Translation3d translationShooterSpace, Pose2d robotPosition,
@@ -389,7 +384,7 @@ public class Shooter2026 extends LoggableSubsystem {
 
         ChassisVelocities robotSpeed = robotSpeedSupplier.get();
         Translation3d targetSpeed = new Translation3d(robotSpeed.vx, robotSpeed.vy, 0)
-                .unaryMinus().rotateBy(turretOffset.getRotation().unaryMinus());
+                .unaryMinus().rotateBy(turretOffset.getRotation().inverse());
         logger().debug("TargetSpeed", targetSpeed);
 
         Translation3d virtualTarget = calculateVirtualTarget(initialGuess, target, targetSpeed, flapperAngle);

@@ -3,20 +3,18 @@ package frc.lib.subsystem;
 import static org.wpilib.units.Units.Inches;
 import static org.wpilib.units.Units.Meters;
 
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
-import org.wpilib.vision.apriltag.AprilTagFieldLayout;
-import org.wpilib.math.linalg.VecBuilder;
-import org.wpilib.math.geometry.Pose3d;
-import org.wpilib.units.measure.Distance;
-import org.wpilib.driverstation.MatchState;
 import org.wpilib.driverstation.RobotState;
-import org.wpilib.driverstation.Alliance;
-import org.wpilib.driverstation.MatchType;
-import org.wpilib.driverstation.DriverStationErrors;
+import org.wpilib.fields.FieldTag;
+import org.wpilib.fields.Field;
+
+import org.wpilib.math.geometry.Pose3d;
+import org.wpilib.math.linalg.VecBuilder;
+import org.wpilib.units.measure.Distance;
 
 import frc.lib.component.AprilTagSensor;
 import frc.lib.component.AprilTagSensor.PoseObservation;
@@ -33,13 +31,18 @@ public class Vision extends LoggableSubsystem {
     private static final Distance MAX_Z_ERROR = Inches.of(3);
     private final AprilTagSensor[] cameras;
     private final VisionConsumer visionConsumer;
-    private final AprilTagFieldLayout aprilTagLayout;
+    private final Map<Integer, Pose3d> tagPoses = new LinkedHashMap<>();
+    private final Field field;
 
-    public Vision(String name, VisionConsumer visionConsumer, AprilTagFieldLayout aprilTagLayout,
-            Map<String, AprilTagSensor> cameras) {
+    public Vision(String name, VisionConsumer visionConsumer,
+            Map<String, AprilTagSensor> cameras, Field field) {
         super(name);
         this.visionConsumer = visionConsumer;
-        this.aprilTagLayout = aprilTagLayout;
+        this.field = field;
+        List<FieldTag> aprilTagList = field.getTags();
+        for(FieldTag i : aprilTagList) {
+            this.tagPoses.put(i.getID(), i.getPose());
+        }
         this.cameras = cameras.values().toArray(AprilTagSensor[]::new);
         addChildren("Cameras", cameras);
     }
@@ -49,16 +52,16 @@ public class Vision extends LoggableSubsystem {
         super.periodic();
         boolean robotHasPose = false;
 
-        List<Pose3d> tagPoses = new LinkedList<>();
+        List<Pose3d> seenTagPoses = new LinkedList<>();
 
         List<RejectedObservation> rejectedObservations = new LinkedList<>();
         List<AcceptedObservation> acceptedObservations = new LinkedList<>();
 
         for (AprilTagSensor cam : cameras) {
             for (int tagId : cam.getTagIds()) {
-                Optional<Pose3d> tagPose = aprilTagLayout.getTagPose(tagId);
-                if (tagPose.isPresent()) {
-                    tagPoses.add(tagPose.get());
+                Pose3d tagPose = tagPoses.get(tagId);
+                if (tagPose != null) {
+                    seenTagPoses.add(tagPose);
                 }
             }
 
@@ -86,9 +89,9 @@ public class Vision extends LoggableSubsystem {
                 }
 
                 if (observation.pose().getX() < 0.0
-                        || observation.pose().getX() > aprilTagLayout.getFieldLength()
+                        || observation.pose().getX() > field.getFieldLength()
                         || observation.pose().getY() < 0.0
-                        || observation.pose().getY() > aprilTagLayout.getFieldWidth()) {
+                        || observation.pose().getY() > field.getFieldWidth()) {
                     rejectedObservations.add(new RejectedObservation(observation, RejectionReason.OUT_OF_FIELD));
                     continue;
                 }
@@ -123,7 +126,7 @@ public class Vision extends LoggableSubsystem {
         }
 
         logger().dashboard("HasVisionRead", robotHasPose)
-                .debug("TagPoses", tagPoses.toArray(Pose3d[]::new))
+                .debug("TagPoses", seenTagPoses.toArray(Pose3d[]::new))
                 .debug("RobotPosesAccepted", robotPosesAccepted.toArray(Pose3d[]::new))
                 .debug("RobotPosesRejected", robotPosesRejected.toArray(Pose3d[]::new))
                 .debug("RejectedObservations",

@@ -1,13 +1,9 @@
 package frc.lib.command;
 
-import org.wpilib.math.kinematics.ChassisVelocities;
-import org.wpilib.driverstation.MatchState;
-import org.wpilib.driverstation.RobotState;
-import org.wpilib.driverstation.Alliance;
-import org.wpilib.driverstation.MatchType;
-import org.wpilib.driverstation.DriverStationErrors;
-import org.wpilib.driverstation.Alliance;
 import org.wpilib.command2.Command;
+import org.wpilib.driverstation.Alliance;
+import org.wpilib.driverstation.MatchState;
+import org.wpilib.math.kinematics.ChassisVelocities;
 
 import frc.lib.subsystem.SwerveDrive;
 

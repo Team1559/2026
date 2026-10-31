@@ -2,18 +2,14 @@ package frc.lib.subsystem;
 
 import java.util.function.DoubleSupplier;
 
+import org.wpilib.command2.SubsystemBase;
+import org.wpilib.driverstation.Alliance;
+import org.wpilib.driverstation.MatchState;
 import org.wpilib.hardware.led.AddressableLED;
 import org.wpilib.hardware.led.AddressableLEDBuffer;
 import org.wpilib.hardware.led.AddressableLEDBufferView;
-import org.wpilib.driverstation.MatchState;
-import org.wpilib.driverstation.RobotState;
-import org.wpilib.driverstation.Alliance;
-import org.wpilib.driverstation.MatchType;
-import org.wpilib.driverstation.DriverStationErrors;
-import org.wpilib.driverstation.Alliance;
 import org.wpilib.hardware.led.LEDPattern;
 import org.wpilib.util.Color;
-import org.wpilib.command2.SubsystemBase;
 
 public class Leds extends SubsystemBase {
     private final AddressableLED led;
@@ -41,7 +37,6 @@ public class Leds extends SubsystemBase {
         side1 = buffer.createView(0, buffer.getLength() / 2 - 1);
         side2 = buffer.createView(buffer.getLength() / 2, length - 1);
 
-        led.start();
         pattern = LEDPattern.solid(Color.BLACK);
         currentMode = Mode.PATTERN;
     }

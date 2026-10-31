@@ -9,7 +9,7 @@ import org.wpilib.command2.InstantCommand;
 import org.wpilib.command2.StartEndCommand;
 import org.wpilib.command2.button.CommandXboxController;
 
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import org.littletonrobotics.junction.networktables.LoggedNetworkChooser;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -30,7 +30,7 @@ import frc.robot.subsystems.Vision2026;
 
 public class Robot2026 extends Robot {
 
-    private final LoggedDashboardChooser<Command> autoChooser;
+    private final LoggedNetworkChooser<Command> autoChooser;
     private final CommandXboxController pilotController;
     private final CommandXboxController coPilotController;
     private final SwerveDrive drivetrain;
@@ -52,7 +52,7 @@ public class Robot2026 extends Robot {
 
         pilotController = new CommandXboxController(0);
         registerNamedCommands();
-        autoChooser = new LoggedDashboardChooser<>("AutoChooser", AutoBuilder.buildAutoChooser());
+        autoChooser = new LoggedNetworkChooser<>("AutoChooser", AutoBuilder.buildAutoChooser());
         coPilotController = new CommandXboxController(1);
     }
 

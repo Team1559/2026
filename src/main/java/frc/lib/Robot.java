@@ -10,6 +10,7 @@ import java.util.Scanner;
 import org.wpilib.units.measure.Time;
 import org.wpilib.driverstation.MatchState;
 import org.wpilib.driverstation.RobotState;
+import org.wpilib.driverstation.internal.DriverStationBackend;
 import org.wpilib.driverstation.Alliance;
 import org.wpilib.driverstation.MatchType;
 import org.wpilib.driverstation.DriverStationErrors;
@@ -38,8 +39,7 @@ public abstract class Robot extends LoggedRobot {
                                                   // and auto generated constants causing dead code
     protected Robot() {
         super(LOOP_PERIOD.in(Seconds));
-
-        DriverStation.silenceJoystickConnectionWarning(true);
+        DriverStationBackend.silenceJoystickConnectionAlert(true);
         StatusLogger.disableAutoLogging();
         SignalLogger.enableAutoLogging(false);
 

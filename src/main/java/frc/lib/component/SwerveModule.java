@@ -4,7 +4,7 @@ import static org.wpilib.units.Units.MetersPerSecond;
 
 import org.wpilib.math.geometry.Rotation2d;
 import org.wpilib.math.geometry.Translation2d;
-import org.wpilib.math.kinematics.SwerveModuleState;
+import org.wpilib.math.kinematics.SwerveModuleVelocity;
 import org.wpilib.units.measure.Distance;
 import org.wpilib.units.measure.LinearVelocity;
 
@@ -33,7 +33,7 @@ public interface SwerveModule extends LoggableComponent, NeutralOutput {
      */
     Translation2d getLocation();
 
-    default void setState(SwerveModuleState state) {
+    default void setState(SwerveModuleVelocity state) {
         setAngle(state.angle);
         setSpeed(MetersPerSecond.of(state.velocity));
     }

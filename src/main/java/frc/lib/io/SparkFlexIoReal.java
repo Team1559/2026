@@ -11,10 +11,11 @@ import org.wpilib.units.measure.Voltage;
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
-import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
+import com.revrobotics.spark.SparkLowLevel.ControlType;
 import com.revrobotics.spark.config.SparkFlexConfig;
+import com.revrobotics.util.Signal;
 
 public class SparkFlexIoReal extends SparkFlexIoBase {
 
@@ -22,20 +23,33 @@ public class SparkFlexIoReal extends SparkFlexIoBase {
     private final SparkClosedLoopController motorController;
     private final RelativeEncoder encoder;
 
+    private final Signal<Double> currentVelocitySupplier;
+    private final Signal<Double> motorCurrentSupplier;
+    private final Signal<Double> motorTempSupplier;
+    private final Signal<Double> positionSupplier;
+    private final Signal<Double> appliedOutputSupplier;
+
     public SparkFlexIoReal(SparkFlex motor, SparkFlexConfig motorConfig) {
         this.motor = motor;
         motor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         motorController = motor.getClosedLoopController();
         encoder = motor.getEncoder();
+
+        currentVelocitySupplier = encoder.getVelocity();
+        motorCurrentSupplier = motor.getOutputCurrent();
+        motorTempSupplier = motor.getMotorTemperature();
+        positionSupplier = encoder.getPosition();
+        appliedOutputSupplier = motor.getAppliedOutput();
+
     }
 
     @Override
     protected void updateInputs(SparkFlexIoInputs inputs) {
-        inputs.currentVelocity = RPM.of(encoder.getVelocity());
-        inputs.motorCurrent = motor.getOutputCurrent();
-        inputs.motorTemp = motor.getMotorTemperature();
-        inputs.position = Rotations.of(encoder.getPosition());
-        inputs.appliedOutput = motor.getAppliedOutput();
+        inputs.currentVelocity = RPM.of(currentVelocitySupplier.get());
+        inputs.motorCurrent = motorCurrentSupplier.get();
+        inputs.motorTemp = motorTempSupplier.get();
+        inputs.position = Rotations.of(positionSupplier.get());
+        inputs.appliedOutput = appliedOutputSupplier.get();
     }
 
     @Override

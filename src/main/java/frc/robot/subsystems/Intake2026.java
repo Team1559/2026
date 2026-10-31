@@ -3,11 +3,13 @@ package frc.robot.subsystems;
 import static org.wpilib.units.Units.Degrees;
 import static org.wpilib.units.Units.Volts;
 
+import org.wpilib.hardware.bus.CANPort;
 import org.wpilib.units.measure.Angle;
 import org.wpilib.units.measure.Voltage;
 
 import org.littletonrobotics.junction.Logger;
 
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
@@ -68,7 +70,7 @@ public class Intake2026 extends LoggableSubsystem {
             config.idleMode(IdleMode.kBrake);
             config.inverted(false);
             config.smartCurrentLimit(80);
-            sparkFlex = new SparkFlexIoReal(new SparkFlex(INTAKE_MOTOR_ID, MotorType.kBrushless), config);
+            sparkFlex = new SparkFlexIoReal(new SparkFlex(CANPort.CAN_S0, INTAKE_MOTOR_ID, MotorType.kBrushless), config);
         }
         return sparkFlex;
     }
@@ -81,7 +83,7 @@ public class Intake2026 extends LoggableSubsystem {
             CANcoderConfiguration config = new CANcoderConfiguration();
             config.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
             config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.10;
-            encoder = new CanCoderIoReal(new CANcoder(ELBOW_ENCODER_ID), config);
+            encoder = new CanCoderIoReal(new CANcoder(ELBOW_ENCODER_ID, new CANBus(CANPort.CAN_S0)), config);
         }
         return encoder.withOffset(ELBOW_OFFSET);
     }
@@ -94,7 +96,7 @@ public class Intake2026 extends LoggableSubsystem {
             SparkFlexConfig config = new SparkFlexConfig();
             config.idleMode(IdleMode.kBrake);
             config.smartCurrentLimit(80);
-            sparkFlex = new SparkFlexIoReal(new SparkFlex(ELBOW_MOTOR_ID, MotorType.kBrushless), config);
+            sparkFlex = new SparkFlexIoReal(new SparkFlex(CANPort.CAN_S0, ELBOW_MOTOR_ID, MotorType.kBrushless), config);
         }
         return sparkFlex;
     }

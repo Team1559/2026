@@ -4,6 +4,7 @@ import static org.wpilib.units.Units.Volts;
 
 import java.util.function.BooleanSupplier;
 
+import org.wpilib.hardware.bus.CANPort;
 import org.wpilib.units.measure.Voltage;
 
 import org.littletonrobotics.junction.Logger;
@@ -46,7 +47,7 @@ public class Indexer2026 extends LoggableSubsystem {
             config.idleMode(IdleMode.kBrake);
             config.inverted(false);
             config.smartCurrentLimit(80);
-            sparkFlex = new SparkFlexIoReal(new SparkFlex(MOTOR_ID, MotorType.kBrushless), config);
+            sparkFlex = new SparkFlexIoReal(new SparkFlex(CANPort.CAN_S0, MOTOR_ID, MotorType.kBrushless), config);
         }
         return sparkFlex;
     }

@@ -1,6 +1,7 @@
 package frc.lib.command;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.wpilib.math.geometry.Pose2d;
@@ -30,8 +31,10 @@ public class AutoSwerveAlignmentCommand extends DeferredCommand {
             DriverAssist driverAssist, Pose2d endPoint, Rotation2d endVelocityDirection) {
 
         Translation2d currentTranslation = drivetrain.getPosition().getTranslation();
-        Rotation2d targetAngle = endPoint.getTranslation().minus(currentTranslation).getAngle();
-        Pose2d startCondition = new Pose2d(currentTranslation, targetAngle);
+
+        Optional<Rotation2d> targetAngle = endPoint.getTranslation().minus(currentTranslation).getAngle();
+
+        Pose2d startCondition = new Pose2d(currentTranslation, targetAngle.orElse(Rotation2d.ZERO));
 
         Pose2d endCondition = new Pose2d(endPoint.getTranslation(), endVelocityDirection);
 

@@ -2,7 +2,6 @@ package frc.lib.intermediate;
 
 import static org.wpilib.units.Units.Radians;
 
-import org.wpilib.math.util.MathUtil;
 import org.wpilib.units.Units;
 import org.wpilib.units.measure.Angle;
 
