@@ -33,7 +33,7 @@ public class FusedAngleActuator extends LoggableCollection implements AngleCompo
 
     @Override
     public void setAngle(Angle angle) {
-        actuator.setAngle(actuator.getAngle().plus(angle.plus(sensorOffset)));
+        actuator.setAngle(angle.plus(sensorOffset));
     }
 
     @Override
