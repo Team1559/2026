@@ -178,7 +178,7 @@ public class Shooter2026 extends LoggableSubsystem {
             config.idleMode(IdleMode.kBrake);
             sparkFlex = new SparkFlexIoReal(new SparkFlex(CANPort.CAN_S0, 19, MotorType.kBrushless), config);
         }
-        return sparkFlex.withRatio(10d).withLimits(TURRET_MIN, TURRET_MAX);
+        return sparkFlex.withAngleRatio(10d).withLimits(TURRET_MIN, TURRET_MAX);
     }
 
     public Angle getAngle() {

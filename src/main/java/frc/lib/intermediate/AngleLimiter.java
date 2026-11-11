@@ -6,9 +6,9 @@ import org.wpilib.units.Units;
 import org.wpilib.units.measure.Angle;
 
 import frc.lib.component.AngleComponent;
-import frc.lib.logging.LoggableAdaptor;
+import frc.lib.logging.LoggableAdapter;
 
-public class AngleLimiter extends LoggableAdaptor<AngleComponent> implements AngleComponent {
+public class AngleLimiter extends LoggableAdapter<AngleComponent> implements AngleComponent {
 
     private final Angle minAngle;
     private final Angle maxAngle;
