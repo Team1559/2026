@@ -117,35 +117,33 @@ public class SwerveDrive2026Practice extends SwerveDrive {
         if (Logger.hasReplaySource()) {
             steerMotor = new TalonFXIoBase();
             driveMotorIO = new TalonFXIoBase();
-            //encoder = new CanCoderIoBase();
         } else {
             CANcoder canCoder = new CANcoder(canCoderId, CANIVORE_BUS);
-            //encoder = new CanCoderIoReal(canCoder, new CANcoderConfiguration());
+            
             TalonFX steerMotorTalonFX = new TalonFX(steerMotorId, CANIVORE_BUS);
-            steerMotorTalonFX.getConfigurator().apply(new TalonFXConfiguration());
-            steerMotorTalonFX.getConfigurator().apply(new MotorOutputConfigs()
-                    .withNeutralMode(NeutralModeValue.Brake)
-                    .withInverted(MODULE_TYPE.steerDirection));
+
+            TalonFXConfiguration steerMotorConfig = new TalonFXConfiguration();
+            steerMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+            steerMotorConfig.MotorOutput.Inverted = MODULE_TYPE.steerDirection;
+
             // Apply PID Config
-            steerMotorTalonFX.getConfigurator().apply(new Slot0Configs().withKP(80));
-            steerMotorTalonFX.getConfigurator().apply(new FeedbackConfigs().withRemoteCANcoder(canCoder));
-            ClosedLoopGeneralConfigs clgConfig = new ClosedLoopGeneralConfigs();
-            clgConfig.ContinuousWrap = true;
-            steerMotorTalonFX.getConfigurator().apply(clgConfig);
-            steerMotor = new TalonFXIoReal(steerMotorTalonFX).withOffset(canCoderOffset);
+            steerMotorConfig.Slot0.kP = 80;
+            steerMotorConfig.Feedback.withRemoteCANcoder(canCoder);
+            steerMotorConfig.ClosedLoopGeneral.ContinuousWrap = true;
+            
+            steerMotor = new TalonFXIoReal(steerMotorTalonFX, steerMotorConfig);
 
             TalonFX driveMotorTalonFX = new TalonFX(driveMotorId, CANIVORE_BUS);
-            driveMotorTalonFX.getConfigurator().apply(new TalonFXConfiguration());
-            driveMotorTalonFX.getConfigurator().apply(new MotorOutputConfigs()
-                    .withNeutralMode(NeutralModeValue.Brake)
-                    .withInverted(MODULE_TYPE.driveDirection));
-            driveMotorTalonFX.getConfigurator().apply(new Slot0Configs()
-                    .withKV(BATTERY_VOLTAGE.in(Volts) / (KRAKEN_MAX_FREE_VELOCITY.in(RotationsPerSecond))));
-            driveMotorTalonFX.getConfigurator()
-                    .apply(new CurrentLimitsConfigs().withStatorCurrentLimit(DRIVE_MOTOR_STATOR_CURRENT)
-                            .withSupplyCurrentLimit(DRIVE_MOTOR_SUPPLY_CURRENT));
+            TalonFXConfiguration driveMotorConfig = new TalonFXConfiguration();
+
+            driveMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+            driveMotorConfig.MotorOutput.Inverted = MODULE_TYPE.driveDirection;
+            driveMotorConfig.Slot0.kV = BATTERY_VOLTAGE.in(Volts)/ KRAKEN_MAX_FREE_VELOCITY.in(RotationsPerSecond);
+            driveMotorConfig.CurrentLimits.StatorCurrentLimit = DRIVE_MOTOR_STATOR_CURRENT.in(Amps);
+            driveMotorConfig.CurrentLimits.SupplyCurrentLimit = DRIVE_MOTOR_SUPPLY_CURRENT.in(Amps);
+            
             driveMotorTalonFX.setPosition(0);
-            driveMotorIO = new TalonFXIoReal(driveMotorTalonFX);
+            driveMotorIO = new TalonFXIoReal(driveMotorTalonFX, driveMotorConfig);
 
             driveMotorTalonFX.getVelocity().setUpdateFrequency(CanRefreshRate.DEFAULT.rateHz);
             canCoder.getAbsolutePosition().setUpdateFrequency(CanRefreshRate.FAST.rateHz);

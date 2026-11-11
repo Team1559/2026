@@ -12,6 +12,7 @@ import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
@@ -31,8 +32,9 @@ public class TalonFXIoReal extends TalonFXIoBase {
     private final StatusSignal<Temperature> motorTemp;
     private final StatusSignal<Angle> position;
 
-    public TalonFXIoReal(TalonFX motor)  {
+    public TalonFXIoReal(TalonFX motor, TalonFXConfiguration config)  { 
         this.motor = motor;
+        motor.getConfigurator().apply(config);
 
         this.currentVelocity = motor.getVelocity();
         this.statorCurrent = motor.getStatorCurrent();
@@ -83,6 +85,6 @@ public class TalonFXIoReal extends TalonFXIoBase {
 
     @Override
     public void setPercievedAngle(Angle angle) {
-        motor.setPosition(angle); //TODO: Test
+        motor.setPosition(angle); 
     }
 }
