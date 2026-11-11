@@ -31,21 +31,31 @@ import edu.wpi.first.units.measure.Voltage;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.configs.ClosedLoopGeneralConfigs;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.FeedbackConfigs;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.RobotConfig;
 
+import frc.lib.component.AngleComponent;
 import frc.lib.component.SwerveModule;
+import frc.lib.intermediate.DriveSteerSwerveModule;
+import frc.lib.intermediate.DriveWheelAdapter;
 import frc.lib.io.Pigeon2IoBase;
 import frc.lib.io.Pigeon2IoReal;
-import frc.lib.io.SdsSwerveModuleIoBase;
-import frc.lib.io.SdsSwerveModuleIoReal;
-import frc.lib.io.SdsSwerveModuleIoReal.ModuleType;
+import frc.lib.io.TalonFXIoBase;
+import frc.lib.io.TalonFXIoReal;
 import frc.lib.subsystem.SwerveDrive;
+import frc.lib.util.CanRefreshRate;
+import frc.lib.util.SdsSwerveModuleType;
 
 public class SwerveDrive2026Practice extends SwerveDrive {
     private static final CANBus CANIVORE_BUS = new CANBus("1559_Canivore");
@@ -64,6 +74,7 @@ public class SwerveDrive2026Practice extends SwerveDrive {
     private static final Current DRIVE_MOTOR_STATOR_CURRENT = Amps.of(60.0);
     private static final Current DRIVE_MOTOR_SUPPLY_CURRENT = Amps.of(40.0);
 
+    public static final SdsSwerveModuleType MODULE_TYPE = SdsSwerveModuleType.MK4I_L3;
     public static final SwerveConstraints SWERVE_CONSTRAINTS = new SwerveConstraints(SWERVE_MAX_ANGULAR_VELOCITY,
             SWERVE_MAX_ANGULAR_ACCEL, SWERVE_MAX_LINEAR_VELOCITY, SWERVE_MAX_LINEAR_ACCEL);
     public static final SwerveConstraints SLOW_SWERVE_CONSTRAINTS = new SwerveConstraints(
@@ -79,11 +90,11 @@ public class SwerveDrive2026Practice extends SwerveDrive {
             locations[i] = modules[i].getLocation();
         }
         RobotConfig config = new RobotConfig(MASS, MOI,
-                new ModuleConfig(SdsSwerveModuleIoReal.WHEEL_RADIUS.in(Meters),
+                new ModuleConfig(SdsSwerveModuleType.WHEEL_RADIUS.in(Meters),
                         SWERVE_MAX_LINEAR_VELOCITY.in(MetersPerSecond),
                         1.0,
                         DCMotor.getKrakenX60(1)
-                                .withReduction(Math.abs(SdsSwerveModuleIoReal.ModuleType.MK4I_L3.driveRatio)),
+                                .withReduction(Math.abs(MODULE_TYPE.driveRatio)),
                         DRIVE_MOTOR_STATOR_CURRENT.in(Amps),
                         1),
                 locations);
@@ -96,25 +107,59 @@ public class SwerveDrive2026Practice extends SwerveDrive {
         logger().debug("CAN Utilization", CANIVORE_BUS.getStatus().BusUtilization);
     }
 
-    private static SdsSwerveModuleIoBase createSwerveModule(int steerMotorId, int driveMotorId, int canCoderId,
+    private static DriveSteerSwerveModule createSwerveModule(int steerMotorId, int driveMotorId, int canCoderId,
             Rotation2d canCoderOffset, Translation2d locationOffset) {
 
+        AngleComponent steerMotor;
+        //AngleSensor encoder;
+
+        TalonFXIoBase driveMotorIO;
         if (Logger.hasReplaySource()) {
-            return new SdsSwerveModuleIoBase(locationOffset);
+            steerMotor = new TalonFXIoBase();
+            driveMotorIO = new TalonFXIoBase();
+        } else {
+            CANcoder canCoder = new CANcoder(canCoderId, CANIVORE_BUS);
+            
+            TalonFX steerMotorTalonFX = new TalonFX(steerMotorId, CANIVORE_BUS);
+
+            TalonFXConfiguration steerMotorConfig = new TalonFXConfiguration();
+            steerMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+            steerMotorConfig.MotorOutput.Inverted = MODULE_TYPE.steerDirection;
+
+            // Apply PID Config
+            steerMotorConfig.Slot0.kP = 80;
+            steerMotorConfig.Feedback.withRemoteCANcoder(canCoder);
+            steerMotorConfig.ClosedLoopGeneral.ContinuousWrap = true;
+            
+            steerMotor = new TalonFXIoReal(steerMotorTalonFX, steerMotorConfig);
+
+            TalonFX driveMotorTalonFX = new TalonFX(driveMotorId, CANIVORE_BUS);
+            TalonFXConfiguration driveMotorConfig = new TalonFXConfiguration();
+
+            driveMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+            driveMotorConfig.MotorOutput.Inverted = MODULE_TYPE.driveDirection;
+            driveMotorConfig.Slot0.kV = BATTERY_VOLTAGE.in(Volts)/ KRAKEN_MAX_FREE_VELOCITY.in(RotationsPerSecond);
+            driveMotorConfig.CurrentLimits.StatorCurrentLimit = DRIVE_MOTOR_STATOR_CURRENT.in(Amps);
+            driveMotorConfig.CurrentLimits.SupplyCurrentLimit = DRIVE_MOTOR_SUPPLY_CURRENT.in(Amps);
+            
+            driveMotorTalonFX.setPosition(0);
+            driveMotorIO = new TalonFXIoReal(driveMotorTalonFX, driveMotorConfig);
+
+            driveMotorTalonFX.getVelocity().setUpdateFrequency(CanRefreshRate.DEFAULT.rateHz);
+            canCoder.getAbsolutePosition().setUpdateFrequency(CanRefreshRate.FAST.rateHz);
+            driveMotorTalonFX.getPosition().setUpdateFrequency(CanRefreshRate.FAST.rateHz);
+            driveMotorTalonFX.getDeviceTemp().setUpdateFrequency(CanRefreshRate.SLOW.rateHz);
+            steerMotorTalonFX.getDeviceTemp().setUpdateFrequency(CanRefreshRate.SLOW.rateHz);
+            driveMotorTalonFX.getStatorCurrent().setUpdateFrequency(CanRefreshRate.DEFAULT.rateHz);
+            steerMotorTalonFX.getStatorCurrent().setUpdateFrequency(CanRefreshRate.DEFAULT.rateHz);
         }
 
-        CANcoder canCoder = new CANcoder(canCoderId, CANIVORE_BUS);
-        TalonFX steerMotor = new TalonFX(steerMotorId, CANIVORE_BUS);
-        TalonFX driveMotor = new TalonFX(driveMotorId, CANIVORE_BUS);
+        DriveWheelAdapter<?> driveMotor = new DriveWheelAdapter<>(driveMotorIO, SdsSwerveModuleType.WHEEL_RADIUS,
+                MODULE_TYPE.driveRatio);
 
-        Slot0Configs steerMotorPid = new Slot0Configs().withKP(80);
-        Slot0Configs driveMotorPid = new Slot0Configs()
-                .withKV(BATTERY_VOLTAGE.in(Volts) / (KRAKEN_MAX_FREE_VELOCITY.in(RotationsPerSecond)));
 
-        return new SdsSwerveModuleIoReal(locationOffset, ModuleType.MK4I_L3, steerMotor, steerMotorPid,
-                driveMotor,
-                driveMotorPid, DRIVE_MOTOR_STATOR_CURRENT, DRIVE_MOTOR_SUPPLY_CURRENT,
-                canCoder, canCoderOffset);
+        return new DriveSteerSwerveModule(locationOffset, steerMotor,
+                driveMotor);    //TODO: need encoder
     }
 
     private static Pigeon2IoBase createGyro() {
@@ -124,13 +169,13 @@ public class SwerveDrive2026Practice extends SwerveDrive {
     private static Map<String, SwerveModule> createModules() {
         double swerveModuleX = Units.inchesToMeters(10.875);
         double swerveModuleY = Units.inchesToMeters(10.875);
-        SdsSwerveModuleIoBase frontLeft = createSwerveModule(1, 3, 2, Rotation2d.fromRadians(-0.904),
+        DriveSteerSwerveModule frontLeft = createSwerveModule(1, 3, 2, Rotation2d.fromRadians(-0.904),
                 new Translation2d(swerveModuleX, swerveModuleY));
-        SdsSwerveModuleIoBase frontRight = createSwerveModule(4, 6, 5, Rotation2d.fromRadians(1.729),
+        DriveSteerSwerveModule frontRight = createSwerveModule(4, 6, 5, Rotation2d.fromRadians(1.729),
                 new Translation2d(swerveModuleX, -swerveModuleY));
-        SdsSwerveModuleIoBase rearLeft = createSwerveModule(10, 12, 11, Rotation2d.fromRadians(-3.077),
+        DriveSteerSwerveModule rearLeft = createSwerveModule(10, 12, 11, Rotation2d.fromRadians(-3.077),
                 new Translation2d(-swerveModuleX, swerveModuleY));
-        SdsSwerveModuleIoBase rearRight = createSwerveModule(7, 9, 8, Rotation2d.fromRadians(0.873),
+        DriveSteerSwerveModule rearRight = createSwerveModule(7, 9, 8, Rotation2d.fromRadians(0.873),
                 new Translation2d(-swerveModuleX, -swerveModuleY));
         return Map.of("FrontLeft", frontLeft, "FrontRight", frontRight, "RearLeft", rearLeft, "RearRight", rearRight);
     }

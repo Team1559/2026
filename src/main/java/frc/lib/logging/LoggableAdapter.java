@@ -1,10 +1,10 @@
 package frc.lib.logging;
 
-public class LoggableAdaptor<T extends LoggableComponent> implements LoggableComponent {
+public class LoggableAdapter<T extends LoggableComponent> implements LoggableComponent {
     protected final T child;
     private boolean hasLogPath = false;
 
-    protected LoggableAdaptor(T child) {
+    protected LoggableAdapter(T child) {
         this.child = child;
     }
 
